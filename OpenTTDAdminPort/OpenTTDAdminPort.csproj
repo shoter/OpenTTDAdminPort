@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="RandomAnalyzers.RequiredMember" Version="1.0.0" />
+    <PackageReference Include="RandomAnalyzers.RequiredMember.Analyzer" Version="1.0.0" />
+  </ItemGroup>
+
+</Project>
