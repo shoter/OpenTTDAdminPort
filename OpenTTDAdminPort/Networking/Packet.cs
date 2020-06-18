@@ -4,7 +4,7 @@ using System.Text;
 
 namespace OpenTTDAdminPort.Networking
 {
-    public class Packet
+    internal class Packet
     {
         public ushort Size { get; private set; } = 2; // first 2 bytes are for size.
         public ushort Position { get; private set; } = 0;

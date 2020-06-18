@@ -1,23 +1,30 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using OpenTTDAdminPort.Common;
+using OpenTTDAdminPort.Events;
+using OpenTTDAdminPort.Messaging;
+using OpenTTDAdminPort.Networking;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace OpenTTDAdminPort
 {
     public class AdminPortClient : IAdminPortClient
     {
-        private TcpClient tcpClient;
+        private TcpClient? tcpClient;
         public AdminConnectionState ConnectionState { get; private set; }
 
         public ConcurrentDictionary<uint, Player> Players { get; } = new ConcurrentDictionary<uint, Player>();
 
-        public event EventHandler<IAdminEvent> EventReceived;
+        public event EventHandler<IAdminEvent>? EventReceived;
 
-        private readonly Microsoft.Extensions.Logging.ILogger logger;
+        private readonly Microsoft.Extensions.Logging.ILogger? logger;
 
         private readonly IAdminPacketService adminPacketService;
 
@@ -29,12 +36,14 @@ namespace OpenTTDAdminPort
 
         private DateTime lastMessageSentTime = DateTime.Now;
         private DateTime lastMessageReceivedTime = DateTime.Now;
-
         private Mutex startMutex = new Mutex();
 
+        private readonly string clientName;
+        private readonly string clientVersion;
 
 
-        private CancellationTokenSource cancellationTokenSource = null;
+
+        private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
         public ServerInfo ServerInfo { get; }
 
@@ -42,17 +51,26 @@ namespace OpenTTDAdminPort
 
 
         public AdminServerInfo AdminServerInfo { get; private set; } = new AdminServerInfo();
-        internal AdminPortClient(ServerInfo serverInfo, IAdminPacketService adminPacketService, IAdminMessageProcessor messageProcessor, ILogger<IAdminPortClient> logger)
+        internal AdminPortClient(ServerInfo serverInfo, IAdminPacketService adminPacketService, IAdminMessageProcessor messageProcessor, ILogger<IAdminPortClient>? logger)
         {
             this.ServerInfo = serverInfo;
             this.logger = logger;
             this.adminPacketService = adminPacketService;
             this.messageProcessor = messageProcessor;
+            this.clientName = "AdminPortClientInternal";
+            this.clientVersion = "1.0";
 
             foreach (var type in Enums.ToArray<AdminUpdateType>())
             {
                 this.AdminUpdateSettings.TryAdd(type, new AdminUpdateSetting(false, type, UpdateFrequency.ADMIN_FREQUENCY_AUTOMATIC));
             }
+        }
+
+        public AdminPortClient(ServerInfo serverInfo, string clientName, string clientVersion = "1.0.0", ILogger<IAdminPortClient>? logger = null)
+            : this(serverInfo, new AdminPacketService(), new AdminMessageProcessor(), logger)
+        {
+            this.clientName = clientName;
+            this.clientVersion = clientVersion;
         }
 
         private async void EventLoop(CancellationToken token)
@@ -69,12 +87,11 @@ namespace OpenTTDAdminPort
 
                 await Task.Delay(TimeSpan.FromSeconds(0.1));
             }
-
         }
 
         private async void MainLoop(CancellationToken token)
         {
-            Task<int> sizeTask = null;
+            Task<int>? sizeTask = null;
             byte[] sizeBuffer = new byte[2];
 
             while (token.IsCancellationRequested == false)
@@ -84,12 +101,10 @@ namespace OpenTTDAdminPort
                     if (this.ConnectionState == AdminConnectionState.NotConnected)
                     {
                         tcpClient = new TcpClient();
-                        tcpClient.ReceiveTimeout = 2000;
-                        tcpClient.SendTimeout = 2000;
                         lastMessageSentTime = DateTime.Now;
                         lastMessageReceivedTime = DateTime.Now;
                         tcpClient.Connect(ServerInfo.ServerIp, ServerInfo.ServerPort);
-                        this.SendMessage(new AdminJoinMessage(ServerInfo.Password, "OttdBot", "1.0.0"));
+                        this.SendMessage(new AdminJoinMessage(ServerInfo.Password, clientName, clientVersion));
                         logger.LogInformation($"{ServerInfo} Connecting");
 
                         this.ConnectionState = AdminConnectionState.Connecting;
@@ -105,7 +120,7 @@ namespace OpenTTDAdminPort
 
                     if (DateTime.Now - lastMessageReceivedTime > TimeSpan.FromMinutes(1))
                     {
-                        throw new OttdException("No messages received for 60 seconds!");
+                        throw new AdminPortException("No messages received for 60 seconds!");
                     }
 
                     for (int i = 0; i < 100; ++i)
@@ -131,7 +146,7 @@ namespace OpenTTDAdminPort
                             int bytes = await tcpClient.GetStream().ReadAsync(sizeBuffer, 1, 1).WaitMax(TimeSpan.FromSeconds(2));
                             if (bytes == 0)
                             {
-                                throw new OttdConnectionException("Something went wrong - restarting");
+                                throw new AdminPortException("Something went wrong - restarting");
                             }
 
                         }
@@ -155,7 +170,7 @@ namespace OpenTTDAdminPort
                             contentSize += task.Result;
                             if (task.Result == 0)
                             {
-                                throw new OttdConnectionException("No further data received in message!");
+                                throw new AdminPortException("No further data received in message!");
                             }
                         } while (contentSize < size);
 
@@ -171,7 +186,7 @@ namespace OpenTTDAdminPort
                         {
                             case AdminMessageType.ADMIN_PACKET_SERVER_PROTOCOL:
                                 {
-                                    var msg = message as AdminServerProtocolMessage;
+                                    var msg = (AdminServerProtocolMessage)message;
 
                                     foreach (var s in msg.AdminUpdateSettings)
                                     {
@@ -183,7 +198,7 @@ namespace OpenTTDAdminPort
                                 }
                             case AdminMessageType.ADMIN_PACKET_SERVER_WELCOME:
                                 {
-                                    var msg = message as AdminServerWelcomeMessage;
+                                    var msg = (AdminServerWelcomeMessage)message;
 
                                     AdminServerInfo = new AdminServerInfo()
                                     {
@@ -206,23 +221,23 @@ namespace OpenTTDAdminPort
                                 }
                             case AdminMessageType.ADMIN_PACKET_SERVER_CLIENT_INFO:
                                 {
-                                    var msg = message as AdminServerClientInfoMessage;
+                                    var msg = (AdminServerClientInfoMessage) message;
                                     var player = new Player(msg.ClientId, msg.ClientName);
-                                    this.Players.AddOrUpdate(msg.ClientId, player, (_, __) => player);
+                                    Players.AddOrUpdate(msg.ClientId, player, (_, __) => player);
 
                                     break;
                                 }
                             case AdminMessageType.ADMIN_PACKET_SERVER_CLIENT_UPDATE:
                                 {
-                                    var msg = message as AdminServerClientUpdateMessage;
-                                    var player = this.Players[msg.ClientId];
+                                    var msg = (AdminServerClientUpdateMessage)message ;
+                                    var player = Players[msg.ClientId];
                                     player.Name = msg.ClientName;
 
                                     break;
                                 }
                             default:
                                 {
-                                    var msg = message as AdminServerChatMessage;
+                                    var msg = (AdminServerChatMessage)message;
                                     this.receivedMessagesQueue.Enqueue(message);
                                     break;
                                 }
@@ -282,13 +297,13 @@ namespace OpenTTDAdminPort
                 {
                     this.cancellationTokenSource.Cancel();
                     this.cancellationTokenSource = new CancellationTokenSource();
-                    throw new OttdConnectionException("Admin port could not connect to the server");
+                    throw new AdminPortException("Admin port could not connect to the server");
                 }
             }
             catch (Exception e)
             {
                 this.ConnectionState = AdminConnectionState.Idle;
-                throw new OttdConnectionException("Could not join server", e);
+                throw new AdminPortException("Could not join server", e);
             }
         }
 
@@ -307,7 +322,7 @@ namespace OpenTTDAdminPort
             }
             catch (Exception e)
             {
-                throw new OttdConnectionException("Error during stopping server", e);
+                throw new AdminPortException("Error during stopping server", e);
             }
         }
 

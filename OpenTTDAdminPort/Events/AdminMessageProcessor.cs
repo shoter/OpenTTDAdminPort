@@ -10,7 +10,7 @@ namespace OpenTTDAdminPort.Events
      internal class AdminMessageProcessor : IAdminMessageProcessor
 
     {
-        public IAdminEvent ProcessMessage(IAdminMessage adminMessage, in IAdminPortClient client)
+        public IAdminEvent? ProcessMessage(IAdminMessage adminMessage, in IAdminPortClient client)
         {
             switch (adminMessage.MessageType)
             {

@@ -24,7 +24,6 @@ namespace OpenTTDAdminPort
         ServerInfo ServerInfo { get; }
 
         void SendMessage(IAdminMessage message);
-
         Task Join();
         Task Disconnect();
     }
