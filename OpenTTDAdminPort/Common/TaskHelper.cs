@@ -23,8 +23,8 @@ namespace OpenTTDAdminPort.Common
             return false;
         }
 
-        public static Task WaitMax(this Task task, [CallerMemberName] string callerName = null) => task.WaitMax(TimeSpan.FromSeconds(10), callerName);
-        public static async Task WaitMax(this Task task, TimeSpan waitTime, [CallerMemberName] string callerName = null)
+        public static Task WaitMax(this Task task, [CallerMemberName] string? callerName = null) => task.WaitMax(TimeSpan.FromSeconds(10), callerName);
+        public static async Task WaitMax(this Task task, TimeSpan waitTime, [CallerMemberName] string? callerName = null)
         {
             Task delayTask = Task.Delay(waitTime);
 
@@ -36,10 +36,10 @@ namespace OpenTTDAdminPort.Common
             }
         }
 
-        public static Task<T> WaitMax<T>(this Task<T> task, [CallerMemberName] string callerName = null) => task.WaitMax(TimeSpan.FromSeconds(10), callerName);
+        public static Task<T> WaitMax<T>(this Task<T> task, [CallerMemberName] string? callerName = null) => task.WaitMax(TimeSpan.FromSeconds(10), callerName);
 
 
-        public static async Task<T> WaitMax<T>(this Task<T> task, TimeSpan waitTime, [CallerMemberName] string callerName = null)
+        public static async Task<T> WaitMax<T>(this Task<T> task, TimeSpan waitTime, [CallerMemberName] string? callerName = null)
         {
             Task delayTask = Task.Delay(waitTime);
 

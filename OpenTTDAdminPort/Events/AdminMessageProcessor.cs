@@ -16,7 +16,7 @@ namespace OpenTTDAdminPort.Events
             {
                 case AdminMessageType.ADMIN_PACKET_SERVER_CHAT:
                     {
-                        var msg = adminMessage as AdminServerChatMessage;
+                        var msg = (AdminServerChatMessage)adminMessage;
                         if (msg.NetworkAction != NetworkAction.NETWORK_ACTION_SERVER_MESSAGE)
                             return null;
                         var player = client.Players[msg.ClientId];
@@ -25,19 +25,19 @@ namespace OpenTTDAdminPort.Events
                     }
                 case AdminMessageType.ADMIN_PACKET_SERVER_CONSOLE:
                     {
-                        var msg = adminMessage as AdminServerConsoleMessage;
+                        var msg = (AdminServerConsoleMessage)adminMessage;
 
                         return new AdminConsoleEvent(client.ServerInfo, msg.Origin, msg.Message);
                     }
                 case AdminMessageType.ADMIN_PACKET_SERVER_RCON:
                     {
-                        var msg = adminMessage as AdminServerRconMessage;
+                        var msg = (AdminServerRconMessage)adminMessage;
 
                         return new AdminRconEvent(client.ServerInfo, msg.Result);
                     }
                 case AdminMessageType.ADMIN_PACKET_SERVER_PONG:
                     {
-                        var msg = adminMessage as AdminServerPongMessage;
+                        var msg = (AdminServerPongMessage)adminMessage;
 
                         return new AdminPongEvent(client.ServerInfo, msg.Argument);
                     }
