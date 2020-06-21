@@ -1,5 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <PropertyGroup Label="Nuget related settings">
+    <Authors>Shoter</Authors>
+    <Description>Library providing client to communicate with OpenTTD Admin Port.</Description>
+    <PackageTags>OpenTTD AdminPort</PackageTags>
+
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/shoter/OpenTTDAdminPort</RepositoryUrl>
+
+    <LibraryVersion>0.0.1</LibraryVersion>
+    <Version>$(LibraryVersion)</Version>
+    <AssemblyVersion>$(LibraryVersion)</AssemblyVersion>
+    <FileVersion>$(LibraryVersion)</FileVersion>
+    
+    
+  </PropertyGroup> 
+
+  <PropertyGroup Label="Nuget related settings">
+    
+  </PropertyGroup> 
+
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <Nullable>enable</Nullable>

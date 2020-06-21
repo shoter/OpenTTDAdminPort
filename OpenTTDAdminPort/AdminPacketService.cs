@@ -1,4 +1,5 @@
-﻿using OpenTTDAdminPort.Messaging;
+﻿using OpenTTDAdminPort.Common;
+using OpenTTDAdminPort.Messaging;
 using OpenTTDAdminPort.Networking;
 using System;
 using System.Collections.Generic;
@@ -145,7 +146,7 @@ namespace OpenTTDAdminPort
 
                 case AdminMessageType.ADMIN_PACKET_SERVER_CLIENT_QUIT:
                     {
-                        return new AdminServerClientQuit(packet.ReadU32());
+                        return new AdminServerClientQuitMessage(packet.ReadU32());
                     }
                 case AdminMessageType.ADMIN_PACKET_SERVER_CLIENT_ERROR:
                     {

@@ -2,7 +2,7 @@
 
 namespace OpenTTDAdminPort.Messaging
 {
-    internal class AdminServerClientInfoMessage
+    internal class AdminServerClientInfoMessage : IAdminMessage
     {
         public AdminMessageType MessageType => AdminMessageType.ADMIN_PACKET_SERVER_CLIENT_INFO;
 
