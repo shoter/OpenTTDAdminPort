@@ -20,7 +20,7 @@ namespace OpenTTDAdminPort
             {
                 case AdminMessageType.ADMIN_PACKET_ADMIN_JOIN:
                     {
-                        var msg = message as AdminJoinMessage;
+                        var msg = (AdminJoinMessage)message;
                         packet.SendString(msg.Password, 33);
                         packet.SendString(msg.AdminName, 25);
                         packet.SendString(msg.AdminVersion, 33);
@@ -29,7 +29,7 @@ namespace OpenTTDAdminPort
 
                 case AdminMessageType.ADMIN_PACKET_ADMIN_POLL:
                     {
-                        var msg = message as AdminPollMessage;
+                        var msg = (AdminPollMessage)message;
                         packet.SendByte((byte)msg.UpdateType);
                         packet.SendU32(msg.Argument);
 
@@ -38,7 +38,7 @@ namespace OpenTTDAdminPort
 
                 case AdminMessageType.ADMIN_PACKET_ADMIN_UPDATE_FREQUENCY:
                     {
-                        var msg = message as AdminUpdateFrequencyMessage;
+                        var msg = (AdminUpdateFrequencyMessage)message;
                         packet.SendU16((ushort)msg.UpdateType);
                         packet.SendU16((ushort)msg.UpdateFrequency);
                         break;
@@ -46,7 +46,7 @@ namespace OpenTTDAdminPort
 
                 case AdminMessageType.ADMIN_PACKET_ADMIN_CHAT:
                     {
-                        var msg = message as AdminChatMessage;
+                        var msg = (AdminChatMessage)message;
                         packet.SendByte((byte)msg.NetworkAction);
                         packet.SendByte((byte)msg.ChatDestination);
                         packet.SendU32(msg.Destination);
@@ -57,14 +57,14 @@ namespace OpenTTDAdminPort
 
                 case AdminMessageType.ADMIN_PACKET_ADMIN_RCON:
                     {
-                        var msg = message as AdminRconMessage;
+                        var msg = (AdminRconMessage)message;
                         packet.SendString(msg.Command, 500);
                         break;
                     }
 
                 case AdminMessageType.ADMIN_PACKET_ADMIN_PING:
                     {
-                        var msg = message as AdminPingMessage;
+                        var msg = (AdminPingMessage)message;
                         packet.SendU32(msg.Argument);
                         break;
                     }
