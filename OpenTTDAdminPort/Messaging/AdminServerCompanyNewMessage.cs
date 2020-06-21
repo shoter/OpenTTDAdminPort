@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace OpenTTDAdminPort.Messaging
 {
-    public class AdminServerCompanyNewMessage : IAdminMessage
+    internal class AdminServerCompanyNewMessage : IAdminMessage
     {
         public AdminMessageType MessageType => AdminMessageType.ADMIN_PACKET_SERVER_COMPANY_NEW;
 

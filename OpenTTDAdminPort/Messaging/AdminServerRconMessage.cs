@@ -1,6 +1,6 @@
 ﻿namespace OpenTTDAdminPort.Messaging
 {
-    public class AdminServerRconMessage : IAdminMessage
+    internal class AdminServerRconMessage : IAdminMessage
     {
         public AdminMessageType MessageType => AdminMessageType.ADMIN_PACKET_SERVER_RCON;
 

@@ -2,7 +2,7 @@
 
 namespace OpenTTDAdminPort.Messaging
 {
-    public class AdminServerProtocolMessage : IAdminMessage
+    internal class AdminServerProtocolMessage : IAdminMessage
     {
         public AdminMessageType MessageType => AdminMessageType.ADMIN_PACKET_SERVER_PROTOCOL;
 

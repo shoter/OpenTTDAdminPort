@@ -1,6 +1,6 @@
 ﻿namespace OpenTTDAdminPort.Messaging
 {
-    public class AdminServerClientErrorMessage : IAdminMessage
+    internal class AdminServerClientErrorMessage : IAdminMessage
     {
         public AdminMessageType MessageType => AdminMessageType.ADMIN_PACKET_SERVER_CLIENT_ERROR;
 

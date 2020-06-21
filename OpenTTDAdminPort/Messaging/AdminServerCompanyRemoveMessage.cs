@@ -1,6 +1,6 @@
 ﻿namespace OpenTTDAdminPort.Messaging
 {
-    public class AdminServerCompanyRemoveMessage : IAdminMessage
+    internal class AdminServerCompanyRemoveMessage : IAdminMessage
     {
         public AdminMessageType MessageType => AdminMessageType.ADMIN_PACKET_SERVER_COMPANY_REMOVE;
 

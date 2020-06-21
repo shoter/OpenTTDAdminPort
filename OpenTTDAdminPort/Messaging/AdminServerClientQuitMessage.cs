@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace OpenTTDAdminPort.Messaging
 {
-    public class AdminServerClientQuitMessage : IAdminMessage
+    internal class AdminServerClientQuitMessage : IAdminMessage
     {
         public AdminMessageType MessageType => AdminMessageType.ADMIN_PACKET_SERVER_CLIENT_QUIT;
 
