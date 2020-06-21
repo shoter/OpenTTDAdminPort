@@ -1,4 +1,5 @@
-﻿using RandomAnalyzers.RequiredMember;
+﻿using OpenTTDAdminPort.Common;
+using RandomAnalyzers.RequiredMember;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,21 +8,21 @@ using System.Threading.Tasks;
 
 namespace OpenTTDAdminPort.Messaging
 {
-    public class AdminServerWelcomeMessage : IAdminMessage
+    internal class AdminServerWelcomeMessage : IAdminMessage
     {
         public AdminMessageType MessageType => AdminMessageType.ADMIN_PACKET_SERVER_WELCOME;
 
         [RequiredMember]
-        public string ServerName { get; set; }
+        public string? ServerName { get; set; }
 
         [RequiredMember]
-        public string NetworkRevision { get; set; }
+        public string? NetworkRevision { get; set; }
 
         [RequiredMember]
         public bool IsDedicated { get; set; }
 
         [RequiredMember]
-        public string MapName { get; set; }
+        public string? MapName { get; set; }
 
         [RequiredMember]
         public uint MapSeed { get; set; }
@@ -30,7 +31,7 @@ namespace OpenTTDAdminPort.Messaging
         public Landscape Landscape { get; set; }
 
         [RequiredMember]
-        public OttdDate CurrentDate { get; set; }
+        public OttdDate? CurrentDate { get; set; }
 
         [RequiredMember]
         public ushort MapWidth { get; set; }
