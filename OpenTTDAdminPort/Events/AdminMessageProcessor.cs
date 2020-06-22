@@ -1,4 +1,5 @@
-﻿using OpenTTDAdminPort.Messaging;
+﻿using OpenTTDAdminPort.Game;
+using OpenTTDAdminPort.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Linq;

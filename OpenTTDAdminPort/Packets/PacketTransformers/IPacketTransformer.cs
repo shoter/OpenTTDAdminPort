@@ -35,6 +35,6 @@ namespace OpenTTDAdminPort.Packets.PacketTransformers
         /// </summary>
         /// <param name="packet">The packet that can be transformed into <see cref="TAdminMessage"/></param>
         /// <returns>Transformed message in proper type.</returns>
-        TAdminMessage TransformTyped(Packet packet) => (TAdminMessage)Transform(packet);
+        sealed TAdminMessage TransformTyped(Packet packet) => (TAdminMessage)Transform(packet);
     }
 }

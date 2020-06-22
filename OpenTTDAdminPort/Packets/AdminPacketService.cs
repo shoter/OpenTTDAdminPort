@@ -1,6 +1,7 @@
 ﻿using OpenTTDAdminPort.Assemblies;
 using OpenTTDAdminPort.Common;
 using OpenTTDAdminPort.Common.Assemblies;
+using OpenTTDAdminPort.Game;
 using OpenTTDAdminPort.Messaging;
 using OpenTTDAdminPort.Networking;
 using OpenTTDAdminPort.Packets.MessageTransformers;
