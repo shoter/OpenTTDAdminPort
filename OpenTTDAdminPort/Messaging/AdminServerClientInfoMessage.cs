@@ -1,4 +1,5 @@
-﻿using RandomAnalyzers.RequiredMember;
+﻿using OpenTTDAdminPort.Game;
+using RandomAnalyzers.RequiredMember;
 
 namespace OpenTTDAdminPort.Messaging
 {
