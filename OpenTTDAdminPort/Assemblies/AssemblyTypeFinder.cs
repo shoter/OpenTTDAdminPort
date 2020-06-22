@@ -52,7 +52,6 @@ namespace OpenTTDAdminPort.Common.Assemblies
                     return false;
 
             return allMatching;
-
         }
     }
 }

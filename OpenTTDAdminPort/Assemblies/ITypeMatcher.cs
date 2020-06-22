@@ -2,7 +2,7 @@
 
 namespace OpenTTDAdminPort.Assemblies
 {
-    internal interface IAssemblyTypeMatcher
+    internal interface ITypeMatcher
     {
         bool IsMatching(Type type);
     }

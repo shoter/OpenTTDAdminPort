@@ -6,11 +6,20 @@ using System.Threading.Tasks;
 
 namespace OpenTTDAdminPort.Assemblies
 {
+    /// <summary>
+    /// Checks if given type is implementing given interface.
+    /// </summary>
     internal class ImplementsTypeMatcher : ITypeMatcher
     {
         private Type[] genericArguments;
         private Type interfaceType;
 
+        /// <summary>
+        /// Constructs this class
+        /// </summary>
+        /// <param name="interfaceType">Type of interface for which we will be checking if given type implements the interface</param>
+        /// <param name="genericArguments">If <see cref="interfaceType"/> is generic interface then <see cref="genericArguments"/> will be used to check if generic arguments
+        /// or interface are the same and in the same order. If empty then not used even for generic <see cref="interfaceType"/></param>
         public ImplementsTypeMatcher(Type interfaceType, params Type[] genericArguments)
         {
             this.genericArguments = genericArguments;
@@ -23,42 +32,45 @@ namespace OpenTTDAdminPort.Assemblies
 
         public static ImplementsTypeMatcher Create<TInterface, T1, T2>() => new ImplementsTypeMatcher(typeof(TInterface), typeof(T1), typeof(T2));
 
-        public bool IsMatching(Type type)
+        public bool IsMatching(Type type) => type.GetInterfaces().Any(this.IsMatchingInterface);
+
+        private bool IsMatchingInterface(Type interf)
         {
-            bool isCorrect = false;
-
-            foreach(Type i in type.GetInterfaces())
+            if (!interf.IsInterface)
+                return false;
+            if (interf != interfaceType)
+                return false;
+            if (interf.IsGenericType && genericArguments.Any())
             {
-                if (!i.IsInterface)
-                    continue;
-                if (i != interfaceType)
-                    continue;
-                if(i.IsGenericType && genericArguments.Any())
-                {
-                    Type[] genericArguments = i.GetGenericArguments();
-
-                    if (genericArguments.Length != genericArguments.Length)
-                        break;
-
-                    bool isCorrectGenericArguments = true;
-                    for(int j = 0;j < genericArguments.Length; ++j)
-                    {
-                        if (genericArguments[j] != this.genericArguments[j])
-                        {
-                            isCorrectGenericArguments = false;
-                            break;
-                        }
-
-                    }
-                    if (!isCorrectGenericArguments)
-                        break;
-                }
-
-                isCorrect = true;
-                break;
+                if (!HasCorrectGenericArguments(interf.GetGenericArguments(), this.genericArguments))
+                    return false;
             }
 
-            return isCorrect;
+            return true;
+        }
+
+        /// <summary>
+        /// Determines whether genericArguments are of the same type as interface generic arguments.
+        /// </summary>
+        /// <param name="interfaceGenericArguments">The interface generic arguments.</param>
+        /// <param name="genericArguments">The generic arguments.</param>
+        /// <returns>
+        /// False if there is different number of generic arguments compared to interface arguments or when there is type mismatch for given generic argument.
+        /// </returns>
+        private static bool HasCorrectGenericArguments(Type[] interfaceGenericArguments, Type[] genericArguments)
+        {
+            if (interfaceGenericArguments.Length != genericArguments.Length)
+                return false;
+
+            for (int j = 0; j < interfaceGenericArguments.Length; ++j)
+            {
+                if (interfaceGenericArguments[j] != genericArguments[j])
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }
