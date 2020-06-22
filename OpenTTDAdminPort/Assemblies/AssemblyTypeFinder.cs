@@ -32,26 +32,7 @@ namespace OpenTTDAdminPort.Common.Assemblies
             IEnumerable<Type> types = assembly.GetTypes()
               .Where(t => String.Equals(t.Namespace, namespaceName, StringComparison.Ordinal));
 
-            List<Type> ret = new List<Type>();
-
-            foreach(var type in types)
-            {
-                if(AreAllTypeMatchersMatching(type, typeMatchers))
-                    ret.Add(type);
-            }
-
-            return ret;
-        }
-
-        private static bool AreAllTypeMatchersMatching(Type type, IEnumerable<ITypeMatcher> matchers)
-        {
-            bool allMatching = true;
-
-            foreach (var m in matchers)
-                if (!m.IsMatching(type))
-                    return false;
-
-            return allMatching;
+            return types.Where(type => typeMatchers.All(tm => tm.IsMatching(type)));
         }
     }
 }
