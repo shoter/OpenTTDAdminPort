@@ -13,7 +13,6 @@
     <AssemblyVersion>$(LibraryVersion)</AssemblyVersion>
     <FileVersion>$(LibraryVersion)</FileVersion>
     
-    
   </PropertyGroup> 
 
   <PropertyGroup Label="Nuget related settings">

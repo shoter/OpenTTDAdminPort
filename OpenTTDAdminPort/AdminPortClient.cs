@@ -57,7 +57,7 @@ namespace OpenTTDAdminPort
             this.logger = logger;
             this.adminPacketService = adminPacketService;
             this.messageProcessor = messageProcessor;
-            this.clientName = "AdminPortClientInternal";
+            this.clientName = "AdminPortClient_csharp";
             this.clientVersion = "1.0";
 
             foreach (var type in Enums.ToArray<AdminUpdateType>())
@@ -66,11 +66,9 @@ namespace OpenTTDAdminPort
             }
         }
 
-        public AdminPortClient(ServerInfo serverInfo, string clientName, string clientVersion = "1.0.0", ILogger<IAdminPortClient>? logger = null)
+        public AdminPortClient(ServerInfo serverInfo, ILogger<IAdminPortClient>? logger = null)
             : this(serverInfo, new AdminPacketService(), new AdminMessageProcessor(), logger)
         {
-            this.clientName = clientName;
-            this.clientVersion = clientVersion;
         }
 
         private async void EventLoop(CancellationToken token)
