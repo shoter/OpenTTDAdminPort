@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace OpenTTDAdminPort.Common
+namespace OpenTTDAdminPort.Game
 {
     public enum Landscape
     {
