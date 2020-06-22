@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OpenTTDAdminPort
+namespace OpenTTDAdminPort.Packets
 {
     internal interface IAdminPacketService
     {

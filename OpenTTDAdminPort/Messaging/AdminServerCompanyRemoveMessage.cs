@@ -1,4 +1,6 @@
-﻿namespace OpenTTDAdminPort.Messaging
+﻿using OpenTTDAdminPort.Game;
+
+namespace OpenTTDAdminPort.Messaging
 {
     internal class AdminServerCompanyRemoveMessage : IAdminMessage
     {

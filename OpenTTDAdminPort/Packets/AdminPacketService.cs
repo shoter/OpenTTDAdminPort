@@ -1,17 +1,32 @@
-﻿using OpenTTDAdminPort.Common;
+﻿using OpenTTDAdminPort.Assemblies;
+using OpenTTDAdminPort.Common;
+using OpenTTDAdminPort.Common.Assemblies;
 using OpenTTDAdminPort.Messaging;
 using OpenTTDAdminPort.Networking;
+using OpenTTDAdminPort.Packets.MessageTransformers;
+using OpenTTDAdminPort.Packets.PacketTransformers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OpenTTDAdminPort
+namespace OpenTTDAdminPort.Packets
 {
     internal class AdminPacketService : IAdminPacketService
     {
-        public Packet CreatePacket(IAdminMessage message)
+        private Dictionary<AdminMessageType, IPacketTransformer> packetReaders { get; } = new Dictionary<AdminMessageType, IPacketTransformer>();
+        private Dictionary<AdminMessageType, IMessageTransformer> packetCreators { get; } = new Dictionary<AdminMessageType, IMessageTransformer>();
+
+
+        public AdminPacketService(IEnumerable<IPacketTransformer> packetTransformers, IEnumerable<IMessageTransformer> messageTransformers)
+        {
+            packetReaders = packetTransformers.ToDictionary(pt => pt.SupportedMessageType);
+            packetCreators = messageTransformers.ToDictionary(mt => mt.SupportedMessageType);
+        }
+
+        public Packet CreatePacket(IAdminMessage message)// => packetCreators[message.MessageType].Transform(message);
         {
             Packet packet = new Packet();
             packet.SendByte((byte)message.MessageType);
@@ -84,6 +99,7 @@ namespace OpenTTDAdminPort
         public IAdminMessage ReadPacket(Packet packet)
         {
             var type = (AdminMessageType)packet.ReadByte();
+            return this.packetReaders[type].Transform(packet);
             switch (type)
             {
                 case AdminMessageType.ADMIN_PACKET_SERVER_PROTOCOL:

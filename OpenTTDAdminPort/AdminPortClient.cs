@@ -5,13 +5,11 @@ using OpenTTDAdminPort.Messaging;
 using OpenTTDAdminPort.Networking;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Collections;
-using System.Linq;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using OpenTTDAdminPort.Packets;
+using OpenTTDAdminPort.Game;
 
 namespace OpenTTDAdminPort
 {
@@ -51,11 +49,13 @@ namespace OpenTTDAdminPort
 
 
         public AdminServerInfo AdminServerInfo { get; private set; } = new AdminServerInfo();
-        internal AdminPortClient(ServerInfo serverInfo, IAdminPacketService adminPacketService, IAdminMessageProcessor messageProcessor, ILogger<IAdminPortClient>? logger)
+        internal AdminPortClient(ServerInfo serverInfo, IAdminMessageProcessor messageProcessor, ILogger<IAdminPortClient>? logger)
         {
+            var adminPacketServiceFactory = new AdminPacketServiceFactory();
+
             this.ServerInfo = serverInfo;
             this.logger = logger;
-            this.adminPacketService = adminPacketService;
+            this.adminPacketService = adminPacketServiceFactory.Create();
             this.messageProcessor = messageProcessor;
             this.clientName = "AdminPortClient_csharp";
             this.clientVersion = "1.0";
@@ -63,11 +63,11 @@ namespace OpenTTDAdminPort
             foreach (var type in Enums.ToArray<AdminUpdateType>())
             {
                 this.AdminUpdateSettings.TryAdd(type, new AdminUpdateSetting(false, type, UpdateFrequency.ADMIN_FREQUENCY_AUTOMATIC));
-            }
+            }   
         }
 
         public AdminPortClient(ServerInfo serverInfo, ILogger<IAdminPortClient>? logger = null)
-            : this(serverInfo, new AdminPacketService(), new AdminMessageProcessor(), logger)
+            : this(serverInfo,  new AdminMessageProcessor(), logger)
         {
         }
 

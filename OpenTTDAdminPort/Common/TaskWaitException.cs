@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 
 namespace OpenTTDAdminPort.Common
 {
-    public class TaskWaitException : Exception
+    internal class TaskWaitException : Exception
     {
         public TaskWaitException()
         {

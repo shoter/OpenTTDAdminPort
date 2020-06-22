@@ -8,26 +8,27 @@
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/shoter/OpenTTDAdminPort</RepositoryUrl>
 
-    <LibraryVersion>0.0.1</LibraryVersion>
+    <LibraryVersion>0.0.4</LibraryVersion>
     <Version>$(LibraryVersion)</Version>
     <AssemblyVersion>$(LibraryVersion)</AssemblyVersion>
     <FileVersion>$(LibraryVersion)</FileVersion>
     
   </PropertyGroup> 
 
-  <PropertyGroup Label="Nuget related settings">
-    
-  </PropertyGroup> 
-
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <Nullable>enable</Nullable>
+    <IgnoreDevDependencies Condition="'$(IgnoreDevDependencies)'==''">False</IgnoreDevDependencies>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.5" />
     <PackageReference Include="RandomAnalyzers.RequiredMember" Version="1.0.0" />
+  </ItemGroup>
+
+  <ItemGroup Label="I do not need those inside my nuget dependencies. Too much dependencies is not good." Condition="'$(IgnoreDevDependencies)'=='False'">
     <PackageReference Include="RandomAnalyzers.RequiredMember.Analyzer" Version="1.0.0" />
   </ItemGroup>
+
 
 </Project>

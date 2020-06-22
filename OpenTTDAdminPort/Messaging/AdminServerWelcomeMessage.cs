@@ -1,4 +1,5 @@
 ﻿using OpenTTDAdminPort.Common;
+using OpenTTDAdminPort.Game;
 using RandomAnalyzers.RequiredMember;
 using System;
 using System.Collections.Generic;
