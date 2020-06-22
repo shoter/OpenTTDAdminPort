@@ -13,7 +13,7 @@ namespace OpenTTDAdminPort.Common.Assemblies
         private string namespaceName;
         private Assembly assembly;
 
-        private List<IAssemblyTypeMatcher> typeFilters = new List<IAssemblyTypeMatcher>();
+        private List<ITypeMatcher> typeMatchers = new List<ITypeMatcher>();
 
         public AssemblyTypeFinder(Assembly assembly, string namespaceName)
         {
@@ -21,9 +21,9 @@ namespace OpenTTDAdminPort.Common.Assemblies
             this.assembly = assembly;
         }
 
-        public AssemblyTypeFinder WithTypeFilter(IAssemblyTypeMatcher typeFilter)
+        public AssemblyTypeFinder WithTypeMatcher(ITypeMatcher typeFilter)
         {
-            this.typeFilters.Add(typeFilter);
+            this.typeMatchers.Add(typeFilter);
             return this;
         }
 
@@ -36,21 +36,23 @@ namespace OpenTTDAdminPort.Common.Assemblies
 
             foreach(var type in types)
             {
-                bool canAdd = true;
-                foreach(var f in typeFilters)
-                {
-                    if(!f.IsMatching(type))
-                    {
-                        canAdd = false;
-                        break;
-                    }
-                }
-
-                if (canAdd)
+                if(AreAllTypeMatchersMatching(type, typeMatchers))
                     ret.Add(type);
             }
 
             return ret;
+        }
+
+        private static bool AreAllTypeMatchersMatching(Type type, IEnumerable<ITypeMatcher> matchers)
+        {
+            bool allMatching = true;
+
+            foreach (var m in matchers)
+                if (!m.IsMatching(type))
+                    return false;
+
+            return allMatching;
+
         }
     }
 }
