@@ -1,5 +1,5 @@
 ﻿using OpenTTDAdminPort.Game;
-using OpenTTDAdminPort.Messaging;
+using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Networking;
 
 namespace OpenTTDAdminPort.Packets.PacketTransformers

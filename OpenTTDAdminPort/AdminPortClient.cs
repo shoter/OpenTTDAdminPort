@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using OpenTTDAdminPort.Common;
 using OpenTTDAdminPort.Events;
-using OpenTTDAdminPort.Messaging;
+using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Networking;
 using System;
 using System.Collections.Concurrent;

@@ -1,6 +1,6 @@
 ﻿using OpenTTDAdminPort.Events;
 using OpenTTDAdminPort.Game;
-using OpenTTDAdminPort.Messaging;
+using OpenTTDAdminPort.Messages;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;

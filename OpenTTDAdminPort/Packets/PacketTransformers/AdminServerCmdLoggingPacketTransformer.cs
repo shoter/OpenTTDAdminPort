@@ -1,4 +1,4 @@
-﻿using OpenTTDAdminPort.Messaging;
+﻿using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Networking;
 using System;
 using System.Collections.Generic;

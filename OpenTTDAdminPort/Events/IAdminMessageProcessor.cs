@@ -1,4 +1,4 @@
-﻿using OpenTTDAdminPort.Messaging;
+﻿using OpenTTDAdminPort.Messages;
 
 namespace OpenTTDAdminPort.Events
 {
