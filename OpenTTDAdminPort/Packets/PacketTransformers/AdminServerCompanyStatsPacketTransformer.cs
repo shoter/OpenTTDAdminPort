@@ -11,7 +11,7 @@ namespace OpenTTDAdminPort.Packets.PacketTransformers
 
         public IAdminMessage Transform(Packet packet)
         {
-            var companyStats = new Dictionary<ushort, AdminServerCompanyStatsMessage.AdminServerCompanyStats>();
+            var companyStats = new Dictionary<byte, AdminServerCompanyStatsMessage.AdminServerCompanyStats>();
 
             while(packet.Position < packet.Size) // why the fuck they are not sending number of companies - this stinks of being unreliable.
             {

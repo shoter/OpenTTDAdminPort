@@ -24,6 +24,7 @@ namespace OpenTTDAdminPort.Networking
             byte[] bytes = BitConverter.GetBytes(Size);
             this.Buffer[0] = bytes[0];
             this.Buffer[1] = bytes[1];
+            this.Position = 2;
         }
 
         public void SendByte(byte value)
