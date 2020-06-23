@@ -15,12 +15,12 @@ namespace OpenTTDAdminPort.Packets
     {
         internal IAdminPacketService Create()
         {
-            IEnumerable<Type> packetTransformerTypes = new AssemblyTypeFinder(Assembly.GetExecutingAssembly(), GetType().Namespace)
+            IEnumerable<Type> packetTransformerTypes = new AssemblyTypeFinder(Assembly.GetExecutingAssembly(), $"{GetType().Namespace}.PacketTransformers")
                 .WithTypeMatcher(new ClassTypeMatcher())
                 .WithTypeMatcher(ImplementsTypeMatcher.Create<IPacketTransformer>())
                 .Find();
 
-            IEnumerable<Type> messageTransformerTypes = new AssemblyTypeFinder(Assembly.GetExecutingAssembly(), GetType().Namespace)
+            IEnumerable<Type> messageTransformerTypes = new AssemblyTypeFinder(Assembly.GetExecutingAssembly(), $"{GetType().Namespace}.MessageTransformers")
             .WithTypeMatcher(new ClassTypeMatcher())
             .WithTypeMatcher(ImplementsTypeMatcher.Create<IMessageTransformer>())
             .Find();
