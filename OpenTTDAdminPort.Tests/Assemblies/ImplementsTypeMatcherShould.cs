@@ -43,7 +43,7 @@ namespace OpenTTDAdminPort.Tests.Assemblies
                 if (matcher.IsMatching(it) && !expectedTypes.Contains(it))
                     throw new Exception($"Matcher is matching {it} when it is not on the expected types list");
 
-                if (!matcher.IsMatching(it) && expectedTypes.Contains(it))
+                else if (!matcher.IsMatching(it) && expectedTypes.Contains(it))
                     throw new Exception($"Matcher is NOT matching {it} when it is on the expected types list");
 
             }

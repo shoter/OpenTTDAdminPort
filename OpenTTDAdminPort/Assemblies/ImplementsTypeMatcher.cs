@@ -38,7 +38,7 @@ namespace OpenTTDAdminPort.Assemblies
         {
             if (!interf.IsInterface)
                 return false;
-            if (interf != interfaceType)
+            if (interf.GUID != interfaceType.GUID)
                 return false;
             if (interf.IsGenericType && genericArguments.Any())
             {
@@ -64,13 +64,25 @@ namespace OpenTTDAdminPort.Assemblies
 
             for (int j = 0; j < interfaceGenericArguments.Length; ++j)
             {
-                if (interfaceGenericArguments[j] != genericArguments[j])
+                if (interfaceGenericArguments[j].GUID != genericArguments[j].GUID)
                 {
-                    return false;
+                    if (interfaceGenericArguments[j].GetInterfaces().Length == 0)
+                        return false;
+                    return IsImplementing(interfaceGenericArguments[j], genericArguments[j]);
                 }
             }
-
             return true;
         }
+
+        public static bool IsImplementing(Type who, Type what)
+        {
+            foreach (var i in who.GetInterfaces())
+            {
+                if (i.GUID == what.GUID)
+                    return true;
+            }
+            return false;
+        }
+
     }
 }
