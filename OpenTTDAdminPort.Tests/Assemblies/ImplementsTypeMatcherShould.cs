@@ -11,7 +11,7 @@ namespace OpenTTDAdminPort.Tests.Assemblies
 {
     public class ImplementsTypeMatcherShould
     {
-        Type[] inputTypes = new Type[] { typeof(Cat), typeof(Dog), typeof(IAlienAnimal), typeof(IFurniture), typeof(Table), typeof(Chair), typeof(IAnimal), typeof(IFurnitureBox<>), typeof(GenericFurnitureBox<>) };
+        List<Type> inputTypes = new List<Type>{ typeof(Cat), typeof(Dog), typeof(IAlienAnimal), typeof(IFurniture), typeof(Table), typeof(Chair), typeof(IAnimal), typeof(IFurnitureBox<>) };
 
         [Fact]
         public void FindOnlyTypesThatAreImplementingGivenInterface()
@@ -32,11 +32,50 @@ namespace OpenTTDAdminPort.Tests.Assemblies
         }
 
         [Fact]
-        public void BeAbleToFindGenericTypeWithArguments_WhenNoArgumentsWerePassed()
+        public void BeAbleToFindGenericTypeWithArgumentThatIsAlsoGeneric_WhenInterfaceOfGenericArgumentWasPassed()
         {
             var matcher = new ImplementsTypeMatcher(typeof(IFurnitureBox<>), typeof(IFurniture));
 
             Type[] expectedTypes = new Type[] { typeof(GenericFurnitureBox<>) };
+            inputTypes.Add(typeof(GenericFurnitureBox<>));
+
+            foreach (var it in inputTypes)
+            {
+                if (matcher.IsMatching(it) && !expectedTypes.Contains(it))
+                    throw new Exception($"Matcher is matching {it} when it is not on the expected types list");
+
+                else if (!matcher.IsMatching(it) && expectedTypes.Contains(it))
+                    throw new Exception($"Matcher is NOT matching {it} when it is on the expected types list");
+
+            }
+        }
+
+        [Fact]
+        public void BeAbleToMatchGenericParameterWhichIsConcreteType_WhenInterfaceOfThisConcreteTypeWasPassed()
+        {
+            var matcher = new ImplementsTypeMatcher(typeof(IFurnitureBox<>), typeof(IFurniture));
+
+            Type[] expectedTypes = new Type[] { typeof(ChairBox) };
+            inputTypes.Add(typeof(ChairBox));
+
+            foreach (var it in inputTypes)
+            {
+                if (matcher.IsMatching(it) && !expectedTypes.Contains(it))
+                    throw new Exception($"Matcher is matching {it} when it is not on the expected types list");
+
+                else if (!matcher.IsMatching(it) && expectedTypes.Contains(it))
+                    throw new Exception($"Matcher is NOT matching {it} when it is on the expected types list");
+
+            }
+        }
+
+        [Fact]
+        public void BeAbleToMatchGenericParameterWhichIsConcreteType_WhenConcreteTypeWasPassed()
+        {
+            var matcher = new ImplementsTypeMatcher(typeof(IFurnitureBox<>), typeof(Chair));
+
+            Type[] expectedTypes = new Type[] { typeof(ChairBox) };
+            inputTypes.Add(typeof(ChairBox));
 
             foreach (var it in inputTypes)
             {
