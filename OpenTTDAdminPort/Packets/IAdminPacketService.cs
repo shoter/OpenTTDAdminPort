@@ -10,7 +10,7 @@ namespace OpenTTDAdminPort.Packets
 {
     internal interface IAdminPacketService
     {
-        Packet CreatePacket(IAdminMessage message);
+        Packet CreatePacket(in IAdminMessage message);
         IAdminMessage ReadPacket(Packet packet);
     }
 }
