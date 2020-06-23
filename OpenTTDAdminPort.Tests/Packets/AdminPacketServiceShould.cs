@@ -35,7 +35,7 @@ namespace OpenTTDAdminPort.Tests.Packets
         }
 
         [Fact]
-        public void ReadPacket_ItCanCreateMessageBasedOnPacket()
+        public void ReadPacket_WhenItCanCreateMessageBasedOnPacket()
         {
             var messageTransformer = new Mock<IPacketTransformer>();
             messageTransformer.SetupGet(x => x.SupportedMessageType).Returns(AdminMessageType.ADMIN_PACKET_SERVER_BANNED);
@@ -51,7 +51,7 @@ namespace OpenTTDAdminPort.Tests.Packets
         }
 
         [Fact]
-        public void CreatePacket_IfItCanReadSpecificMessageType()
+        public void CreatePacket_WhenItCanReadSpecificMessageType()
         {
             var messageTransformer = new Mock<IMessageTransformer>();
             Packet packet = new Packet();
