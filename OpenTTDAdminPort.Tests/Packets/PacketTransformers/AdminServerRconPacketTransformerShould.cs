@@ -17,7 +17,7 @@ namespace OpenTTDAdminPort.Tests.Packets.PacketTransformers
         {
             Packet packet = new Packet();
             packet.SendByte((byte)AdminMessageType.ADMIN_PACKET_SERVER_RCON);
-            packet.SendByte(12); // color;
+            packet.SendU16(12); // color;
             packet.SendString("Result");
             packet.PrepareToSend(); packet.ReadByte();
 
