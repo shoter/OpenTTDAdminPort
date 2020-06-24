@@ -20,15 +20,8 @@ namespace OpenTTDAdminPort.Tests.Assemblies
 
             Type[] expectedTypes = new Type[] { typeof(Cat), typeof(Dog), typeof(IAlienAnimal) };
 
-            foreach(var it in inputTypes)
-            {
-                if (matcher.IsMatching(it) && !expectedTypes.Contains(it))
-                    throw new Exception($"Matcher is matching {it} when it is not on the expected types list");
+            AssertTest(matcher, expectedTypes);
 
-                if (!matcher.IsMatching(it) && expectedTypes.Contains(it))
-                    throw new Exception($"Matcher is NOT matching {it} when it is on the expected types list");
-
-            }
         }
 
         [Fact]
@@ -39,15 +32,8 @@ namespace OpenTTDAdminPort.Tests.Assemblies
             Type[] expectedTypes = new Type[] { typeof(GenericFurnitureBox<>) };
             inputTypes.Add(typeof(GenericFurnitureBox<>));
 
-            foreach (var it in inputTypes)
-            {
-                if (matcher.IsMatching(it) && !expectedTypes.Contains(it))
-                    throw new Exception($"Matcher is matching {it} when it is not on the expected types list");
+            AssertTest(matcher, expectedTypes);
 
-                else if (!matcher.IsMatching(it) && expectedTypes.Contains(it))
-                    throw new Exception($"Matcher is NOT matching {it} when it is on the expected types list");
-
-            }
         }
 
         [Fact]
@@ -58,15 +44,7 @@ namespace OpenTTDAdminPort.Tests.Assemblies
             Type[] expectedTypes = new Type[] { typeof(ChairBox) };
             inputTypes.Add(typeof(ChairBox));
 
-            foreach (var it in inputTypes)
-            {
-                if (matcher.IsMatching(it) && !expectedTypes.Contains(it))
-                    throw new Exception($"Matcher is matching {it} when it is not on the expected types list");
-
-                else if (!matcher.IsMatching(it) && expectedTypes.Contains(it))
-                    throw new Exception($"Matcher is NOT matching {it} when it is on the expected types list");
-
-            }
+            AssertTest(matcher, expectedTypes);
         }
 
         [Fact]
@@ -77,6 +55,11 @@ namespace OpenTTDAdminPort.Tests.Assemblies
             Type[] expectedTypes = new Type[] { typeof(ChairBox) };
             inputTypes.Add(typeof(ChairBox));
 
+            AssertTest(matcher, expectedTypes);
+        }
+
+        private void AssertTest(ImplementsTypeMatcher matcher, Type[] expectedTypes)
+        {
             foreach (var it in inputTypes)
             {
                 if (matcher.IsMatching(it) && !expectedTypes.Contains(it))
@@ -84,9 +67,7 @@ namespace OpenTTDAdminPort.Tests.Assemblies
 
                 else if (!matcher.IsMatching(it) && expectedTypes.Contains(it))
                     throw new Exception($"Matcher is NOT matching {it} when it is on the expected types list");
-
             }
         }
-
     }
 }

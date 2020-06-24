@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -16,6 +16,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\OpenTTDAdminPort\OpenTTDAdminPort.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Packets\PacketTransformers\" />
   </ItemGroup>
 
 </Project>

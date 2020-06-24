@@ -111,7 +111,7 @@ namespace OpenTTDAdminPort.Networking
         {
             List<byte> bytes = new List<byte>();
 
-            while (this.Buffer[this.Position] != 0)
+            while (this.Position < this.Buffer.Length && this.Buffer[this.Position] != 0)
             {
                 bytes.Add(this.Buffer[this.Position++]);
             }
