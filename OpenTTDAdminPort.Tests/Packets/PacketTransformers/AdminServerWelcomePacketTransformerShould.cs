@@ -22,6 +22,7 @@ namespace OpenTTDAdminPort.Tests.Packets.PacketTransformers
             packet.SendString("Revision");
             packet.SendByte(1); //dedicated
             packet.SendString("Map Name");
+            packet.SendU32(1234); // seed
             packet.SendByte((byte)Landscape.LT_ARCTIC);
             packet.SendU32(5); //date
             packet.SendU16(20); //width
@@ -37,6 +38,7 @@ namespace OpenTTDAdminPort.Tests.Packets.PacketTransformers
             Assert.Equal("Revision", msg.NetworkRevision);
             Assert.True(msg.IsDedicated);
             Assert.Equal("Map Name", msg.MapName);
+            Assert.Equal(1234u, msg.MapSeed);
             Assert.Equal(Landscape.LT_ARCTIC, msg.Landscape);
             Assert.Equal(6, msg.CurrentDate.Day);
             Assert.Equal(20, msg.MapWidth);
