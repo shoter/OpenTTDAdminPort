@@ -14,8 +14,15 @@ namespace OpenTTDAdminPort.Packets.PacketTransformers
             m.CurrentLoan = packet.ReadU64();
             m.Income = packet.ReadU64();
             m.DeliveredCargo = packet.ReadU16();
+            m.Quarters = new AdminServerCompanyEconomyMessage.QuarterData[2];
 
-            // TODO : add quarters.
+            for(int i = 0;i < 2; ++i)
+            {
+                m.Quarters[i] = new AdminServerCompanyEconomyMessage.QuarterData(
+                    companyValue: packet.ReadU64(),
+                    perfHistory: packet.ReadU16(),
+                    deliveredCargo: packet.ReadU16());
+            }
 
             return m;
 

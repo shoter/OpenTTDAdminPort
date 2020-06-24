@@ -8,6 +8,19 @@ namespace OpenTTDAdminPort.Messages
 {
     internal class AdminServerCompanyEconomyMessage : IAdminMessage
     {
+        public class QuarterData
+        {
+            public ulong CompanyValue { get; }
+            public ushort PerformanceHistory { get; }
+            public ushort DeliveredCargo { get; }
+
+            public QuarterData(ulong companyValue, ushort perfHistory, ushort deliveredCargo)
+            {
+                CompanyValue = companyValue;
+                PerformanceHistory = perfHistory;
+                DeliveredCargo = deliveredCargo;
+            }
+        }
         public AdminMessageType MessageType => AdminMessageType.ADMIN_PACKET_SERVER_COMPANY_ECONOMY;
 
         public byte CompanyId { get; internal set; }
@@ -20,7 +33,6 @@ namespace OpenTTDAdminPort.Messages
 
         public ushort DeliveredCargo { get; internal set; }
 
-        // there is also data for last 2 quarters - TODO
-
+        public QuarterData[] Quarters { get; internal set; }
     }
 }

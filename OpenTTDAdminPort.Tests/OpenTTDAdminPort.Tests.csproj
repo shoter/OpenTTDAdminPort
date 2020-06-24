@@ -18,8 +18,4 @@
     <ProjectReference Include="..\OpenTTDAdminPort\OpenTTDAdminPort.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Packets\PacketTransformers\" />
-  </ItemGroup>
-
 </Project>

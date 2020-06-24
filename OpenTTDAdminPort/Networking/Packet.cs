@@ -52,7 +52,22 @@ namespace OpenTTDAdminPort.Networking
             this.Size += 4;
         }
 
-        public void SendU64(long value)
+        public void SendU64(ulong value)
+        {
+            byte[] bytes = BitConverter.GetBytes(value);
+            this.Buffer[this.Size] = bytes[0];
+            this.Buffer[this.Size + 1] = bytes[1];
+            this.Buffer[this.Size + 2] = bytes[2];
+            this.Buffer[this.Size + 3] = bytes[3];
+            this.Buffer[this.Size + 4] = bytes[4];
+            this.Buffer[this.Size + 5] = bytes[5];
+            this.Buffer[this.Size + 6] = bytes[6];
+            this.Buffer[this.Size + 7] = bytes[7];
+
+            this.Size += 8;
+        }
+
+        public void SendI64(long value)
         {
             byte[] bytes = BitConverter.GetBytes(value);
             this.Buffer[this.Size] = bytes[0];
