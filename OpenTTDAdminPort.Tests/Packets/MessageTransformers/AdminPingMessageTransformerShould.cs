@@ -22,5 +22,11 @@ namespace OpenTTDAdminPort.Tests.Packets.MessageTransformers
             Assert.Equal(AdminMessageType.ADMIN_PACKET_ADMIN_PING, (AdminMessageType)packet.ReadByte());
             Assert.Equal(43u, packet.ReadU32());
         }
+
+        [Fact]
+        public void HaveCorrectMessageType()
+        {
+            Assert.Equal(AdminMessageType.ADMIN_PACKET_ADMIN_PING, new AdminPingMessageTransformer().SupportedMessageType);
+        }
     }
 }

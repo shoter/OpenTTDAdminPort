@@ -22,5 +22,12 @@ namespace OpenTTDAdminPort.Tests.Packets.MessageTransformers
             Assert.Equal(AdminMessageType.ADMIN_PACKET_ADMIN_GAMESCRIPT, (AdminMessageType)packet.ReadByte());
             Assert.Equal("{ json : 5 }", packet.ReadString());
         }
+
+        [Fact]
+        public void HaveCorrectMessageType()
+        {
+            Assert.Equal(AdminMessageType.ADMIN_PACKET_ADMIN_GAMESCRIPT, new AdminGamescriptMessageTransformer().SupportedMessageType);
+        }
+
     }
 }

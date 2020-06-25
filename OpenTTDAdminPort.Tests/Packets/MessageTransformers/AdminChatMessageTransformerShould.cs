@@ -30,5 +30,11 @@ namespace OpenTTDAdminPort.Tests.Packets.MessageTransformers
             Assert.Equal(5u, packet.ReadU32());
             Assert.Equal("Hello there", packet.ReadString());
         }
+
+        [Fact]
+        public void HaveCorrectMessageType()
+        {
+            Assert.Equal(AdminMessageType.ADMIN_PACKET_ADMIN_CHAT, new AdminChatMessageTransformer().SupportedMessageType);
+        }
     }
 }

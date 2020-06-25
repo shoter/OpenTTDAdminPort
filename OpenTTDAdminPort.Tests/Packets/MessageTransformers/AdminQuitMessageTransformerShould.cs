@@ -21,6 +21,11 @@ namespace OpenTTDAdminPort.Tests.Packets.MessageTransformers
 
             Assert.Equal(AdminMessageType.ADMIN_PACKET_ADMIN_QUIT, (AdminMessageType)packet.ReadByte());
         }
-        
+        [Fact]
+        public void HaveCorrectMessageType()
+        {
+            Assert.Equal(AdminMessageType.ADMIN_PACKET_ADMIN_QUIT, new AdminQuitMessageTransformer().SupportedMessageType);
+        }
+
     }
 }

@@ -19,5 +19,11 @@ namespace OpenTTDAdminPort.Tests.Packets.MessageTransformers
             Assert.Equal("name", packet.ReadString());
             Assert.Equal("ver", packet.ReadString());
         }
+
+        [Fact]
+        public void HaveCorrectMessageType()
+        {
+            Assert.Equal(AdminMessageType.ADMIN_PACKET_ADMIN_JOIN, new AdminJoinMessageTransformer().SupportedMessageType);
+        }
     }
 }

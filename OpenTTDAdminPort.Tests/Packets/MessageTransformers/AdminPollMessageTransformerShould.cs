@@ -24,6 +24,12 @@ namespace OpenTTDAdminPort.Tests.Packets.MessageTransformers
             Assert.Equal(AdminUpdateType.ADMIN_UPDATE_CLIENT_INFO, (AdminUpdateType)packet.ReadByte());
             Assert.Equal(55u, packet.ReadU32());
         }
-        
+
+        [Fact]
+        public void HaveCorrectMessageType()
+        {
+            Assert.Equal(AdminMessageType.ADMIN_PACKET_ADMIN_POLL, new AdminPollMessageTransformer().SupportedMessageType);
+        }
+
     }
 }

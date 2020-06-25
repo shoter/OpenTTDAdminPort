@@ -26,5 +26,11 @@ namespace OpenTTDAdminPort.Tests.Packets.MessageTransformers
             Assert.Equal(AdminUpdateType.ADMIN_UPDATE_CMD_LOGGING, (AdminUpdateType)packet.ReadU16());
             Assert.Equal(UpdateFrequency.ADMIN_FREQUENCY_DAILY, (UpdateFrequency)packet.ReadU16());
         }
+
+        [Fact]
+        public void HaveCorrectMessageType()
+        {
+            Assert.Equal(AdminMessageType.ADMIN_PACKET_ADMIN_UPDATE_FREQUENCY, new AdminUpdateFrequencyTransformer().SupportedMessageType);
+        }
     }
 }

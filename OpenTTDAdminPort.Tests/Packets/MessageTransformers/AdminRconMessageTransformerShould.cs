@@ -22,6 +22,12 @@ namespace OpenTTDAdminPort.Tests.Packets.MessageTransformers
             Assert.Equal(AdminMessageType.ADMIN_PACKET_ADMIN_RCON, (AdminMessageType)packet.ReadByte());
             Assert.Equal("kick shoter", packet.ReadString());
         }
-        
+
+        [Fact]
+        public void HaveCorrectMessageType()
+        {
+            Assert.Equal(AdminMessageType.ADMIN_PACKET_ADMIN_RCON, new AdminRconMessageTransformer().SupportedMessageType);
+        }
+
     }
 }
