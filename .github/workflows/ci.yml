@@ -58,6 +58,7 @@ jobs:
     env:
       Solution_Name: OpenTTDAdminPort.sln                         # Replace with your solution name, i.e. MyWpfApp.sln.
       Test_Project_Path: OpenTTDAdminPort.Tests\OpenTTDAdminPort.Tests.csproj                 # Replace with the path to your test project, i.e. MyWpfApp.Tests\MyWpfApp.Tests.csproj.
+      CODECOV_TOKEN: "413f70cd-6010-4f3c-ab62-2af9ccd6e6eb"
 
     steps:
     - name: Checkout
@@ -77,4 +78,7 @@ jobs:
 
     # Execute all unit tests in the solution
     - name: Execute unit tests
-      run: dotnet test
+      run: dotnet test -o ./coverage.xml
+
+    - name: Upload unit Test result
+      run: codecov -f "coverage.xml"
