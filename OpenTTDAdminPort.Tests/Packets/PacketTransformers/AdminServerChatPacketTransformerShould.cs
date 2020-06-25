@@ -34,5 +34,8 @@ namespace OpenTTDAdminPort.Tests.Packets.PacketTransformers
             Assert.Equal("That is a message", msg.Message);
             Assert.Equal(123, msg.Data);
         }
+
+        [Fact]
+        public void HaveCorrectMessageType() => Assert.Equal(AdminMessageType.ADMIN_PACKET_ADMIN_CHAT, new AdminServerChatPacketTransformer().SupportedMessageType);
     }
 }

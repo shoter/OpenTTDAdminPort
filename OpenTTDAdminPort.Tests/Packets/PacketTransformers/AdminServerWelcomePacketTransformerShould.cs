@@ -44,6 +44,9 @@ namespace OpenTTDAdminPort.Tests.Packets.PacketTransformers
             Assert.Equal(20, msg.MapWidth);
             Assert.Equal(40, msg.MapHeight);
         }
-        
+
+        [Fact]
+        public void HaveCorrectMessageType() => Assert.Equal(AdminMessageType.ADMIN_PACKET_SERVER_WELCOME, new AdminServerWelcomePacketTransformer().SupportedMessageType);
+
     }
 }

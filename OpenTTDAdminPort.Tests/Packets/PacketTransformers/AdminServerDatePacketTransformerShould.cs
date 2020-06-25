@@ -28,5 +28,8 @@ namespace OpenTTDAdminPort.Tests.Packets.PacketTransformers
             Assert.Equal(1, msg.Date.Month);
             Assert.Equal(3, msg.Date.Day);
         }
+
+        [Fact]
+        public void HaveCorrectMessageType() => Assert.Equal(AdminMessageType.ADMIN_PACKET_SERVER_DATE, new AdminServerDatePacketTransformer().SupportedMessageType);
     }
 }

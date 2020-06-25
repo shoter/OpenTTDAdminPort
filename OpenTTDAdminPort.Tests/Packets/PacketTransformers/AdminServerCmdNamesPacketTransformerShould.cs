@@ -36,5 +36,8 @@ namespace OpenTTDAdminPort.Tests.Packets.PacketTransformers
             Assert.Equal("Sec", msg.Commands[20]);
         }
 
+        [Fact]
+        public void HaveCorrectMessageType() => Assert.Equal(AdminMessageType.ADMIN_PACKET_SERVER_CMD_NAMES, new AdminServerCmdNamesPacketTransformer().SupportedMessageType);
+
     }
 }

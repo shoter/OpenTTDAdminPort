@@ -27,5 +27,8 @@ namespace OpenTTDAdminPort.Tests.Packets.PacketTransformers
 
             Assert.Equal(123u, msg.ClientId);
         }
+
+        [Fact]
+        public void HaveCorrectMessageType() => Assert.Equal(AdminMessageType.ADMIN_PACKET_SERVER_CLIENT_QUIT, new AdminServerClientQuitPacketTransformer().SupportedMessageType);
     }
 }

@@ -40,5 +40,8 @@ namespace OpenTTDAdminPort.Tests.Packets.PacketTransformers
             Assert.Equal(UpdateFrequency.ADMIN_FREQUENCY_AUTOMATIC, msg.AdminUpdateSettings[AdminUpdateType.ADMIN_UPDATE_CLIENT_INFO]);
             Assert.Equal(UpdateFrequency.ADMIN_FREQUENCY_POLL, msg.AdminUpdateSettings[AdminUpdateType.ADMIN_UPDATE_CMD_NAMES]);
         }
+
+        [Fact]
+        public void HaveCorrectMessageType() => Assert.Equal(AdminMessageType.ADMIN_PACKET_SERVER_PROTOCOL, new AdminServerProtocolPacketTransformer().SupportedMessageType);
     }
 }

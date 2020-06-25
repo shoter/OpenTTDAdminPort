@@ -53,5 +53,8 @@ namespace OpenTTDAdminPort.Tests.Packets.PacketTransformers
             Assert.Equal(16, msg.Quarters[1].PerformanceHistory);
             Assert.Equal(17, msg.Quarters[1].DeliveredCargo);
         }
+
+        [Fact]
+        public void HaveCorrectMessageType() => Assert.Equal(AdminMessageType.ADMIN_PACKET_SERVER_COMPANY_ECONOMY, new AdminServerCompanyEconomyPacketTransformer().SupportedMessageType);
     }
 }

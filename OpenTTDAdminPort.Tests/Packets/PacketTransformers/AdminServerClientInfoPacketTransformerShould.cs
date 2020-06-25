@@ -39,5 +39,8 @@ namespace OpenTTDAdminPort.Tests.Packets.PacketTransformers
             Assert.Equal(0, msg.JoinDate.Month);
             Assert.Equal(1, msg.PlayingAs);
         }
+
+        [Fact]
+        public void HaveCorrectMessageType() => Assert.Equal(AdminMessageType.ADMIN_PACKET_SERVER_CLIENT_INFO, new AdminServerClientInfoPacketTransformer().SupportedMessageType);
     }
 }

@@ -26,5 +26,8 @@ namespace OpenTTDAdminPort.Tests.Packets.PacketTransformers
 
             Assert.NotNull(msg);
         }
+
+        [Fact]
+        public void HaveCorrectMessageType() => Assert.Equal(AdminMessageType.ADMIN_PACKET_SERVER_SHUTDOWN, new AdminServerShutdownPacketTransformer().SupportedMessageType);
     }
 }

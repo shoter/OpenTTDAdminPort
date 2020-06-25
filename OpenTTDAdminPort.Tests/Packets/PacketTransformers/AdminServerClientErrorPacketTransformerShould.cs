@@ -28,5 +28,9 @@ namespace OpenTTDAdminPort.Tests.Packets.PacketTransformers
             Assert.Equal(NetworkErrorCode.NETWORK_ERROR_CHEATER, msg.Error);
         }
 
+        [Fact]
+        public void HaveCorrectMessageType() => Assert.Equal(AdminMessageType.ADMIN_PACKET_SERVER_CLIENT_ERROR, new AdminServerClientErrorMessage().SupportedMessageType);
+
+
     }
 }

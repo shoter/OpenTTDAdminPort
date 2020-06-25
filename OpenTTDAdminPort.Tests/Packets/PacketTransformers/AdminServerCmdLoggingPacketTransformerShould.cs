@@ -41,5 +41,8 @@ namespace OpenTTDAdminPort.Tests.Packets.PacketTransformers
             Assert.Equal("Text", msg.Text);
             Assert.Equal(9999u, msg.Frame);
         }
+
+        [Fact]
+        public void HaveCorrectMessageType() => Assert.Equal(AdminMessageType.ADMIN_PACKET_SERVER_CMD_LOGGING, new AdminServerCmdLoggingPacketTransformer().SupportedMessageType);
     }
 }

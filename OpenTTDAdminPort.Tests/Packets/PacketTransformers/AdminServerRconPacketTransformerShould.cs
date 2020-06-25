@@ -28,5 +28,8 @@ namespace OpenTTDAdminPort.Tests.Packets.PacketTransformers
             Assert.Equal(12, msg.Color);
             Assert.Equal("Result", msg.Result);
         }
+
+        [Fact]
+        public void HaveCorrectMessageType() => Assert.Equal(AdminMessageType.ADMIN_PACKET_SERVER_RCON, new AdminServerRconPacketTransformer().SupportedMessageType);
     }
 }

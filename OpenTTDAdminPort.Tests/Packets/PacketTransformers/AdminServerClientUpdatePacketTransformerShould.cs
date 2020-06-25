@@ -31,6 +31,9 @@ namespace OpenTTDAdminPort.Tests.Packets.PacketTransformers
             Assert.Equal("STR", msg.ClientName);
             Assert.Equal(1, msg.PlayingAs);
         }
-        
+
+        [Fact]
+        public void HaveCorrectMessageType() => Assert.Equal(AdminMessageType.ADMIN_PACKET_SERVER_CLIENT_UPDATE, new AdminServerClientUpdatePacketTransformer().SupportedMessageType);
+
     }
 }

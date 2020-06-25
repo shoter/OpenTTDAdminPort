@@ -31,5 +31,8 @@ namespace OpenTTDAdminPort.Tests.Packets.PacketTransformers
             Assert.Equal("Origin", msg.Origin);
             Assert.Equal("String", msg.Message);
         }
+
+        [Fact]
+        public void HaveCorrectMessageType() => Assert.Equal(AdminMessageType.ADMIN_PACKET_SERVER_CONSOLE, new AdminServerConsolePacketTransformer().SupportedMessageType);
     }
 }

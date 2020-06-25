@@ -26,5 +26,8 @@ namespace OpenTTDAdminPort.Tests.Packets.PacketTransformers
 
             Assert.Equal(123u, msg.Argument);
         }
+
+        [Fact]
+        public void HaveCorrectMessageType() => Assert.Equal(AdminMessageType.ADMIN_PACKET_SERVER_PONG, new AdminServerPongPacketTransformer().SupportedMessageType);
     }
 }

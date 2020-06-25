@@ -50,5 +50,8 @@ namespace OpenTTDAdminPort.Tests.Packets.PacketTransformers
             Assert.Equal(7, msg.ShareOwnersIds[2]);
             Assert.Equal(6, msg.ShareOwnersIds[3]);
         }
+
+        [Fact]
+        public void HaveCorrectMessageType() => Assert.Equal(AdminMessageType.ADMIN_PACKET_SERVER_COMPANY_INFO, new AdminServerCompanyInfoPacketTransformer().SupportedMessageType);
     }
 }

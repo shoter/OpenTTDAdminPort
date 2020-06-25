@@ -49,5 +49,8 @@ namespace OpenTTDAdminPort.Tests.Packets.PacketTransformers
             Assert.Equal(14, msg.CompanyStats[2].StationCount[3]);
             Assert.Equal(15, msg.CompanyStats[2].StationCount[4]);
         }
+
+        [Fact]
+        public void HaveCorrectMessageType() => Assert.Equal(AdminMessageType.ADMIN_PACKET_SERVER_COMPANY_STATS, new AdminServerCompanyStatsPacketTransformer().SupportedMessageType);
     }
 }
