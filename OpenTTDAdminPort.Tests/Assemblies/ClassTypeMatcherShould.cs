@@ -24,7 +24,5 @@ namespace OpenTTDAdminPort.Tests.Assemblies
         public void MatchClass() => Assert.True(matcher.IsMatching(typeof(someClass)));
         [Fact]
         public void NotMatchStruct() => Assert.False(matcher.IsMatching(typeof(someStruct)));
-
-
     }
 }
