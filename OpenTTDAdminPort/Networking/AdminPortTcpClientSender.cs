@@ -39,9 +39,14 @@ namespace OpenTTDAdminPort.Networking
         public Task Start()
         {
             if (State != WorkState.NotStarted)
+            {
+                State = WorkState.Errored;
+                cancellationTokenSource.Cancel();
                 throw new AdminPortException("This Sender had been started before! You cannot start sender more than 1 time");
+            }
 
             ThreadPool.QueueUserWorkItem(new WaitCallback((_) => MainLoop(cancellationTokenSource.Token)), null);
+            State = WorkState.Working;
             return Task.CompletedTask;
         }
 

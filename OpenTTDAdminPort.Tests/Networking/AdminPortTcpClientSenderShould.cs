@@ -33,6 +33,56 @@ namespace OpenTTDAdminPort.Tests.Networking
 
             await Task.Delay(TimeSpan.FromSeconds(1));
 
+            Verify(msg);
+        }
+
+
+
+        [Fact]
+        public async Task ThrowException_AfterSecondStart()
+        {
+            await Assert.ThrowsAsync<AdminPortException>(async () => await sender.Start());
+            Assert.Equal(WorkState.Errored, sender.State);
+        }
+
+        [Fact]
+        public async Task NotAcceptNewMessages_AfterSecondStart()
+        {
+            await Assert.ThrowsAsync<AdminPortException>(async () => await sender.Start());
+
+            AdminPingMessage msg = new AdminPingMessage(33u);
+            sender.SendMessage(msg);
+            await Task.Delay(TimeSpan.FromSeconds(1));
+            Assert.Equal(0, stream.Position);
+        }
+
+
+        [Fact]
+        public async Task ErrorOut_WhenWrongMessageIsPassed()
+        {
+            var msg = new AdminServerShutdownMessage();
+            sender.SendMessage(msg);
+            await Task.Delay(TimeSpan.FromSeconds(1));
+            Assert.Equal(WorkState.Errored, sender.State);
+        }
+
+        [Fact]
+        public async Task SendException_WhenWrongMessageIsPassed()
+        {
+            Exception exception = null;
+            sender.ErrorOcurred += (_, e) => exception = e;
+
+            var msg = new AdminServerShutdownMessage();
+            sender.SendMessage(msg);
+            await Task.Delay(TimeSpan.FromSeconds(1));
+            Assert.NotNull(exception);
+        }
+
+
+
+
+        private void Verify(AdminPingMessage msg)
+        {
             Packet packet = adminPacketService.CreatePacket(msg);
 
             stream.Position = 0;
@@ -41,6 +91,7 @@ namespace OpenTTDAdminPort.Tests.Networking
                 Assert.Equal(packet.Buffer[i], stream.ReadByte());
             }
         }
+
 
     }
 }
