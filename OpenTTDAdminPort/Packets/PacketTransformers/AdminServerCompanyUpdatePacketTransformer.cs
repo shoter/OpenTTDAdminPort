@@ -5,7 +5,7 @@ namespace OpenTTDAdminPort.Packets.PacketTransformers
 {
     internal class AdminServerCompanyUpdatePacketTransformer : IPacketTransformer<AdminServerCompanyUpdateMessage>
     {
-        public AdminMessageType SupportedMessageType => AdminMessageType.ADMIN_PACKET_SERVER_COMPANY_INFO;
+        public AdminMessageType SupportedMessageType => AdminMessageType.ADMIN_PACKET_SERVER_COMPANY_UPDATE;
         public IAdminMessage Transform(Packet packet)
         {
             var m = new AdminServerCompanyUpdateMessage();

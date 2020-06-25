@@ -29,7 +29,7 @@ namespace OpenTTDAdminPort.Tests.Packets.PacketTransformers
         }
 
         [Fact]
-        public void HaveCorrectMessageType() => Assert.Equal(AdminMessageType.ADMIN_PACKET_SERVER_CLIENT_ERROR, new AdminServerClientErrorMessage().SupportedMessageType);
+        public void HaveCorrectMessageType() => Assert.Equal(AdminMessageType.ADMIN_PACKET_SERVER_CLIENT_ERROR, new AdminServerClientErrorPacketTransformer().SupportedMessageType);
 
 
     }
