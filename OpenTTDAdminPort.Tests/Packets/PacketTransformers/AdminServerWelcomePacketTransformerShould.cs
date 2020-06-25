@@ -30,9 +30,8 @@ namespace OpenTTDAdminPort.Tests.Packets.PacketTransformers
 
             packet.PrepareToSend(); packet.ReadByte();
 
-            var msg = new AdminServerWelcomePacketTransformer()
-                .Transform(packet)
-                as AdminServerWelcomeMessage;
+            IPacketTransformer<AdminServerWelcomeMessage> transformer = new AdminServerWelcomePacketTransformer();
+                var msg = transformer.TransformTyped(packet);
 
             Assert.Equal("Server Name", msg.ServerName);
             Assert.Equal("Revision", msg.NetworkRevision);
