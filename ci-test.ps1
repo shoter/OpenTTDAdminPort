@@ -3,4 +3,4 @@ param(
   [string]$codecovProfile = 'Release'
 )
 
-dotnet test --collect "XPlat Code Coverage" --settings .\OpenTTDAdminPort.Tests\coverlet.runsettings -c $codecovProfile
+dotnet test --collect "XPlat Code Coverage" -c $codecovProfile
