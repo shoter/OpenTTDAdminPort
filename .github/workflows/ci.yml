@@ -38,11 +38,7 @@
 
 name: Continous Integration
 
-on:
-  push:
-    branches: [ master, development ]
-  pull_request:
-    branches: [ master, development ]
+on: [push, pull_request]
 
 jobs:
 
@@ -78,7 +74,9 @@ jobs:
 
     # Execute all unit tests in the solution
     - name: Execute unit tests
+      uses: ./
       run: dotnet test -o ./coverage.xml
 
     - name: Upload unit Test result
+      uses: ./
       run: codecov -f "coverage.xml"
