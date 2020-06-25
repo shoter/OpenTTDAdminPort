@@ -35,10 +35,17 @@ namespace OpenTTDAdminPort.Networking
         public Task Start()
         {
             if (State != WorkState.NotStarted)
-                throw new AdminPortException("This Received had been started before! You cannot start receiver more than 1 time");
+            {
+                State = WorkState.Errored;
+                cancellationTokenSource.Cancel();
+                throw new AdminPortException("This Receiver had been started before! You cannot start receiver more than 1 time");
+            }
 
             ThreadPool.QueueUserWorkItem(new WaitCallback((_) => MainLoop(cancellationTokenSource.Token)), null);
             ThreadPool.QueueUserWorkItem(new WaitCallback((_) => EventLoop(cancellationTokenSource.Token)), null);
+
+            State = WorkState.Working;
+
             return Task.CompletedTask;
         }
 
@@ -63,7 +70,8 @@ namespace OpenTTDAdminPort.Networking
                     IAdminMessage message = adminPacketService.ReadPacket(packet);
                     if (message == null)
                         throw new Exception("Message from server did not make sense");
-                    receivedMessages.Enqueue(message);
+                    if(!token.IsCancellationRequested)
+                        receivedMessages.Enqueue(message);
                 }
                 catch (Exception e)
                 {

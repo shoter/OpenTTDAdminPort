@@ -98,6 +98,113 @@ namespace OpenTTDAdminPort.Tests.Networking
             VerifyMessage(receivedMessage);
         }
 
+        [Fact]
+        public async Task NotReceiveMessages_AfterStop()
+        {
+            Packet packet = CreatePongMessage();
+            using MemoryStream stream = new MemoryStream(2000);
+
+            var receiver = new AdminPortTcpClientReceiver(packetService, stream);
+            await receiver.Start();
+            await receiver.Stop();
+            IAdminMessage receivedMessage = null;
+            receiver.MessageReceived += (_, msg) => receivedMessage = msg;
+
+            stream.Write(packet.Buffer, 0, packet.Size);
+            stream.Position = 0;
+
+            await WaitForMessage(receivedMessage);
+            Assert.Null(receivedMessage);
+        }
+
+        [Fact]
+        public async Task ChangeStatusToWorking_AfterStart()
+        {
+            using MemoryStream stream = new MemoryStream(2000);
+
+            var receiver = new AdminPortTcpClientReceiver(packetService, stream);
+            await receiver.Start();
+
+            Assert.Equal(WorkState.Working, receiver.State);
+        }
+
+        [Fact]
+        public async Task ThrowException_WhenStartingReceiverTwice()
+        {
+            using MemoryStream stream = new MemoryStream(2000);
+
+            var receiver = new AdminPortTcpClientReceiver(packetService, stream);
+            await receiver.Start();
+            await Assert.ThrowsAsync<AdminPortException>(async () => await receiver.Start());
+
+            Assert.Equal(WorkState.Errored, receiver.State);
+        }
+
+        [Fact]
+        public async Task StopEverything_AfterSecondStart()
+        {
+            Packet packet = CreatePongMessage();
+            using MemoryStream stream = new MemoryStream(2000);
+
+            var receiver = new AdminPortTcpClientReceiver(packetService, stream);
+            await receiver.Start();
+            try
+            {
+                await receiver.Start();
+            }
+            catch (Exception) { }
+            IAdminMessage receivedMessage = null;
+            receiver.MessageReceived += (_, msg) => receivedMessage = msg;
+
+            stream.Write(packet.Buffer, 0, packet.Size);
+            stream.Position = 0;
+
+            await WaitForMessage(receivedMessage);
+            Assert.Null(receivedMessage);
+        }
+
+        [Fact]
+        public async Task ErrorOut_AfterSendingWrongPacket()
+        {
+            Packet packet = CreateWrongMessage();
+            using MemoryStream stream = new MemoryStream(2000);
+
+            var receiver = new AdminPortTcpClientReceiver(packetService, stream);
+            await receiver.Start();
+            IAdminMessage receivedMessage = null;
+            receiver.MessageReceived += (_, msg) => receivedMessage = msg;
+
+            stream.Write(packet.Buffer, 0, packet.Size);
+            stream.Position = 0;
+
+            await Task.Delay(TimeSpan.FromSeconds(1));
+            Assert.Equal(WorkState.Errored, receiver.State);
+        }
+
+        [Fact]
+        public async Task NotBeingAbleToReceiveCorrectPacket_AfterWrongPacket()
+        {
+            Packet packet = CreateWrongMessage();
+            using MemoryStream stream = new MemoryStream(2000);
+
+            var receiver = new AdminPortTcpClientReceiver(packetService, stream);
+            await receiver.Start();
+            IAdminMessage receivedMessage = null;
+            receiver.MessageReceived += (_, msg) => receivedMessage = msg;
+
+            stream.Write(packet.Buffer, 0, packet.Size);
+            stream.Position = 0;
+            long savedPos = stream.Position;
+            await Task.Delay(1000);
+            packet = CreatePongMessage();
+            stream.Write(packet.Buffer, 0, packet.Size);
+            stream.Position = savedPos;
+
+            await WaitForMessage(receivedMessage);
+            Assert.Null(receivedMessage);
+        }
+
+
         private static async Task WaitForMessage(IAdminMessage receivedMessage)
         {
             for (int i = 0; i < 100; ++i)
@@ -107,6 +214,8 @@ namespace OpenTTDAdminPort.Tests.Networking
                 await Task.Delay(1);
             }
         }
+
+
 
         private static void VerifyMessage(IAdminMessage receivedMessage)
         {
@@ -120,6 +229,14 @@ namespace OpenTTDAdminPort.Tests.Networking
             Packet packet = new Packet();
             packet.SendByte((byte)AdminMessageType.ADMIN_PACKET_SERVER_PONG);
             packet.SendU32(123u);
+            packet.PrepareToSend();
+            return packet;
+        }
+
+        private static Packet CreateWrongMessage()
+        {
+            Packet packet = new Packet();
+            packet.SendByte((byte)AdminMessageType.ADMIN_PACKET_ADMIN_CHAT);
             packet.PrepareToSend();
             return packet;
         }
