@@ -75,6 +75,8 @@ jobs:
     # Execute all unit tests in the solution
     - name: Execute unit tests
       run: ./ci-test.ps1 ${{matrix.configuration}}
+      env:
+          CI: true
 
     - name: Upload unit Test result
       uses: codecov/codecov-action@v1.0.7
