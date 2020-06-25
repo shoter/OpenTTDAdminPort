@@ -3,8 +3,10 @@
     public enum AdminConnectionState
     {
         Idle,
-        NotConnected,
         Connecting,
-        Connected
+        Connected,
+        Disconnecting,
+        Errored,
+        ErroredCritical, // it will get back into Idle state
     }
 }

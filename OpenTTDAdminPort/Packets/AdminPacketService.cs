@@ -31,7 +31,9 @@ namespace OpenTTDAdminPort.Packets
             if (!packetCreators.ContainsKey(message.MessageType))
                 throw new AdminPortException($"Reading message {message.MessageType} is currently not handled by Admin Port Client");
 
-            return packetCreators[message.MessageType].Transform(message);
+            Packet packet = packetCreators[message.MessageType].Transform(message);
+            packet.PrepareToSend();
+            return packet;
         }
 
         public IAdminMessage ReadPacket(Packet packet)
