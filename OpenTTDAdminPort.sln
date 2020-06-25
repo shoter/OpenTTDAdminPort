@@ -5,7 +5,13 @@ VisualStudioVersion = 16.0.30204.135
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTTDAdminPort", "OpenTTDAdminPort\OpenTTDAdminPort.csproj", "{3F42AAE7-26E6-4CB6-BE54-084D48021287}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenTTDAdminPort.Tests", "OpenTTDAdminPort.Tests\OpenTTDAdminPort.Tests.csproj", "{776F35D9-3B0E-4DFA-98D5-97642CF40BD4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTTDAdminPort.Tests", "OpenTTDAdminPort.Tests\OpenTTDAdminPort.Tests.csproj", "{776F35D9-3B0E-4DFA-98D5-97642CF40BD4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflow", "workflow", "{D56581D4-9775-451C-B8A3-BB2BDBB1F448}"
+	ProjectSection(SolutionItems) = preProject
+		appveyor.yml = appveyor.yml
+		.github\workflows\ci.yml = .github\workflows\ci.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

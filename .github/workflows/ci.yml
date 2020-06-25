@@ -74,9 +74,9 @@ jobs:
 
     # Execute all unit tests in the solution
     - name: Execute unit tests
-      uses: ./
-      run: dotnet test -o ./coverage.xml
+      run: ./ci-test.ps1 ${{matrix.configuration}}
 
     - name: Upload unit Test result
-      uses: ./
-      run: codecov -f "coverage.xml"
+      uses: codecov/codecov-action@v1.0.7
+      with:
+          flags: unittests
