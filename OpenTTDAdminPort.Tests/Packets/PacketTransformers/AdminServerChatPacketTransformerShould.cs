@@ -36,6 +36,6 @@ namespace OpenTTDAdminPort.Tests.Packets.PacketTransformers
         }
 
         [Fact]
-        public void HaveCorrectMessageType() => Assert.Equal(AdminMessageType.ADMIN_PACKET_ADMIN_CHAT, new AdminServerChatPacketTransformer().SupportedMessageType);
+        public void HaveCorrectMessageType() => Assert.Equal(AdminMessageType.ADMIN_PACKET_SERVER_CHAT, new AdminServerChatPacketTransformer().SupportedMessageType);
     }
 }
