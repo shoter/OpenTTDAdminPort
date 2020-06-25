@@ -7,6 +7,5 @@ namespace OpenTTDAdminPort.Common
     {
         internal static T[] ToArray<T>()
             where T : Enum => Enum.GetValues(typeof(T)).Cast<T>().ToArray();
-
     }
 }
