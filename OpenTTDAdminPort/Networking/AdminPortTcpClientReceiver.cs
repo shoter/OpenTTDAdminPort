@@ -68,8 +68,6 @@ namespace OpenTTDAdminPort.Networking
                 {
                     Packet packet = await WaitForPacket(token);
                     IAdminMessage message = adminPacketService.ReadPacket(packet);
-                    if (message == null)
-                        throw new Exception("Message from server did not make sense");
                     if(!token.IsCancellationRequested)
                         receivedMessages.Enqueue(message);
                 }

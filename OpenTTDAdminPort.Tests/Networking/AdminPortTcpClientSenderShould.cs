@@ -78,8 +78,31 @@ namespace OpenTTDAdminPort.Tests.Networking
             Assert.NotNull(exception);
         }
 
+        [Fact]
+        public async Task NotSendMessages_WhenStopped()
+        {
+            await sender.Stop();
+            AdminPingMessage msg = new AdminPingMessage(33u);
+            sender.SendMessage(msg);
 
+            await Task.Delay(TimeSpan.FromSeconds(1));
+            Assert.Equal(0, stream.Position);
+        }
 
+        [Fact]
+        public async Task ChangeStatusIntoStopped_WhenStopped()
+        {
+            await sender.Stop();
+            Assert.Equal(WorkState.Stopped, sender.State);
+        }
+
+        [Fact]
+        public async Task NotStart_AfterStopping()
+        {
+            await sender.Stop();
+            await Assert.ThrowsAsync<AdminPortException>(async () => await sender.Start());
+            Assert.NotEqual(WorkState.Working, sender.State);
+        }
 
         private void Verify(AdminPingMessage msg)
         {
