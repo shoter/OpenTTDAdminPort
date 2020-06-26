@@ -23,13 +23,13 @@ namespace OpenTTDAdminPort.Networking
         private readonly int port;
 
         public WorkState State { get; set; } = WorkState.NotStarted;
-        public AdminPortTcpClient(IAdminPacketService packetService, ITcpClient tcpClient, string ip, int port)
+        public AdminPortTcpClient(IAdminPortTcpClientSenderFactory senderFactory, IAdminPortTcpClientReceiverFactory receiverFactory, ITcpClient tcpClient, string ip, int port)
         {
             this.ip = ip;
             this.port = port;
             this.tcpClient = tcpClient;
-            sender = new AdminPortTcpClientSender(packetService, tcpClient.GetStream());
-            receiver = new AdminPortTcpClientReceiver(packetService, tcpClient.GetStream());
+            sender = senderFactory.Create(tcpClient);
+            receiver = receiverFactory.Create(tcpClient);
 
             sender.ErrorOcurred += (e, arg) => OnError(e, arg);
             receiver.ErrorOcurred += (e, arg) => OnError(e, arg);
