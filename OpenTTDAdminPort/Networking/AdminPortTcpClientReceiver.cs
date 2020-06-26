@@ -68,7 +68,7 @@ namespace OpenTTDAdminPort.Networking
                 {
                     Packet packet = await WaitForPacket(token);
                     IAdminMessage message = adminPacketService.ReadPacket(packet);
-                    if(!token.IsCancellationRequested)
+                    if (!token.IsCancellationRequested)
                         receivedMessages.Enqueue(message);
                 }
                 catch (Exception e)
@@ -122,24 +122,22 @@ namespace OpenTTDAdminPort.Networking
         {
             while (token.IsCancellationRequested == false)
             {
-                try
+                if (receivedMessages.TryDequeue(out IAdminMessage msg))
                 {
-                    if (receivedMessages.TryDequeue(out IAdminMessage msg))
+                    try
                     {
                         MessageReceived?.Invoke(this, msg);
                     }
+                    catch (Exception e)
+                    {
+                        // log it?
+                    }
+                }
 
-                    await Task.Delay(TimeSpan.FromSeconds(0.25));
-                }
-                catch(Exception e)
-                {
-                    cancellationTokenSource.Cancel();
-                    ErrorOcurred?.Invoke(this, e);
-                    State = WorkState.Errored;
-                }
+                await Task.Delay(TimeSpan.FromSeconds(0.25));
             }
         }
 
-       
+
     }
 }

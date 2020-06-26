@@ -204,6 +204,21 @@ namespace OpenTTDAdminPort.Tests.Networking
             Assert.Null(receivedMessage);
         }
 
+        [Fact]
+        public async Task NotErrorOut_WhenMessageReceivedThrowsException()
+        {
+            Packet packet = CreatePongMessage();
+            using MemoryStream stream = new MemoryStream(2000);
+            var receiver = new AdminPortTcpClientReceiver(packetService, stream);
+            await receiver.Start();
+            receiver.MessageReceived += (_, msg) => throw new Exception("Peek a boo!");
+            stream.Write(packet.Buffer, 0, packet.Size);
+            stream.Position = 0;
+
+            await Task.Delay(TimeSpan.FromSeconds(1));
+            Assert.Equal(WorkState.Working, receiver.State);
+        }
+
 
         private static async Task WaitForMessage(IAdminMessage receivedMessage)
         {
