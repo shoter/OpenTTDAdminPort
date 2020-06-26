@@ -44,10 +44,15 @@ namespace OpenTTDAdminPort.Networking
         public async Task Start()
         {
             if (State != WorkState.NotStarted)
+            {
+                State = WorkState.Errored;
+                await Task.WhenAll(receiver.Stop(), sender.Stop());
                 throw new AdminPortException("This Client had been started before! You cannot start client more than 1 time");
+            }
 
             await tcpClient.ConnectAsync(ip, port);
             await Task.WhenAll(receiver.Start(), sender.Start());
+            State = WorkState.Working;
         }
 
         public async Task Stop()

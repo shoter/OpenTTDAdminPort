@@ -51,8 +51,8 @@ namespace OpenTTDAdminPort.Tests.Networking
             await client.Start();
             senderMock.Raise(x => x.ErrorOcurred += null, this, new Exception());
             await Task.Delay(100);
-            senderMock.Verify(x => x.Start(), Times.AtLeastOnce);
-            receiverMock.Verify(x => x.Start(), Times.Once);
+            senderMock.Verify(x => x.Stop(), Times.AtLeastOnce);
+            receiverMock.Verify(x => x.Stop(), Times.Once);
         }
 
         [Fact]
@@ -61,8 +61,8 @@ namespace OpenTTDAdminPort.Tests.Networking
             await client.Start();
             receiverMock.Raise(x => x.ErrorOcurred += null, this, new Exception());
             await Task.Delay(100);
-            senderMock.Verify(x => x.Start(), Times.Once);
-            receiverMock.Verify(x => x.Start(), Times.AtLeastOnce);
+            senderMock.Verify(x => x.Stop(), Times.Once);
+            receiverMock.Verify(x => x.Stop(), Times.AtLeastOnce);
         }
 
         [Fact]
@@ -83,6 +83,27 @@ namespace OpenTTDAdminPort.Tests.Networking
             IAdminMessage msg = new AdminPingMessage(33u);
             client.SendMessage(msg);
             senderMock.Verify(x => x.SendMessage(msg), Times.Once);
+        }
+
+        [Fact]
+        public async Task ErrorOut_AfterSecondStart()
+        {
+            await client.Start();
+            await Assert.ThrowsAsync<AdminPortException>(async () => await client.Start());
+            Assert.Equal(WorkState.Errored, client.State);
+            senderMock.Verify(x => x.Stop(), Times.Once);
+            receiverMock.Verify(x => x.Stop(), Times.Once);
+        }
+
+
+        [Fact]
+        public async Task BeAbleToStop()
+        {
+            await client.Start();
+            await client.Stop();
+            Assert.Equal(WorkState.Stopped, client.State);
+            senderMock.Verify(x => x.Stop(), Times.Once);
+            receiverMock.Verify(x => x.Stop(), Times.Once);
         }
 
     }
