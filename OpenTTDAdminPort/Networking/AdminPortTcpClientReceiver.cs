@@ -130,7 +130,7 @@ namespace OpenTTDAdminPort.Networking
                     }
                     catch (Exception e)
                     {
-                        // log it?
+                        // TODO: log it?
                     }
                 }
 
