@@ -1,5 +1,6 @@
 ﻿using OpenTTDAdminPort.Events;
 using OpenTTDAdminPort.Messages;
+using OpenTTDAdminPort.Networking;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ namespace OpenTTDAdminPort.States
 {
     public class AdminPortClientContext
     {
-        internal TcpClient? TcpClient { get; set; }
+        internal IAdminPortTcpClient? TcpClient { get; set; }
 
         internal event EventHandler<IAdminEvent>? EventReceived;
         internal event EventHandler<AdminConnectionState>? StateChanged;
@@ -35,7 +36,9 @@ namespace OpenTTDAdminPort.States
         }
         internal ConcurrentQueue<IAdminMessage> MessagesToSent { get; } = new ConcurrentQueue<IAdminMessage>();
 
-        internal CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        internal CancellationTokenSrce cancellationTokenSource = new CancellationTokenSource();
+
+        internal ServerInfo ServerInfo {get;}
 
 
         public AdminPortClientContext(string clientName, string clientVersion)

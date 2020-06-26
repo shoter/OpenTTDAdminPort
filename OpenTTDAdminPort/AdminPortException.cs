@@ -8,5 +8,9 @@ namespace OpenTTDAdminPort
         public AdminPortException(string message) : base(message)
         {
         }
+
+        public AdminPortException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
     }
 }

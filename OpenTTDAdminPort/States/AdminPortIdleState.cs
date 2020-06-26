@@ -1,5 +1,7 @@
 ﻿using OpenTTDAdminPort.Common;
 using OpenTTDAdminPort.Messages;
+using OpenTTDAdminPort.Networking;
+using OpenTTDAdminPort.Packets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,35 +11,44 @@ using System.Threading.Tasks;
 
 namespace OpenTTDAdminPort.States
 {
-    //public class AdminPortIdleState : IAdminPortClientState
-    //{
+    internal class AdminPortIdleState : IAdminPortClientState
+    {
+        private readonly IAdminPacketService packetService;
 
-    //    public async Task Connect(AdminPortClientContext context)
-    //    {
-    //        try
-    //        {
-    //            context.cancellationTokenSource = new CancellationTokenSource();
+        public AdminPortIdleState(IAdminPacketService packetService)
+        {
+            this.packetService = packetService;
+        }
 
-    //            ThreadPool.QueueUserWorkItem(new WaitCallback((_) => MainLoop(cancellationTokenSource.Token)), null);
-    //            ThreadPool.QueueUserWorkItem(new WaitCallback((_) => EventLoop(cancellationTokenSource.Token)), null);
+        public async Task Connect(AdminPortClientContext context)
+        {
+            try
+            {
+                context.TcpClient = new AdminPortTcpClient(
+                    new AdminPortTcpClientSenderFactory(packetService),
+                    new AdminPortTcpClientReceiverFactory(packetService),
+                    new MyTcpClient(),
+                    context.ServerInfo.ServerIp,
+                    context.ServerInfo.ServerPort);
 
-    //            if (!(await TaskHelper.WaitUntil(() => context.State == AdminConnectionState.Connected, delayBetweenChecks: TimeSpan.FromSeconds(0.5), duration: TimeSpan.FromSeconds(10))))
-    //            {
-    //                this.cancellationTokenSource.Cancel();
-    //                this.cancellationTokenSource = new CancellationTokenSource();
-    //                throw new AdminPortException("Admin port could not connect to the server");
-    //            }
-    //        }
-    //        catch (Exception e)
-    //        {
-    //            this.ConnectionState = AdminConnectionState.Idle;
-    //            throw new AdminPortException("Could not join server", e);
-    //        }
-    //    }
+                if (!(await TaskHelper.WaitUntil(() => context.State == AdminConnectionState.Connected, delayBetweenChecks: TimeSpan.FromSeconds(0.5), duration: TimeSpan.FromSeconds(10))))
+                {
+                    await context.TcpClient.Stop();
+                    context.TcpClient = null;
+                    context.State = AdminConnectionState.ErroredOut;
+                    throw new AdminPortException("Admin port could not connect to the server");
+                }
+            }
+            catch (Exception e)
+            {
+                context.State = AdminConnectionState.ErroredOut;
+                throw new AdminPortException("Could not join server", e);
+            }
+        }
 
-    //    public Task Disconnect()
-    //    {
-    //        throw new NotImplementedException();
-    //    }
-    //}
+        public Task Disconnect(AdminPortClientContext context)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }
