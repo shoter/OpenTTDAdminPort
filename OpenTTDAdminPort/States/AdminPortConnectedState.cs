@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace OpenTTDAdminPort.States
 {
-    public class AdminPortConnectedState : BaseAdminPortClientState
+    internal class AdminPortConnectedState : BaseAdminPortClientState
     {
         public override void OnStateStart(AdminPortClientContext context)
         {

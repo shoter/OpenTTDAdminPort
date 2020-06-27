@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 
 namespace OpenTTDAdminPort.Networking
 {
-    public interface IAdminPortTcpClient
+    internal interface IAdminPortTcpClient
     {
         event EventHandler<IAdminMessage> MessageReceived;
         event EventHandler<Exception> Errored;
         void SendMessage(IAdminMessage message);
         Task Start(string ip, int port);
         Task Stop();
-        Task Restart(ITcpClient tcpClient)
+        Task Restart(ITcpClient tcpClient);
 
 
         WorkState State { get; }

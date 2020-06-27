@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace OpenTTDAdminPort.States
 {
-    public class AdminPortClientContext
+    internal class AdminPortClientContext
     {
         internal IAdminPortTcpClient TcpClient { get; private set; }
 

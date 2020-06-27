@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace OpenTTDAdminPort.States
 {
-    public abstract class BaseAdminPortClientState : IAdminPortClientState
+    internal abstract class BaseAdminPortClientState : IAdminPortClientState
     {
         public abstract Task Connect(AdminPortClientContext context);
 

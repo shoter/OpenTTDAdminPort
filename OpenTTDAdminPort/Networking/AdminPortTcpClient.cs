@@ -80,8 +80,9 @@ namespace OpenTTDAdminPort.Networking
         {
             Debug.Assert(this.ip != null);
             await Stop();
-            this.Close();
+            this.tcpClient.Close();
             this.tcpClient = tcpClient;
+            this.State = WorkState.NotStarted;
             await Start(this.ip, this.port);
 
         }
