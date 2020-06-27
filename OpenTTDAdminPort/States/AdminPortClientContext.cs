@@ -28,7 +28,7 @@ namespace OpenTTDAdminPort.States
 
         public ConcurrentDictionary<AdminUpdateType, AdminUpdateSetting> AdminUpdateSettings { get; } = new ConcurrentDictionary<AdminUpdateType, AdminUpdateSetting>();
         public ConcurrentDictionary<uint, Player> Players { get; } = new ConcurrentDictionary<uint, Player>();
-        public AdminServerInfo AdminServerInfo { get; set; }
+        public AdminServerInfo? AdminServerInfo { get; set; }
 
 
         public AdminConnectionState state = AdminConnectionState.Idle;

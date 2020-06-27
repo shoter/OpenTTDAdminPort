@@ -49,6 +49,7 @@ namespace OpenTTDAdminPort.Tests.Networking
         public async Task NotAcceptNewMessages_AfterSecondStart()
         {
             await Assert.ThrowsAsync<AdminPortException>(async () => await sender.Start(stream));
+            await Task.Delay(TimeSpan.FromSeconds(1));
 
             AdminPingMessage msg = new AdminPingMessage(33u);
             sender.SendMessage(msg);
@@ -82,6 +83,7 @@ namespace OpenTTDAdminPort.Tests.Networking
         public async Task NotSendMessages_WhenStopped()
         {
             await sender.Stop();
+            await Task.Delay(TimeSpan.FromSeconds(1));
             AdminPingMessage msg = new AdminPingMessage(33u);
             sender.SendMessage(msg);
 

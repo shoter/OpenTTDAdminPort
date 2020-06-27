@@ -64,14 +64,13 @@ namespace OpenTTDAdminPort.Networking
             {
                 try
                 {
+                    await Task.Delay(TimeSpan.FromSeconds(0.1));
+
                     while (messagesToSend.TryDequeue(out IAdminMessage msg))
                     {
                         Packet packet = this.adminPacketService.CreatePacket(msg);
                         await stream.WriteAsync(packet.Buffer, 0, packet.Size).WaitMax(TimeSpan.FromSeconds(2));
                     }
-
-                    await Task.Delay(TimeSpan.FromSeconds(0.1));
-
                 }
                 catch (Exception e)
                 {

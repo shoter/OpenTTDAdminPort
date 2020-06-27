@@ -23,7 +23,7 @@
         /// </summary>
         Errored,
         /// <summary>
-        /// This state indicates there is no connection and no more operations can be done on the client.
+        /// This state indicates fatal error and no more operations can be done on the client.
         /// </summary>
         ErroredOut,
     }
