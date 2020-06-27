@@ -16,15 +16,6 @@ namespace OpenTTDAdminPort.States
 {
     internal class AdminPortConnectingState : BaseAdminPortClientState
     {
-        private IAdminPacketService packetService;
-
-
-        public AdminPortConnectingState(IAdminPacketService packetService)
-        {
-            this.packetService = packetService;
-        }
-
-
         public override void OnMessageReceived(IAdminMessage message, IAdminPortClientContext context)
         {
             switch (message.MessageType)
@@ -56,30 +47,9 @@ namespace OpenTTDAdminPort.States
                             RevisionName = msg.NetworkRevision,
                             ServerName = msg.ServerName
                         };
-
-                        context.TcpClient.SendMessage(new AdminUpdateFrequencyMessage(AdminUpdateType.ADMIN_UPDATE_CHAT, UpdateFrequency.ADMIN_FREQUENCY_AUTOMATIC));
-                        context.TcpClient.SendMessage(new AdminUpdateFrequencyMessage(AdminUpdateType.ADMIN_UPDATE_CONSOLE, UpdateFrequency.ADMIN_FREQUENCY_AUTOMATIC));
-                        context.TcpClient.SendMessage(new AdminUpdateFrequencyMessage(AdminUpdateType.ADMIN_UPDATE_CLIENT_INFO, UpdateFrequency.ADMIN_FREQUENCY_AUTOMATIC));
-                        context.TcpClient.SendMessage(new AdminPollMessage(AdminUpdateType.ADMIN_UPDATE_CLIENT_INFO, uint.MaxValue));
-
                         context.State = AdminConnectionState.Connected;
+
                         //this.logger.LogInformation($"{ServerInfo.ServerIp}:{ServerInfo.ServerPort} - connected");
-                        break;
-                    }
-                case AdminMessageType.ADMIN_PACKET_SERVER_CLIENT_INFO:
-                    {
-                        var msg = (AdminServerClientInfoMessage)message;
-                        var player = new Player(msg.ClientId, msg.ClientName);
-                        context.Players.AddOrUpdate(msg.ClientId, player, (_, __) => player);
-
-                        break;
-                    }
-                case AdminMessageType.ADMIN_PACKET_SERVER_CLIENT_UPDATE:
-                    {
-                        var msg = (AdminServerClientUpdateMessage)message;
-                        var player = context.Players[msg.ClientId];
-                        player.Name = msg.ClientName;
-
                         break;
                     }
             }

@@ -13,13 +13,6 @@ namespace OpenTTDAdminPort.States
 {
     internal class AdminPortIdleState : BaseAdminPortClientState
     {
-        private readonly IAdminPacketService packetService;
-
-        public AdminPortIdleState(IAdminPacketService packetService)
-        {
-            this.packetService = packetService;
-        }
-
         public override async Task Connect(IAdminPortClientContext context)
         {
             try

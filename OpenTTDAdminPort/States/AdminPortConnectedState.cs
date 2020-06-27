@@ -13,11 +13,20 @@ namespace OpenTTDAdminPort.States
         public override void OnStateStart(IAdminPortClientContext context)
         {
             base.OnStateStart(context);
-            while(context.MessagesToSend.TryDequeue(out IAdminMessage msg))
+            //we need info about clients.
+            context.TcpClient.SendMessage(new AdminUpdateFrequencyMessage(AdminUpdateType.ADMIN_UPDATE_CHAT, UpdateFrequency.ADMIN_FREQUENCY_AUTOMATIC));
+            context.TcpClient.SendMessage(new AdminUpdateFrequencyMessage(AdminUpdateType.ADMIN_UPDATE_CONSOLE, UpdateFrequency.ADMIN_FREQUENCY_AUTOMATIC));
+            context.TcpClient.SendMessage(new AdminUpdateFrequencyMessage(AdminUpdateType.ADMIN_UPDATE_CLIENT_INFO, UpdateFrequency.ADMIN_FREQUENCY_AUTOMATIC));
+            context.TcpClient.SendMessage(new AdminPollMessage(AdminUpdateType.ADMIN_UPDATE_CLIENT_INFO, uint.MaxValue));
+
+            // we need to send all old messages.
+            while (context.MessagesToSend.TryDequeue(out IAdminMessage msg))
             {
                 context.TcpClient.SendMessage(msg);
             }
         }
+
+        override 
 
         public void OnMessageReceived(IAdminMessage message, IAdminPortClientContext context)
         {

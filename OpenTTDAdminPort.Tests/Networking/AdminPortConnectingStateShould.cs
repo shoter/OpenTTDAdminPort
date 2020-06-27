@@ -18,7 +18,7 @@ namespace OpenTTDAdminPort.Tests.Networking
 
         public AdminPortConnectingStateShould()
         {
-            state = new AdminPortConnectingState(adminPacketServiceMock.Object);
+            state = new AdminPortConnectingState();
         }
 
         [Fact]
@@ -75,35 +75,6 @@ namespace OpenTTDAdminPort.Tests.Networking
             Assert.Equal("SomeMapName", context.AdminServerInfo.MapName);
             Assert.Equal("1.2.3.4", context.AdminServerInfo.RevisionName);
             Assert.Equal("SuperServer", context.AdminServerInfo.ServerName);
-        }
-
-        [Fact]
-        public void SendProperUpdateMessages_AfterWelcomeMessage()
-        {
-            AdminServerWelcomeMessage welcome = CreateWelcomeMessage();
-
-            state.OnMessageReceived(welcome, context);
-
-            Dictionary<AdminUpdateType, UpdateFrequency> FrequencyMessagesToSend = new Dictionary<AdminUpdateType, UpdateFrequency>()
-            {
-                { AdminUpdateType.ADMIN_UPDATE_CHAT, UpdateFrequency.ADMIN_FREQUENCY_AUTOMATIC },
-                { AdminUpdateType.ADMIN_UPDATE_CONSOLE, UpdateFrequency.ADMIN_FREQUENCY_AUTOMATIC },
-                { AdminUpdateType.ADMIN_UPDATE_CLIENT_INFO, UpdateFrequency.ADMIN_FREQUENCY_AUTOMATIC }
-            };
-
-            foreach (var kp in FrequencyMessagesToSend)
-            {
-                tcpClientMock.Verify(x => x.SendMessage(It.Is<IAdminMessage>(msg =>
-                    msg is AdminUpdateFrequencyMessage &&
-                    ((AdminUpdateFrequencyMessage)msg).UpdateType == kp.Key &&
-                    ((AdminUpdateFrequencyMessage)msg).UpdateFrequency == kp.Value
-                )), Times.Once);
-            }
-
-            tcpClientMock.Verify(x => x.SendMessage(It.Is<IAdminMessage>(msg =>
-                msg is AdminPollMessage &&
-                ((AdminPollMessage)msg).Argument == uint.MaxValue
-                )), Times.Once);
         }
 
         [Fact]

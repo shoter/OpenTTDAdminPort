@@ -18,7 +18,7 @@ namespace OpenTTDAdminPort.Tests.Networking
 
         public AdminPortIdleStateShould()
         {
-            state = new AdminPortIdleState(adminPacketServiceMock.Object);
+            state = new AdminPortIdleState();
         }
 
 
