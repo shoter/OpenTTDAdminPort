@@ -76,8 +76,6 @@ namespace OpenTTDAdminPort.Networking
             Errored?.Invoke(this, e);
         }
 
-        public void Close() => this.tcpClient.Close();
-
         public async Task Restart(ITcpClient tcpClient)
         {
             Debug.Assert(this.ip != null);

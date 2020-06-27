@@ -3,6 +3,7 @@ using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Networking;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -93,5 +94,20 @@ namespace OpenTTDAdminPort.Tests.Networking
             receiverMock.Verify(x => x.Stop(), Times.Once);
         }
 
+        [Fact]
+        public async Task SttopAndStartSenderReceiver_AfterRestart()
+        {
+            var newTcpClientMock = new Mock<ITcpClient>();
+            Stream someStream = new MemoryStream();
+            newTcpClientMock.Setup(x => x.GetStream()).Returns(someStream);
+            await client.Start(ip, port);
+            await client.Restart(newTcpClientMock.Object);
+
+            senderMock.Verify(x => x.Stop(), Times.Once);
+            receiverMock.Verify(x => x.Stop(), Times.Once);
+
+            senderMock.Verify(x => x.Start(someStream), Times.Once);
+            receiverMock.Verify(x => x.Start(someStream), Times.Once);
+        }
     }
 }

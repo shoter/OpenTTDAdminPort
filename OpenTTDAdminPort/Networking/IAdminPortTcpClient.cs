@@ -14,6 +14,8 @@ namespace OpenTTDAdminPort.Networking
         void SendMessage(IAdminMessage message);
         Task Start(string ip, int port);
         Task Stop();
+        Task Restart(ITcpClient tcpClient)
+
 
         WorkState State { get; }
     }
