@@ -9,7 +9,5 @@ namespace OpenTTDAdminPort.Events
     public interface IAdminEvent
     {
         AdminEventType EventType { get; }
-
-        ServerInfo Server { get; }
     }
 }

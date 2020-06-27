@@ -4,13 +4,10 @@
     {
         public AdminEventType EventType => AdminEventType.Pong;
 
-        public ServerInfo Server { get; }
-
         public uint PongValue { get; }
 
-        public AdminPongEvent(ServerInfo server, uint pongValue)
+        public AdminPongEvent(uint pongValue)
         {
-            this.Server = server;
             this.PongValue = pongValue;
         }
     }

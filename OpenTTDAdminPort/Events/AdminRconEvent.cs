@@ -4,13 +4,11 @@
     {
         public AdminEventType EventType => AdminEventType.AdminRcon;
 
-        public ServerInfo Server { get; }
 
         public string Message { get; }
 
-        public AdminRconEvent(ServerInfo server, string msg)
+        public AdminRconEvent(string msg)
         {
-            this.Server = server;
             this.Message = msg;
         }
     }

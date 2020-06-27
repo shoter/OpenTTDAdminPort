@@ -15,12 +15,10 @@ namespace OpenTTDAdminPort.Events
         public Player Player { get; }
         public string Message { get; }
 
-        public ServerInfo Server { get; }
-        public AdminChatMessageEvent(Player player, string msg, ServerInfo info)
+        public AdminChatMessageEvent(Player player, string msg)
         {
             this.Player = player;
             this.Message = msg;
-            this.Server = info;
         }
     }
 }

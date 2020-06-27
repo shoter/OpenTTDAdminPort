@@ -1,9 +1,10 @@
 ﻿using OpenTTDAdminPort.Messages;
+using OpenTTDAdminPort.States;
 
 namespace OpenTTDAdminPort.Events
 {
-    public interface IAdminMessageProcessor
+    internal interface IAdminMessageProcessor
     {
-        IAdminEvent? ProcessMessage(IAdminMessage adminMessage, in IAdminPortClient client);
+        IAdminEvent? ProcessMessage(in IAdminMessage adminMessage, in IAdminPortClientContext context);
     }
 }
