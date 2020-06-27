@@ -27,12 +27,12 @@ namespace OpenTTDAdminPort.States
                 await context.TcpClient.Start(context.ServerInfo.ServerIp, context.ServerInfo.ServerPort);
                 context.State = AdminConnectionState.Connecting;
 
-                if (!(await TaskHelper.WaitUntil(() => context.State == AdminConnectionState.Connected, delayBetweenChecks: TimeSpan.FromSeconds(0.5), duration: TimeSpan.FromSeconds(10))))
-                {
-                    await context.TcpClient.Stop();
-                    context.State = AdminConnectionState.ErroredOut;
-                    throw new AdminPortException("Admin port could not connect to the server");
-                }
+                //if (!(await TaskHelper.WaitUntil(() => context.State == AdminConnectionState.Connected, delayBetweenChecks: TimeSpan.FromSeconds(0.5), duration: TimeSpan.FromSeconds(10))))
+                //{
+                //    await context.TcpClient.Stop();
+                //    context.State = AdminConnectionState.ErroredOut;
+                //    throw new AdminPortException("Admin port could not connect to the server");
+                //}
             }
             catch (Exception e)
             {
