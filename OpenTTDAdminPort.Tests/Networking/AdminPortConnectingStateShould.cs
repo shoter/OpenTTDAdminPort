@@ -19,6 +19,7 @@ namespace OpenTTDAdminPort.Tests.Networking
         public AdminPortConnectingStateShould()
         {
             state = new AdminPortConnectingState();
+            context.State = AdminConnectionState.Connecting;
         }
 
         [Fact]
