@@ -11,8 +11,8 @@ namespace OpenTTDAdminPort.Tests.Networking
     internal class AdminPortTcpClientFake : IAdminPortTcpClient
     {
         public virtual WorkState State { get; private set; } = WorkState.NotStarted;
-        public event EventHandler<IAdminMessage> MessageReceived;
-        public event EventHandler<Exception> Errored;
+        public virtual event EventHandler<IAdminMessage> MessageReceived;
+        public virtual event EventHandler<Exception> Errored;
 
 
         public virtual Task Restart(ITcpClient tcpClient)

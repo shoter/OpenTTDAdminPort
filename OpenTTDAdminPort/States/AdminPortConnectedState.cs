@@ -19,9 +19,8 @@ namespace OpenTTDAdminPort.States
             }
         }
 
-        protected override void MessageReceived(IAdminPortClientContext context, IAdminMessage message)
+        public void OnMessageReceived(IAdminMessage message, IAdminPortClientContext context)
         {
-            base.MessageReceived(context, message);
 
             switch(message.MessageType)
             {

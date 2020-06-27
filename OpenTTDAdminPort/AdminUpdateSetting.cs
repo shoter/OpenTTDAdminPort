@@ -19,7 +19,7 @@ namespace OpenTTDAdminPort
         {
             this.Enabled = enabled;
             this.UpdateType = updateType;
-            this.UpdateFrequency = UpdateFrequency;
+            this.UpdateFrequency = updateFrequency;
         }
 
         public override string ToString() => $"{this.UpdateType} - {this.UpdateFrequency}";

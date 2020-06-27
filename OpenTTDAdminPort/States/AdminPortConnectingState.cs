@@ -30,7 +30,7 @@ namespace OpenTTDAdminPort.States
             throw new NotImplementedException();
         }
 
-        protected override void MessageReceived(IAdminPortClientContext context, IAdminMessage message)
+        public override void OnMessageReceived(IAdminMessage message, IAdminPortClientContext context)
         {
             switch (message.MessageType)
             {

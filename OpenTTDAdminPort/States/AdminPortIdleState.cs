@@ -25,6 +25,7 @@ namespace OpenTTDAdminPort.States
             try
             {
                 await context.TcpClient.Start(context.ServerInfo.ServerIp, context.ServerInfo.ServerPort);
+                context.TcpClient.SendMessage(new AdminJoinMessage(context.ServerInfo.Password, context.ClientName, context.ClientVersion));
                 context.State = AdminConnectionState.Connecting;
 
                 //if (!(await TaskHelper.WaitUntil(() => context.State == AdminConnectionState.Connected, delayBetweenChecks: TimeSpan.FromSeconds(0.5), duration: TimeSpan.FromSeconds(10))))

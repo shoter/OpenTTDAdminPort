@@ -1,4 +1,5 @@
-﻿using OpenTTDAdminPort.Events;
+﻿using OpenTTDAdminPort.Common;
+using OpenTTDAdminPort.Events;
 using OpenTTDAdminPort.Game;
 using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Networking;
@@ -53,6 +54,11 @@ namespace OpenTTDAdminPort.States
             this.ServerInfo = serverInfo;
 
             this.TcpClient.MessageReceived += (who, e) => this.MessageReceived?.Invoke(this, e);
+
+            foreach(var updateType in Enums.ToArray<AdminUpdateType>())
+            {
+                this.AdminUpdateSettings.TryAdd(updateType, new AdminUpdateSetting(false, updateType, UpdateFrequency.ADMIN_FREQUENCY_POLL));
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Moq;
+using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Networking;
 using OpenTTDAdminPort.Packets;
 using OpenTTDAdminPort.States;
@@ -11,11 +12,9 @@ using Xunit;
 
 namespace OpenTTDAdminPort.Tests.Networking
 {
-    public class AdminPortIdleStateShould
+    public class AdminPortIdleStateShould : BaseStateShould
     {
-        AdminPortClientContextFake fix = new AdminPortClientContextFake();
         AdminPortIdleState state;
-        Mock<IAdminPacketService> adminPacketServiceMock = new Mock<IAdminPacketService>();
 
         public AdminPortIdleStateShould()
         {
@@ -24,20 +23,23 @@ namespace OpenTTDAdminPort.Tests.Networking
 
 
         [Fact]
-        public async Task StartTcpClientOnConnect()
+        public async Task StartTcpClientOnConnect_AndSendJoiningMessage()
         {
-            var context = new AdminPortClientContextFake();
             await state.Connect(context);
 
-            context.FakeTcpClient.Verify(x => x.Start(context.ServerInfo.ServerIp, context.ServerInfo.ServerPort), Times.Once);
+            tcpClientMock.Verify(x => x.Start(context.ServerInfo.ServerIp, context.ServerInfo.ServerPort), Times.Once);
+            tcpClientMock.Verify(x => x.SendMessage(It.Is<IAdminMessage>(msg =>
+            ((AdminJoinMessage)msg).Password == context.ServerInfo.Password &&
+            ((AdminJoinMessage)msg).AdminName == context.ClientName &&
+            ((AdminJoinMessage)msg).AdminVersion == context.ClientVersion
+            )), Times.Once);
             Assert.Equal(AdminConnectionState.Connecting, context.State);
         }
 
         [Fact]
         public async Task NotTryToConnect_WhenTcpClientErrorsDuringStart()
         {
-            var context = new AdminPortClientContextFake();
-            context.FakeTcpClient.Setup(x => x.Start(It.IsAny<string>(), It.IsAny<int>())).Throws<Exception>();
+            tcpClientMock.Setup(x => x.Start(It.IsAny<string>(), It.IsAny<int>())).Throws<Exception>();
             await Assert.ThrowsAsync<AdminPortException>(async () => await state.Connect(context));
             Assert.Equal(AdminConnectionState.ErroredOut, context.State);
         }
