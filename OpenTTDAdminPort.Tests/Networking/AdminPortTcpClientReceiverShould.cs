@@ -21,8 +21,8 @@ namespace OpenTTDAdminPort.Tests.Networking
             Packet packet = CreatePongMessage();
             using MemoryStream stream = new MemoryStream(2000);
 
-            var receiver = new AdminPortTcpClientReceiver(packetService, stream);
-            await receiver.Start();
+            var receiver = new AdminPortTcpClientReceiver(packetService);
+            await receiver.Start(stream);
             IAdminMessage receivedMessage = null;
             receiver.MessageReceived += (_, msg) => receivedMessage = msg;
 
@@ -39,8 +39,8 @@ namespace OpenTTDAdminPort.Tests.Networking
             Packet packet = CreatePongMessage();
             using MemoryStream stream = new MemoryStream(2000);
 
-            var receiver = new AdminPortTcpClientReceiver(packetService, stream);
-            await receiver.Start();
+            var receiver = new AdminPortTcpClientReceiver(packetService);
+            await receiver.Start(stream);
             IAdminMessage receivedMessage = null;
             receiver.MessageReceived += (_, msg) => receivedMessage = msg;
 
@@ -62,8 +62,8 @@ namespace OpenTTDAdminPort.Tests.Networking
             Packet packet = CreatePongMessage();
             using MemoryStream stream = new MemoryStream(2000);
 
-            var receiver = new AdminPortTcpClientReceiver(packetService, stream);
-            await receiver.Start();
+            var receiver = new AdminPortTcpClientReceiver(packetService);
+            await receiver.Start(stream);
             IAdminMessage receivedMessage = null;
             receiver.MessageReceived += (_, msg) => receivedMessage = msg;
 
@@ -84,8 +84,8 @@ namespace OpenTTDAdminPort.Tests.Networking
             Packet packet = CreatePongMessage();
             using MemoryStream stream = new MemoryStream(2000);
 
-            var receiver = new AdminPortTcpClientReceiver(packetService, stream);
-            await receiver.Start();
+            var receiver = new AdminPortTcpClientReceiver(packetService);
+            await receiver.Start(stream);
             IAdminMessage receivedMessage = null;
             receiver.MessageReceived += (_, msg) => receivedMessage = msg;
 
@@ -104,8 +104,8 @@ namespace OpenTTDAdminPort.Tests.Networking
             Packet packet = CreatePongMessage();
             using MemoryStream stream = new MemoryStream(2000);
 
-            var receiver = new AdminPortTcpClientReceiver(packetService, stream);
-            await receiver.Start();
+            var receiver = new AdminPortTcpClientReceiver(packetService);
+            await receiver.Start(stream);
             await receiver.Stop();
             IAdminMessage receivedMessage = null;
             receiver.MessageReceived += (_, msg) => receivedMessage = msg;
@@ -122,8 +122,8 @@ namespace OpenTTDAdminPort.Tests.Networking
         {
             using MemoryStream stream = new MemoryStream(2000);
 
-            var receiver = new AdminPortTcpClientReceiver(packetService, stream);
-            await receiver.Start();
+            var receiver = new AdminPortTcpClientReceiver(packetService);
+            await receiver.Start(stream);
 
             Assert.Equal(WorkState.Working, receiver.State);
         }
@@ -133,9 +133,9 @@ namespace OpenTTDAdminPort.Tests.Networking
         {
             using MemoryStream stream = new MemoryStream(2000);
 
-            var receiver = new AdminPortTcpClientReceiver(packetService, stream);
-            await receiver.Start();
-            await Assert.ThrowsAsync<AdminPortException>(async () => await receiver.Start());
+            var receiver = new AdminPortTcpClientReceiver(packetService);
+            await receiver.Start(stream);
+            await Assert.ThrowsAsync<AdminPortException>(async () => await receiver.Start(stream));
 
             Assert.Equal(WorkState.Errored, receiver.State);
         }
@@ -146,11 +146,11 @@ namespace OpenTTDAdminPort.Tests.Networking
             Packet packet = CreatePongMessage();
             using MemoryStream stream = new MemoryStream(2000);
 
-            var receiver = new AdminPortTcpClientReceiver(packetService, stream);
-            await receiver.Start();
+            var receiver = new AdminPortTcpClientReceiver(packetService);
+            await receiver.Start(stream);
             try
             {
-                await receiver.Start();
+                await receiver.Start(stream);
             }
             catch (Exception) { }
             IAdminMessage receivedMessage = null;
@@ -169,8 +169,8 @@ namespace OpenTTDAdminPort.Tests.Networking
             Packet packet = CreateWrongMessage();
             using MemoryStream stream = new MemoryStream(2000);
 
-            var receiver = new AdminPortTcpClientReceiver(packetService, stream);
-            await receiver.Start();
+            var receiver = new AdminPortTcpClientReceiver(packetService);
+            await receiver.Start(stream);
             IAdminMessage receivedMessage = null;
             receiver.MessageReceived += (_, msg) => receivedMessage = msg;
 
@@ -187,8 +187,8 @@ namespace OpenTTDAdminPort.Tests.Networking
             Packet packet = CreateWrongMessage();
             using MemoryStream stream = new MemoryStream(2000);
 
-            var receiver = new AdminPortTcpClientReceiver(packetService, stream);
-            await receiver.Start();
+            var receiver = new AdminPortTcpClientReceiver(packetService);
+            await receiver.Start(stream);
             IAdminMessage receivedMessage = null;
             receiver.MessageReceived += (_, msg) => receivedMessage = msg;
 
@@ -209,8 +209,8 @@ namespace OpenTTDAdminPort.Tests.Networking
         {
             Packet packet = CreatePongMessage();
             using MemoryStream stream = new MemoryStream(2000);
-            var receiver = new AdminPortTcpClientReceiver(packetService, stream);
-            await receiver.Start();
+            var receiver = new AdminPortTcpClientReceiver(packetService);
+            await receiver.Start(stream);
             receiver.MessageReceived += (_, msg) => throw new Exception("Peek a boo!");
             stream.Write(packet.Buffer, 0, packet.Size);
             stream.Position = 0;

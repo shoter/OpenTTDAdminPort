@@ -20,9 +20,9 @@ namespace OpenTTDAdminPort.Tests.Networking
 
         public AdminPortTcpClientSenderShould()
         {
-            sender = new AdminPortTcpClientSender(adminPacketService, stream);
+            sender = new AdminPortTcpClientSender(adminPacketService);
             // We will always start sender.
-            sender.Start().Wait();
+            sender.Start(stream).Wait();
         }
 
         [Fact]
@@ -41,14 +41,14 @@ namespace OpenTTDAdminPort.Tests.Networking
         [Fact]
         public async Task ThrowException_AfterSecondStart()
         {
-            await Assert.ThrowsAsync<AdminPortException>(async () => await sender.Start());
+            await Assert.ThrowsAsync<AdminPortException>(async () => await sender.Start(stream));
             Assert.Equal(WorkState.Errored, sender.State);
         }
 
         [Fact]
         public async Task NotAcceptNewMessages_AfterSecondStart()
         {
-            await Assert.ThrowsAsync<AdminPortException>(async () => await sender.Start());
+            await Assert.ThrowsAsync<AdminPortException>(async () => await sender.Start(stream));
 
             AdminPingMessage msg = new AdminPingMessage(33u);
             sender.SendMessage(msg);
@@ -100,7 +100,7 @@ namespace OpenTTDAdminPort.Tests.Networking
         public async Task NotStart_AfterStopping()
         {
             await sender.Stop();
-            await Assert.ThrowsAsync<AdminPortException>(async () => await sender.Start());
+            await Assert.ThrowsAsync<AdminPortException>(async () => await sender.Start(stream));
             Assert.NotEqual(WorkState.Working, sender.State);
         }
 
