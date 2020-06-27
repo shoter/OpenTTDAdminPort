@@ -15,24 +15,24 @@ using System.Threading.Tasks;
 
 namespace OpenTTDAdminPort.States
 {
-    internal class AdminPortClientContext
+    internal class AdminPortClientContext : IAdminPortClientContext
     {
-        internal IAdminPortTcpClient TcpClient { get; private set; }
+        public IAdminPortTcpClient TcpClient { get; private set; }
 
-        internal event EventHandler<IAdminMessage>? MessageReceived;
-        internal event EventHandler<AdminConnectionStateChangedArgs>? StateChanged;
+        public event EventHandler<IAdminMessage>? MessageReceived;
+        public event EventHandler<AdminConnectionStateChangedArgs>? StateChanged;
 
-        internal string ClientName { get; }
-        internal string ClientVersion { get; }
-        internal ServerInfo ServerInfo { get; }
+        public string ClientName { get; }
+        public string ClientVersion { get; }
+        public ServerInfo ServerInfo { get; }
 
-        internal ConcurrentDictionary<AdminUpdateType, AdminUpdateSetting> AdminUpdateSettings { get; } = new ConcurrentDictionary<AdminUpdateType, AdminUpdateSetting>();
-        internal ConcurrentDictionary<uint, Player> Players { get; } = new ConcurrentDictionary<uint, Player>();
-        internal AdminServerInfo AdminServerInfo { get; set; }
+        public ConcurrentDictionary<AdminUpdateType, AdminUpdateSetting> AdminUpdateSettings { get; } = new ConcurrentDictionary<AdminUpdateType, AdminUpdateSetting>();
+        public ConcurrentDictionary<uint, Player> Players { get; } = new ConcurrentDictionary<uint, Player>();
+        public AdminServerInfo AdminServerInfo { get; set; }
 
 
-        private AdminConnectionState state = AdminConnectionState.Idle;
-        internal AdminConnectionState State
+        public AdminConnectionState state = AdminConnectionState.Idle;
+        public AdminConnectionState State
         {
             get => state;
             set
@@ -42,7 +42,7 @@ namespace OpenTTDAdminPort.States
                 StateChanged?.Invoke(this, new AdminConnectionStateChangedArgs(old, value));
             }
         }
-        internal ConcurrentQueue<IAdminMessage> MessagesToSend { get; } = new ConcurrentQueue<IAdminMessage>();
+        public ConcurrentQueue<IAdminMessage> MessagesToSend { get; } = new ConcurrentQueue<IAdminMessage>();
 
         public AdminPortClientContext(IAdminPortTcpClient adminPortTcpClient, string clientName, string clientVersion, ServerInfo serverInfo)
         {

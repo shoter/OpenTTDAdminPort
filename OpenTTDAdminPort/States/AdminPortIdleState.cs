@@ -20,7 +20,7 @@ namespace OpenTTDAdminPort.States
             this.packetService = packetService;
         }
 
-        public override async Task Connect(AdminPortClientContext context)
+        public override async Task Connect(IAdminPortClientContext context)
         {
             try
             {
@@ -41,7 +41,7 @@ namespace OpenTTDAdminPort.States
             }
         }
 
-        public override Task Disconnect(AdminPortClientContext context)
+        public override Task Disconnect(IAdminPortClientContext context)
         {
             return Task.CompletedTask;
         }

@@ -30,7 +30,7 @@ namespace OpenTTDAdminPort.States
             throw new NotImplementedException();
         }
 
-        protected override void MessageReceived(AdminPortClientContext context, IAdminMessage message)
+        protected override void MessageReceived(IAdminPortClientContext context, IAdminMessage message)
         {
             switch (message.MessageType)
             {
@@ -96,12 +96,12 @@ namespace OpenTTDAdminPort.States
         }
 
 
-        public override Task Connect(AdminPortClientContext context)
+        public override Task Connect(IAdminPortClientContext context)
         {
             return Task.CompletedTask;
         }
 
-        public override Task Disconnect(AdminPortClientContext context)
+        public override Task Disconnect(IAdminPortClientContext context)
         {
             throw new NotImplementedException("You cannot disconnect client while connecting");
         }

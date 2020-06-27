@@ -10,7 +10,7 @@ namespace OpenTTDAdminPort.States
 {
     internal class AdminPortConnectedState : BaseAdminPortClientState
     {
-        public override void OnStateStart(AdminPortClientContext context)
+        public override void OnStateStart(IAdminPortClientContext context)
         {
             base.OnStateStart(context);
             while(context.MessagesToSend.TryDequeue(out IAdminMessage msg))
@@ -19,7 +19,7 @@ namespace OpenTTDAdminPort.States
             }
         }
 
-        protected override void MessageReceived(AdminPortClientContext context, IAdminMessage message)
+        protected override void MessageReceived(IAdminPortClientContext context, IAdminMessage message)
         {
             base.MessageReceived(context, message);
 
@@ -48,12 +48,12 @@ namespace OpenTTDAdminPort.States
             }
         }
 
-        public override Task Connect(AdminPortClientContext context)
+        public override Task Connect(IAdminPortClientContext context)
         {
             return Task.CompletedTask;
         }
 
-        public override Task Disconnect(AdminPortClientContext context)
+        public override Task Disconnect(IAdminPortClientContext context)
         {
             context.State = AdminConnectionState.Disconnecting;
             return Task.CompletedTask;

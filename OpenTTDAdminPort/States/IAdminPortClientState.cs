@@ -9,11 +9,11 @@ namespace OpenTTDAdminPort.States
 {
     internal interface IAdminPortClientState
     {
-        void OnStateStart(AdminPortClientContext context);
-        Task Connect(AdminPortClientContext context);
-        Task Disconnect(AdminPortClientContext context);
-        void OnStateEnd(AdminPortClientContext context);
-        void OnMessageReceived(IAdminMessage message, AdminPortClientContext context);
+        void OnStateStart(IAdminPortClientContext context);
+        Task Connect(IAdminPortClientContext context);
+        Task Disconnect(IAdminPortClientContext context);
+        void OnStateEnd(IAdminPortClientContext context);
+        void OnMessageReceived(IAdminMessage message, IAdminPortClientContext context);
        
 
     }
