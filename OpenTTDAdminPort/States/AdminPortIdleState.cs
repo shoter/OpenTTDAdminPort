@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace OpenTTDAdminPort.States
 {
-    internal class AdminPortIdleState : IAdminPortClientState
+    internal class AdminPortIdleState : BaseAdminPortClientState
     {
         private readonly IAdminPacketService packetService;
 
@@ -20,21 +20,16 @@ namespace OpenTTDAdminPort.States
             this.packetService = packetService;
         }
 
-        public async Task Connect(AdminPortClientContext context)
+        public override async Task Connect(AdminPortClientContext context)
         {
             try
             {
-                context.TcpClient = new AdminPortTcpClient(
-                    new AdminPortTcpClientSenderFactory(packetService),
-                    new AdminPortTcpClientReceiverFactory(packetService),
-                    new MyTcpClient(),
-                    context.ServerInfo.ServerIp,
-                    context.ServerInfo.ServerPort);
+                await context.TcpClient.Start(context.ServerInfo.ServerIp, context.ServerInfo.ServerPort);
+                context.State = AdminConnectionState.Connecting;
 
                 if (!(await TaskHelper.WaitUntil(() => context.State == AdminConnectionState.Connected, delayBetweenChecks: TimeSpan.FromSeconds(0.5), duration: TimeSpan.FromSeconds(10))))
                 {
                     await context.TcpClient.Stop();
-                    context.TcpClient = null;
                     context.State = AdminConnectionState.ErroredOut;
                     throw new AdminPortException("Admin port could not connect to the server");
                 }
@@ -46,9 +41,9 @@ namespace OpenTTDAdminPort.States
             }
         }
 
-        public Task Disconnect(AdminPortClientContext context)
+        public override Task Disconnect(AdminPortClientContext context)
         {
-            throw new NotImplementedException();
+            return Task.CompletedTask;
         }
     }
 }

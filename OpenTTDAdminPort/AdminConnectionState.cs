@@ -18,8 +18,8 @@
         /// </summary>
         Disconnecting,
         /// <summary>
-        /// This state will happen when we have ongoing connection. During this state client will try to send quit message.
-        /// Status will turn into <see cref="ErroredOut"/> after a while.
+        /// This happens when there was an error with current connection.
+        /// Client will try to gracely send quit message to the server and after a while it will try to connect again.
         /// </summary>
         Errored,
         /// <summary>

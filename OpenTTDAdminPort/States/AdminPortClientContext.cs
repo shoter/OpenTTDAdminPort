@@ -1,6 +1,8 @@
 ﻿using OpenTTDAdminPort.Events;
+using OpenTTDAdminPort.Game;
 using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Networking;
+using OpenTTDAdminPort.Packets;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -15,37 +17,42 @@ namespace OpenTTDAdminPort.States
 {
     public class AdminPortClientContext
     {
-        internal IAdminPortTcpClient? TcpClient { get; set; }
+        internal IAdminPortTcpClient TcpClient { get; private set; }
 
-        internal event EventHandler<IAdminEvent>? EventReceived;
-        internal event EventHandler<AdminConnectionState>? StateChanged;
+        internal event EventHandler<IAdminMessage>? MessageReceived;
+        internal event EventHandler<AdminConnectionStateChangedArgs>? StateChanged;
 
         internal string ClientName { get; }
-
         internal string ClientVersion { get; }
+        internal ServerInfo ServerInfo { get; }
 
-        private AdminConnectionState state;
+        internal ConcurrentDictionary<AdminUpdateType, AdminUpdateSetting> AdminUpdateSettings { get; } = new ConcurrentDictionary<AdminUpdateType, AdminUpdateSetting>();
+        internal ConcurrentDictionary<uint, Player> Players { get; } = new ConcurrentDictionary<uint, Player>();
+        internal AdminServerInfo AdminServerInfo { get; set; }
+
+
+        private AdminConnectionState state = AdminConnectionState.Idle;
         internal AdminConnectionState State
         {
             get => state;
             set
             {
+                AdminConnectionState old = state;
                 state = value;
-                StateChanged?.Invoke(this, state);
+                StateChanged?.Invoke(this, new AdminConnectionStateChangedArgs(old, value));
             }
         }
-        internal ConcurrentQueue<IAdminMessage> MessagesToSent { get; } = new ConcurrentQueue<IAdminMessage>();
+        internal ConcurrentQueue<IAdminMessage> MessagesToSend { get; } = new ConcurrentQueue<IAdminMessage>();
 
-        internal CancellationTokenSrce cancellationTokenSource = new CancellationTokenSource();
-
-        internal ServerInfo ServerInfo {get;}
-
-
-        public AdminPortClientContext(string clientName, string clientVersion)
+        public AdminPortClientContext(IAdminPortTcpClient adminPortTcpClient, string clientName, string clientVersion, ServerInfo serverInfo)
         {
-            this.ClientName = ClientName;
+            this.ClientName = clientName;
             this.ClientVersion = clientVersion;
-            this.state = AdminConnectionState.Idle;
+            this.State = AdminConnectionState.Idle;
+            this.TcpClient = adminPortTcpClient;
+            this.ServerInfo = serverInfo;
+
+            this.TcpClient.MessageReceived += (who, e) => this.MessageReceived?.Invoke(this, e);
         }
     }
 }

@@ -22,12 +22,10 @@ namespace OpenTTDAdminPort.Networking
 
         private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
-        private readonly Stream stream;
         private readonly IAdminPacketService adminPacketService;
 
-        public AdminPortTcpClientSender(IAdminPacketService adminPacketService, Stream stream)
+        public AdminPortTcpClientSender(IAdminPacketService adminPacketService)
         {
-            this.stream = stream;
             this.adminPacketService = adminPacketService;
         }
 
@@ -36,7 +34,7 @@ namespace OpenTTDAdminPort.Networking
             messagesToSend.Enqueue(message);
         }
 
-        public Task Start()
+        public Task Start(Stream stream)
         {
             if (State != WorkState.NotStarted)
             {
@@ -45,7 +43,7 @@ namespace OpenTTDAdminPort.Networking
                 throw new AdminPortException("This Sender had been started before! You cannot start sender more than 1 time");
             }
 
-            ThreadPool.QueueUserWorkItem(new WaitCallback((_) => MainLoop(cancellationTokenSource.Token)), null);
+            ThreadPool.QueueUserWorkItem(new WaitCallback((_) => MainLoop(stream, cancellationTokenSource.Token)), null);
             State = WorkState.Working;
             return Task.CompletedTask;
         }
@@ -60,7 +58,7 @@ namespace OpenTTDAdminPort.Networking
             return Task.CompletedTask;
         }
 
-        private async void MainLoop(CancellationToken token)
+        private async void MainLoop(Stream stream, CancellationToken token)
         {
             while (token.IsCancellationRequested == false)
             {

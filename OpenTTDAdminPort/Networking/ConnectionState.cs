@@ -12,7 +12,5 @@ namespace OpenTTDAdminPort.Networking
         Working,
         Errored,
         Stopped
-        
-        
     }
 }

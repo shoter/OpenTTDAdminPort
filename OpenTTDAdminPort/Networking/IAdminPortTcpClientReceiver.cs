@@ -1,6 +1,7 @@
 ﻿using OpenTTDAdminPort.Messages;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,7 +14,7 @@ namespace OpenTTDAdminPort.Networking
         event EventHandler<Exception>? ErrorOcurred;
         WorkState State { get; }
 
-        Task Start();
+        Task Start(Stream stream);
         Task Stop();
     }
 }

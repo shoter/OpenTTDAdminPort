@@ -13,6 +13,7 @@ namespace OpenTTDAdminPort.Networking
         Stream GetStream();
         EndPoint RemoteEndPoint { get; }
         Task ConnectAsync(string ip, int port);
+        void Close();
 
     }
 }

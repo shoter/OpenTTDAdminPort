@@ -21,18 +21,16 @@ namespace OpenTTDAdminPort.Networking
         public event EventHandler<IAdminMessage>? MessageReceived;
 
         private readonly ConcurrentQueue<IAdminMessage> receivedMessages = new ConcurrentQueue<IAdminMessage>();
-        private readonly Stream stream;
         private readonly IAdminPacketService adminPacketService;
 
         public WorkState State { get; private set; } = WorkState.NotStarted;
 
-        public AdminPortTcpClientReceiver(IAdminPacketService adminPacketService, Stream stream)
+        public AdminPortTcpClientReceiver(IAdminPacketService adminPacketService)
         {
-            this.stream = stream;
             this.adminPacketService = adminPacketService;
         }
 
-        public Task Start()
+        public Task Start(Stream stream)
         {
             if (State != WorkState.NotStarted)
             {
@@ -41,7 +39,7 @@ namespace OpenTTDAdminPort.Networking
                 throw new AdminPortException("This Receiver had been started before! You cannot start receiver more than 1 time");
             }
 
-            ThreadPool.QueueUserWorkItem(new WaitCallback((_) => MainLoop(cancellationTokenSource.Token)), null);
+            ThreadPool.QueueUserWorkItem(new WaitCallback((_) => MainLoop(stream, cancellationTokenSource.Token)), null);
             ThreadPool.QueueUserWorkItem(new WaitCallback((_) => EventLoop(cancellationTokenSource.Token)), null);
 
             State = WorkState.Working;
@@ -59,14 +57,14 @@ namespace OpenTTDAdminPort.Networking
             return Task.CompletedTask;
         }
 
-        private async void MainLoop(CancellationToken token)
+        private async void MainLoop(Stream stream, CancellationToken token)
         {
 
             while (token.IsCancellationRequested == false)
             {
                 try
                 {
-                    Packet packet = await WaitForPacket(token);
+                    Packet packet = await WaitForPacket(stream, token);
                     IAdminMessage message = adminPacketService.ReadPacket(packet);
                     if (!token.IsCancellationRequested)
                         receivedMessages.Enqueue(message);
@@ -80,11 +78,11 @@ namespace OpenTTDAdminPort.Networking
             }
         }
 
-        private async Task<Packet> WaitForPacket(CancellationToken token)
+        private async Task<Packet> WaitForPacket(Stream stream, CancellationToken token)
         {
-            byte[] sizeBuffer = await Read(2, token);
+            byte[] sizeBuffer = await Read(stream, 2, token);
             ushort size = BitConverter.ToUInt16(sizeBuffer, 0);
-            byte[] content = await Read(size - 2, token).WaitMax(TimeSpan.FromSeconds(5));
+            byte[] content = await Read(stream, size - 2, token).WaitMax(TimeSpan.FromSeconds(5));
             Packet packet = CreatePacket(sizeBuffer, content);
             return packet;
         }
@@ -101,7 +99,7 @@ namespace OpenTTDAdminPort.Networking
             return packet;
         }
 
-        private async Task<byte[]> Read(int dataSize, CancellationToken token)
+        private async Task<byte[]> Read(Stream stream, int dataSize, CancellationToken token)
         {
             byte[] result = new byte[dataSize];
             int currentSize = 0;
