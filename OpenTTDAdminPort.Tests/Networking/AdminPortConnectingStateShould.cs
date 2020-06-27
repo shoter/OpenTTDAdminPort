@@ -116,6 +116,21 @@ namespace OpenTTDAdminPort.Tests.Networking
             Assert.Equal(AdminConnectionState.Connected, context.State);
         }
 
+        [Fact]
+        public void NotDoAnythin_WhenTryingToConnectAgain()
+        {
+            // how should I test that xD?
+            state.Connect(context);
+            Assert.Equal(AdminConnectionState.Connecting, context.State);
+        }
+
+        [Fact]
+        public void ChangeToDisconnectingState_WhenCallingDisconnect()
+        {
+            state.Disconnect(context);
+            Assert.Equal(AdminConnectionState.Disconnecting, context.State);
+        }
+
         private static AdminServerWelcomeMessage CreateWelcomeMessage()
         {
             return new AdminServerWelcomeMessage()
