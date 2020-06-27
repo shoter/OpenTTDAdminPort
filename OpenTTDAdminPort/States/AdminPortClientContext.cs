@@ -20,7 +20,6 @@ namespace OpenTTDAdminPort.States
     {
         public IAdminPortTcpClient TcpClient { get; private set; }
 
-        public event EventHandler<IAdminMessage>? MessageReceived;
         public event EventHandler<AdminConnectionStateChangedArgs>? StateChanged;
 
         public string ClientName { get; }
@@ -52,8 +51,6 @@ namespace OpenTTDAdminPort.States
             this.State = AdminConnectionState.Idle;
             this.TcpClient = adminPortTcpClient;
             this.ServerInfo = serverInfo;
-
-            this.TcpClient.MessageReceived += (who, e) => this.MessageReceived?.Invoke(this, e);
 
             foreach(var updateType in Enums.ToArray<AdminUpdateType>())
             {

@@ -17,6 +17,11 @@ namespace OpenTTDAdminPort.States
         {
         }
 
+        virtual public void SendMessage(IAdminMessage message, IAdminPortClientContext context)
+        {
+            context.MessagesToSend.Enqueue(message);
+        }
+
         virtual public void OnStateEnd(IAdminPortClientContext context)
         {
         }

@@ -18,7 +18,6 @@ namespace OpenTTDAdminPort.States
         string ClientVersion { get; }
         ServerInfo ServerInfo { get; }
 
-        event EventHandler<IAdminMessage>? MessageReceived;
         event EventHandler<AdminConnectionStateChangedArgs>? StateChanged;
 
         ConcurrentDictionary<AdminUpdateType, AdminUpdateSetting> AdminUpdateSettings { get; } 

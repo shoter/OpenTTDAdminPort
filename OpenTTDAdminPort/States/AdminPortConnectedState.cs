@@ -10,6 +10,8 @@ namespace OpenTTDAdminPort.States
 {
     internal class AdminPortConnectedState : BaseAdminPortClientState
     {
+
+        
         public override void OnStateStart(IAdminPortClientContext context)
         {
             base.OnStateStart(context);
@@ -26,11 +28,8 @@ namespace OpenTTDAdminPort.States
             }
         }
 
-        override 
-
-        public void OnMessageReceived(IAdminMessage message, IAdminPortClientContext context)
+        public override void OnMessageReceived(IAdminMessage message, IAdminPortClientContext context)
         {
-
             switch(message.MessageType)
             {
                 case AdminMessageType.ADMIN_PACKET_SERVER_CLIENT_INFO:
@@ -48,11 +47,6 @@ namespace OpenTTDAdminPort.States
                         player.Name = msg.ClientName;
                         break;
                     }
-                default:
-                    {
-                        break;
-
-                    }
             }
         }
 
@@ -65,6 +59,11 @@ namespace OpenTTDAdminPort.States
         {
             context.State = AdminConnectionState.Disconnecting;
             return Task.CompletedTask;
+        }
+
+        public override void SendMessage(IAdminMessage message, IAdminPortClientContext context)
+        {
+            context.TcpClient.SendMessage(message);
         }
     }
 }

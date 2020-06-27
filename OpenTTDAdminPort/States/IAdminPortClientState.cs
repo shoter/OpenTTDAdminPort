@@ -14,7 +14,7 @@ namespace OpenTTDAdminPort.States
         Task Disconnect(IAdminPortClientContext context);
         void OnStateEnd(IAdminPortClientContext context);
         void OnMessageReceived(IAdminMessage message, IAdminPortClientContext context);
-       
+        void SendMessage(IAdminMessage message, IAdminPortClientContext context);
 
     }
 }

@@ -43,5 +43,15 @@ namespace OpenTTDAdminPort.Tests.Networking
             await Assert.ThrowsAsync<AdminPortException>(async () => await state.Connect(context));
             Assert.Equal(AdminConnectionState.ErroredOut, context.State);
         }
+
+        [Fact]
+        public void SendMessageToQueue_WhenSendingMessage()
+        {
+            IAdminMessage msg = Mock.Of<IAdminMessage>();
+            state.SendMessage(msg, context);
+
+            Assert.Single(context.MessagesToSend, msg);
+            tcpClientMock.Verify(x => x.SendMessage(msg), Times.Never);
+        }
     }
 }

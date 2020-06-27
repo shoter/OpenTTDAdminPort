@@ -14,45 +14,40 @@ namespace OpenTTDAdminPort
 {
     public class AdminPortClient
     {
-        private AdminPortClientContext Context { get; }
+        private AdminPortClientContext Context { get; set; }
 
         private Dictionary<AdminConnectionState, IAdminPortClientState> StateRunners { get; } = new Dictionary<AdminConnectionState, IAdminPortClientState>();
 
-        public event EventHandler<IAdminEvent> EventReceived;
+        public event EventHandler<IAdminEvent>? EventReceived;
 
         public AdminPortClient(ServerInfo serverInfo)
         {
             IAdminPacketService packetService = new AdminPacketServiceFactory().Create();
             IAdminPortTcpClient tcpClient = new AdminPortTcpClient(new AdminPortTcpClientSender(packetService), new AdminPortTcpClientReceiver(packetService), new MyTcpClient());
             Context = new AdminPortClientContext(tcpClient, "AdminPort", "1.0.0", serverInfo);
-            Init();
+            Init(tcpClient, serverInfo);
         }
 
         internal AdminPortClient(IAdminPortTcpClient adminPortTcpClient, ServerInfo serverInfo)
         {
             Context = new AdminPortClientContext(adminPortTcpClient, "AdminPort", "1.0.0", serverInfo);
-            Init();
-            //Context.Errored += Context_Errored;
-
-            //Context.StateChanged += Context_StateChanged;
-            //Context.EventReceived += (_, e) => EventReceived(this, e);
+            Init(adminPortTcpClient, serverInfo);
         }
 
-        private void Init()
+        private void Init(IAdminPortTcpClient adminPortTcpClient, ServerInfo serverInfo)
         {
-            Context.MessageReceived += Context_MessageReceived;
-
-
+            adminPortTcpClient.MessageReceived += AdminPortTcpClient_MessageReceived;
+            adminPortTcpClient.Errored += AdminPortTcpClient_Errored;
         }
 
-        private void Context_Errored(object sender, Exception e)
+        private void AdminPortTcpClient_Errored(object sender, Exception e)
         {
-            throw new NotImplementedException();
+            Context.state = AdminConnectionState.Errored;
         }
 
-        private void Context_MessageReceived(object sender, IAdminMessage e)
+        private void AdminPortTcpClient_MessageReceived(object sender, IAdminMessage e)
         {
-            throw new NotImplementedException();
+            StateRunners[Context.State].OnMessageReceived(e, Context);
         }
 
         private void Context_StateChanged(object sender, AdminConnectionStateChangedArgs e)
@@ -65,21 +60,6 @@ namespace OpenTTDAdminPort
 
         public Task Disconnect() => StateRunners[Context.State].Disconnect(Context);
 
-        void SendMessage(IAdminMessage message)
-        {
-            if (Context.State != AdminConnectionState.Connected)
-            {
-                Context.MessagesToSend.Enqueue(message);
-            }
-            else
-            {
-                if (Context.TcpClient == null)
-                    throw new NullReferenceException(nameof(Context.TcpClient));
-
-                while (Context.MessagesToSend.TryDequeue(out IAdminMessage msg))
-                    Context.TcpClient.SendMessage(msg);
-                Context.TcpClient.SendMessage(message);
-            }
-        }
+        void SendMessage(IAdminMessage message) => StateRunners[Context.State].OnMessageReceived(message, Context);
     }
 }

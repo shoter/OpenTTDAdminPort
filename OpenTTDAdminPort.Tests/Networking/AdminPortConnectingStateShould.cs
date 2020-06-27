@@ -103,6 +103,16 @@ namespace OpenTTDAdminPort.Tests.Networking
             Assert.Equal(AdminConnectionState.Disconnecting, context.State);
         }
 
+        [Fact]
+        public void SendMessageToQueue_WhenSendingMessage()
+        {
+            IAdminMessage msg = Mock.Of<IAdminMessage>();
+            state.SendMessage(msg, context);
+
+            Assert.Single(context.MessagesToSend, msg);
+            tcpClientMock.Verify(x => x.SendMessage(msg), Times.Never);
+        }
+
         private static AdminServerWelcomeMessage CreateWelcomeMessage()
         {
             return new AdminServerWelcomeMessage()

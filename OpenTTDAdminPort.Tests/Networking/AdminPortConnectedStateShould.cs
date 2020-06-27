@@ -119,5 +119,15 @@ namespace OpenTTDAdminPort.Tests.Networking
         {
             state.Disconnect(context);
         }
+
+        [Fact]
+        public void SendMessageToClient_WhenReceivingMessage()
+        {
+            IAdminMessage msg = Mock.Of<IAdminMessage>();
+            state.SendMessage(msg, context);
+
+            Assert.Empty(context.MessagesToSend);
+            tcpClientMock.Verify(x => x.SendMessage(msg), Times.Once);
+        }
     }
     }
