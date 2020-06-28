@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace OpenTTDAdminPort.States
 {
-    internal class AdminPortErroredState :BaseAdminPortClientState 
+    internal class AdminPortErroredState : BaseAdminPortClientState
     {
         public override Task Connect(IAdminPortClientContext context)
         {
@@ -24,11 +24,15 @@ namespace OpenTTDAdminPort.States
         public override void OnStateStart(IAdminPortClientContext context)
         {
             base.OnStateStart(context);
-            context.TcpClient.SendMessage(new AdminQuitMessage());
+            try
+            {
+                context.TcpClient.SendMessage(new AdminQuitMessage());
+            }
+            catch (Exception) { }
             context.TcpClient.Restart(new MyTcpClient());
             context.TcpClient.SendMessage(new AdminJoinMessage(context.ServerInfo.Password, context.ClientName, context.ClientVersion));
+            context.MessagesToSend.Clear();
             context.State = AdminConnectionState.Connecting;
         }
-
     }
 }
