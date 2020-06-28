@@ -1,4 +1,5 @@
-﻿using OpenTTDAdminPort.Messages;
+﻿using Microsoft.VisualBasic;
+using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Networking;
 using System;
 using System.Collections.Generic;
@@ -21,6 +22,8 @@ namespace OpenTTDAdminPort.Tests.Networking
         }
 
         public virtual void SendMessage(IAdminMessage message) { }
+
+        public virtual void SimulateMessageReceived(IAdminMessage msg) => MessageReceived?.Invoke(this, msg);
 
         public virtual Task Start(string ip, int port)
         {

@@ -37,7 +37,7 @@ namespace OpenTTDAdminPort.Tests
             client.Connect();
             tcpClientMock.Verify(x => x.Start(client.ServerInfo.ServerIp, client.ServerInfo.ServerPort));
             Assert.Equal(AdminConnectionState.Connecting, client.ConnectionState);
-        }
+            }
 
         [Fact]
         public async Task ErrorOut_AfterConnecting_WhenStateWillNotTurnIntoConnected_After10Seconds()
