@@ -43,6 +43,8 @@ namespace OpenTTDAdminPort.Tests.Networking
         public void NotErrorOut_WhenSendingMessageWillFail()
         {
             tcpClientMock.Setup(x => x.SendMessage(It.IsAny<IAdminMessage>())).Throws<Exception>();
+            tcpClientMock.Setup(x => x.Restart(It.IsAny<ITcpClient>()))
+                .Callback(() => tcpClientMock.Setup(x => x.SendMessage(It.IsAny<IAdminMessage>())));
             state.OnStateStart(context);
             Assert.Equal(AdminConnectionState.Connecting, context.State);
         }

@@ -15,15 +15,11 @@ namespace OpenTTDAdminPort.Tests.Networking
         AdminPortErroredOutState state = new AdminPortErroredOutState();
 
         [Fact]
-        public void ThrowException_ForEverythingLol()
+        public void ThrowException_ForApiUsedByUser()
         {
-            Assert.Throws<AdminPortException>(() => state.OnStateEnd(context));
-            Assert.Throws<AdminPortException>(() => state.OnStateStart(context));
             Assert.Throws<AdminPortException>(() => state.SendMessage(Mock.Of<IAdminMessage>(), context));
-            Assert.Throws<AdminPortException>(() => state.OnMessageReceived(Mock.Of<IAdminMessage>(), context));
             Assert.ThrowsAsync<AdminPortException>(async () => await state.Connect(context));
             Assert.ThrowsAsync<AdminPortException>(async () => await state.Disconnect(context));
         }
-
     }
 }

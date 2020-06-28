@@ -21,17 +21,15 @@ namespace OpenTTDAdminPort.States
 
         public void OnMessageReceived(IAdminMessage message, IAdminPortClientContext context)
         {
-            throw new AdminPortException("AdminPortClient had fatal error - unable to continue");
         }
 
         public void OnStateEnd(IAdminPortClientContext context)
         {
-            throw new AdminPortException("AdminPortClient had fatal error - unable to continue");
         }
 
         public void OnStateStart(IAdminPortClientContext context)
         {
-            throw new AdminPortException("AdminPortClient had fatal error - unable to continue");
+            context.MessagesToSend.Clear();
         }
 
         public void SendMessage(IAdminMessage message, IAdminPortClientContext context)

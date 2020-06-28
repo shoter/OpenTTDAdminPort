@@ -58,14 +58,55 @@ namespace OpenTTDAdminPort
 
         private void Context_StateChanged(object sender, AdminConnectionStateChangedArgs e)
         {
-            StateRunners[e.Old].OnStateEnd(Context);
-            StateRunners[e.New].OnStateStart(Context);
+            try
+            {
+                StateRunners[e.Old].OnStateEnd(Context);
+                StateRunners[e.New].OnStateStart(Context);
+            }
+            catch (Exception)
+            {
+                Context.State = AdminConnectionState.ErroredOut;
+                throw;
+            }
         }
 
-        public Task Connect() => StateRunners[Context.State].Connect(Context);
+        public Task Connect()
+        {
+            try
+            {
+                return StateRunners[Context.State].Connect(Context);
+            }
+            catch (Exception)
+            {
+                Context.State = AdminConnectionState.ErroredOut;
+                throw;
+            }
+        }
 
-        public Task Disconnect() => StateRunners[Context.State].Disconnect(Context);
+        public Task Disconnect()
+        {
+            try
+            {
+                return StateRunners[Context.State].Disconnect(Context);
+            }
+            catch (Exception)
+            {
+                Context.State = AdminConnectionState.ErroredOut;
+                throw;
+            }
+        }
 
-        void SendMessage(IAdminMessage message) => StateRunners[Context.State].OnMessageReceived(message, Context);
+        void SendMessage(IAdminMessage message)
+        {
+            try
+            {
+                StateRunners[Context.State].OnMessageReceived(message, Context);
+            }
+            catch (Exception)
+            {
+                Context.State = AdminConnectionState.ErroredOut;
+                throw;
+            }
+        }
     }
 }
