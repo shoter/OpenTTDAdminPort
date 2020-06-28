@@ -1,6 +1,7 @@
 ﻿using OpenTTDAdminPort.Messages;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ namespace OpenTTDAdminPort.States
 
         public abstract Task Disconnect(IAdminPortClientContext context);
 
+        [ExcludeFromCodeCoverage]
         virtual public void OnMessageReceived(IAdminMessage message, IAdminPortClientContext context)
         {
         }
@@ -22,10 +24,12 @@ namespace OpenTTDAdminPort.States
             context.MessagesToSend.Enqueue(message);
         }
 
+        [ExcludeFromCodeCoverage]
         virtual public void OnStateEnd(IAdminPortClientContext context)
         {
         }
 
+        [ExcludeFromCodeCoverage]
         virtual public void OnStateStart(IAdminPortClientContext context)
         {
         }
