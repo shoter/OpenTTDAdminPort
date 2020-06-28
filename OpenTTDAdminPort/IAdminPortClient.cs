@@ -18,14 +18,14 @@ namespace OpenTTDAdminPort
 
         ConcurrentDictionary<uint, Player> Players { get; }
 
-        AdminServerInfo AdminServerInfo { get; }
+        AdminServerInfo? AdminServerInfo { get; }
 
         event EventHandler<IAdminEvent> EventReceived;
 
         ServerInfo ServerInfo { get; }
 
         void SendMessage(IAdminMessage message);
-        Task Join();
+        Task Connect();
         Task Disconnect();
     }
 }

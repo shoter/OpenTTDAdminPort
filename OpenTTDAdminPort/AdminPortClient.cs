@@ -1,10 +1,12 @@
 ﻿using OpenTTDAdminPort.Common;
 using OpenTTDAdminPort.Events;
+using OpenTTDAdminPort.Game;
 using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Networking;
 using OpenTTDAdminPort.Packets;
 using OpenTTDAdminPort.States;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
@@ -13,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace OpenTTDAdminPort
 {
-    public class AdminPortClient
+    public class AdminPortClient : IAdminPortClient
     {
         private AdminPortClientContext Context { get; set; }
 
@@ -22,6 +24,16 @@ namespace OpenTTDAdminPort
         private Dictionary<AdminConnectionState, IAdminPortClientState> StateRunners { get; } = new Dictionary<AdminConnectionState, IAdminPortClientState>();
 
         public event EventHandler<IAdminEvent>? EventReceived;
+
+        public AdminServerInfo? AdminServerInfo => Context?.AdminServerInfo;
+        public ServerInfo ServerInfo => Context.ServerInfo;
+
+        public AdminConnectionState ConnectionState => Context.State;
+
+        public ConcurrentDictionary<AdminUpdateType, AdminUpdateSetting> AdminUpdateSettings => Context.AdminUpdateSettings;
+
+        public ConcurrentDictionary<uint, Player> Players => Context.Players;
+
 
         public AdminPortClient(ServerInfo serverInfo)
         {
@@ -108,7 +120,7 @@ namespace OpenTTDAdminPort
             }
         }
 
-        void SendMessage(IAdminMessage message)
+        public void SendMessage(IAdminMessage message)
         {
             try
             {
