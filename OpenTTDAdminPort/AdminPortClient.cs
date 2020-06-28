@@ -131,7 +131,7 @@ namespace OpenTTDAdminPort
         {
             try
             {
-                StateRunners[Context.State].OnMessageReceived(message, Context);
+                StateRunners[Context.State].SendMessage(message, Context);
             }
             catch (Exception)
             {
