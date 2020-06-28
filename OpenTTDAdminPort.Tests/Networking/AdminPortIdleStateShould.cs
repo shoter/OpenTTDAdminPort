@@ -53,5 +53,12 @@ namespace OpenTTDAdminPort.Tests.Networking
             Assert.Single(context.MessagesToSend, msg);
             tcpClientMock.Verify(x => x.SendMessage(msg), Times.Never);
         }
+
+        [Fact]
+        public async Task DoNothing_OnDisconnect()
+        {
+            await state.Disconnect(context);
+            Assert.Equal(AdminConnectionState.Idle, context.State);
+        }
     }
 }
