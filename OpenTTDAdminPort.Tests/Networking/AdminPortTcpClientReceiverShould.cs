@@ -1,4 +1,5 @@
-﻿using OpenTTDAdminPort.Messages;
+﻿using Moq;
+using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Networking;
 using OpenTTDAdminPort.Packets;
 using System;
@@ -7,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -72,6 +74,7 @@ namespace OpenTTDAdminPort.Tests.Networking
                 stream.Write(packet.Buffer, i, 1);
                 await Task.Delay(2);
             }
+
 
             stream.Position = 0;
             await WaitForMessage(receivedMessage);
@@ -234,6 +237,7 @@ namespace OpenTTDAdminPort.Tests.Networking
 
         private static void VerifyMessage(IAdminMessage receivedMessage)
         {
+            Thread.Sleep(TimeSpan.FromSeconds(1));
             var pongMsg = receivedMessage as AdminServerPongMessage;
             Assert.NotNull(pongMsg);
             Assert.Equal(123u, pongMsg.Argument);
