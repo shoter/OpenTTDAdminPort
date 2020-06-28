@@ -1,4 +1,5 @@
-﻿using OpenTTDAdminPort.Events;
+﻿using OpenTTDAdminPort.Common;
+using OpenTTDAdminPort.Events;
 using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Networking;
 using OpenTTDAdminPort.Packets;
@@ -53,7 +54,8 @@ namespace OpenTTDAdminPort
         {
             StateRunners[Context.State].OnMessageReceived(e, Context);
             IAdminEvent? adminEvent = messageProcessor.ProcessMessage(e, Context);
-            EventReceived?.Invoke(this, adminEvent);
+            if(adminEvent != null)
+                EventReceived?.Invoke(this, adminEvent);
         }
 
         private void Context_StateChanged(object sender, AdminConnectionStateChangedArgs e)
@@ -70,11 +72,16 @@ namespace OpenTTDAdminPort
             }
         }
 
-        public Task Connect()
+        public async Task Connect()
         {
             try
             {
-                return StateRunners[Context.State].Connect(Context);
+                await StateRunners[Context.State].Connect(Context);
+
+                if (!(await TaskHelper.WaitUntil(() => Context.State == AdminConnectionState.Connected, delayBetweenChecks: TimeSpan.FromSeconds(0.5), duration: TimeSpan.FromSeconds(10))))
+                {
+                    throw new AdminPortException("Admin port could not connect to the server");
+                }
             }
             catch (Exception)
             {
@@ -83,11 +90,16 @@ namespace OpenTTDAdminPort
             }
         }
 
-        public Task Disconnect()
+        public async Task Disconnect()
         {
             try
             {
-                return StateRunners[Context.State].Disconnect(Context);
+                await StateRunners[Context.State].Disconnect(Context);
+
+                if (!(await TaskHelper.WaitUntil(() => Context.State == AdminConnectionState.Idle, delayBetweenChecks: TimeSpan.FromSeconds(0.5), duration: TimeSpan.FromSeconds(10))))
+                {
+                    throw new AdminPortException("Encountered internal error.");
+                }
             }
             catch (Exception)
             {
