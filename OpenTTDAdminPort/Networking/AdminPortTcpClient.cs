@@ -42,11 +42,11 @@ namespace OpenTTDAdminPort.Networking
 
         public async Task Start(string ip, int port)
         {
-            if (State != WorkState.NotStarted)
+            if (State != WorkState.NotStarted && State != WorkState.Stopped)
             {
                 State = WorkState.Errored;
                 await Task.WhenAll(receiver.Stop(), sender.Stop());
-                throw new AdminPortException("This Client had been started before! You cannot start client more than 1 time");
+                throw new AdminPortException("This Client is working atm. Please Stop it before starting it again.");
             }
             this.ip = ip;
             this.port = port;
@@ -59,12 +59,14 @@ namespace OpenTTDAdminPort.Networking
             State = WorkState.Working;
         }
 
-        public async Task Stop()
+        public async Task Stop(ITcpClient tcpClient)
         {
             if (State == WorkState.Working)
             {
                 await Task.WhenAll(receiver.Stop(), sender.Stop());
-                State = WorkState.Stopped;
+                this.tcpClient.Close();
+                this.tcpClient = tcpClient;
+                this.State = WorkState.Stopped;
             }
         }
 
@@ -79,12 +81,8 @@ namespace OpenTTDAdminPort.Networking
         public async Task Restart(ITcpClient tcpClient)
         {
             Debug.Assert(this.ip != null);
-            await Stop();
-            this.tcpClient.Close();
-            this.tcpClient = tcpClient;
-            this.State = WorkState.NotStarted;
+            await Stop(tcpClient);
             await Start(this.ip, this.port);
-
         }
     }
 }

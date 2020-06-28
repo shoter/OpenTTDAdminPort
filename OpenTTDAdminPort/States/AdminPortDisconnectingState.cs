@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 
 namespace OpenTTDAdminPort.States
 {
-    internal class AdminPortDisconnectedState : BaseAdminPortClientState
+    internal class AdminPortDisconnectingState : BaseAdminPortClientState
     {
         public override void OnStateStart(IAdminPortClientContext context)
         {
             base.OnStateStart(context);
             context.TcpClient.SendMessage(new AdminQuitMessage());
-            context.TcpClient.Restart(new MyTcpClient());
+            context.TcpClient.Stop(new MyTcpClient());
             context.State = AdminConnectionState.Idle;
         }
         public override Task Connect(IAdminPortClientContext context)
@@ -25,6 +25,11 @@ namespace OpenTTDAdminPort.States
         public override Task Disconnect(IAdminPortClientContext context)
         {
             return Task.CompletedTask;
+        }
+
+        public override void SendMessage(IAdminMessage message, IAdminPortClientContext context)
+        {
+            // we are ignoring messages. They will probably do not make sense anyway if server will be started again.
         }
     }
 }

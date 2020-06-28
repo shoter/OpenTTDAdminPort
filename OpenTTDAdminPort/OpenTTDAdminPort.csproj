@@ -30,5 +30,9 @@
     <PackageReference Include="RandomAnalyzers.RequiredMember.Analyzer" Version="1.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Events\Processors\" />
+  </ItemGroup>
+
 
 </Project>

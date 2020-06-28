@@ -28,7 +28,7 @@ namespace OpenTTDAdminPort.Tests.Networking
             return Task.CompletedTask;
         }
 
-        public virtual Task Stop()
+        public virtual Task Stop(ITcpClient client)
         {
             State = WorkState.Stopped;
             return Task.CompletedTask;

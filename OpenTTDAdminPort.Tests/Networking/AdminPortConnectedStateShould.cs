@@ -21,33 +21,6 @@ namespace OpenTTDAdminPort.Tests.Networking
         }
 
         [Fact]
-        public void SendProperUpdateMessages_AfterStartingThisState()
-        {
-            state.OnStateStart(context);
-
-            Dictionary<AdminUpdateType, UpdateFrequency> FrequencyMessagesToSend = new Dictionary<AdminUpdateType, UpdateFrequency>()
-            {
-                { AdminUpdateType.ADMIN_UPDATE_CHAT, UpdateFrequency.ADMIN_FREQUENCY_AUTOMATIC },
-                { AdminUpdateType.ADMIN_UPDATE_CONSOLE, UpdateFrequency.ADMIN_FREQUENCY_AUTOMATIC },
-                { AdminUpdateType.ADMIN_UPDATE_CLIENT_INFO, UpdateFrequency.ADMIN_FREQUENCY_AUTOMATIC }
-            };
-
-            foreach (var kp in FrequencyMessagesToSend)
-            {
-                tcpClientMock.Verify(x => x.SendMessage(It.Is<IAdminMessage>(msg =>
-                    msg is AdminUpdateFrequencyMessage &&
-                    ((AdminUpdateFrequencyMessage)msg).UpdateType == kp.Key &&
-                    ((AdminUpdateFrequencyMessage)msg).UpdateFrequency == kp.Value
-                )), Times.Once);
-            }
-
-            tcpClientMock.Verify(x => x.SendMessage(It.Is<IAdminMessage>(msg =>
-                msg is AdminPollMessage &&
-                ((AdminPollMessage)msg).Argument == uint.MaxValue
-                )), Times.Once);
-        }
-
-        [Fact]
         public void SendMessagesThatAreQueued_WhenStartingThisState()
         {
             List<IAdminMessage> queuedMessages = new List<IAdminMessage>();

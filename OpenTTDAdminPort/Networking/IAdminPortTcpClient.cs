@@ -13,7 +13,7 @@ namespace OpenTTDAdminPort.Networking
         event EventHandler<Exception> Errored;
         void SendMessage(IAdminMessage message);
         Task Start(string ip, int port);
-        Task Stop();
+        Task Stop(ITcpClient tcpClient);
         Task Restart(ITcpClient tcpClient);
 
 

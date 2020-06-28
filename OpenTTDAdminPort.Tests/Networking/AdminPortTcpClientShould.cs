@@ -88,10 +88,21 @@ namespace OpenTTDAdminPort.Tests.Networking
         public async Task BeAbleToStop()
         {
             await client.Start(ip, port);
-            await client.Stop();
+            await client.Stop(Mock.Of<ITcpClient>());
             Assert.Equal(WorkState.Stopped, client.State);
             senderMock.Verify(x => x.Stop(), Times.Once);
             receiverMock.Verify(x => x.Stop(), Times.Once);
+        }
+
+        [Fact]
+        public async Task StartAfterStop()
+        {
+            var tcpClientNewMock = new Mock<ITcpClient>();
+            await client.Start(ip, port);
+            await client.Stop(tcpClientNewMock.Object);
+            await client.Start(ip, port);
+            Assert.Equal(WorkState.Working, client.State);
+            tcpClientNewMock.Verify(x => x.ConnectAsync(ip, port), Times.Once);
         }
 
         [Fact]
