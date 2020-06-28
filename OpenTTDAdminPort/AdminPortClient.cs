@@ -55,6 +55,7 @@ namespace OpenTTDAdminPort
         {
             adminPortTcpClient.MessageReceived += AdminPortTcpClient_MessageReceived;
             adminPortTcpClient.Errored += AdminPortTcpClient_Errored;
+            Context.StateChanged += Context_StateChanged;
 
             this.StateRunners[AdminConnectionState.Idle] = new AdminPortIdleState();
             this.StateRunners[AdminConnectionState.Connecting] = new AdminPortConnectingState();

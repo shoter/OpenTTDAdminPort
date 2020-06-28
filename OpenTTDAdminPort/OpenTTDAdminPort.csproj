@@ -8,7 +8,7 @@
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/shoter/OpenTTDAdminPort</RepositoryUrl>
 
-    <LibraryVersion>0.0.4</LibraryVersion>
+    <LibraryVersion>0.1.0</LibraryVersion>
     <Version>$(LibraryVersion)</Version>
     <AssemblyVersion>$(LibraryVersion)</AssemblyVersion>
     <FileVersion>$(LibraryVersion)</FileVersion>
