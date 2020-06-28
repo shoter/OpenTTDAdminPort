@@ -41,20 +41,27 @@ namespace OpenTTDAdminPort
             IAdminPortTcpClient tcpClient = new AdminPortTcpClient(new AdminPortTcpClientSender(packetService), new AdminPortTcpClientReceiver(packetService), new MyTcpClient());
             Context = new AdminPortClientContext(tcpClient, "AdminPort", "1.0.0", serverInfo);
             messageProcessor = new AdminMessageProcessor();
-            Init(tcpClient, serverInfo);
+            Init(tcpClient);
         }
 
         internal AdminPortClient(IAdminPortTcpClient adminPortTcpClient, IAdminMessageProcessor messageProcessor, ServerInfo serverInfo)
         {
             Context = new AdminPortClientContext(adminPortTcpClient, "AdminPort", "1.0.0", serverInfo);
             this.messageProcessor = messageProcessor;
-            Init(adminPortTcpClient, serverInfo);
+            Init(adminPortTcpClient);
         }
 
-        private void Init(IAdminPortTcpClient adminPortTcpClient, ServerInfo serverInfo)
+        private void Init(IAdminPortTcpClient adminPortTcpClient)
         {
             adminPortTcpClient.MessageReceived += AdminPortTcpClient_MessageReceived;
             adminPortTcpClient.Errored += AdminPortTcpClient_Errored;
+
+            this.StateRunners[AdminConnectionState.Idle] = new AdminPortIdleState();
+            this.StateRunners[AdminConnectionState.Connecting] = new AdminPortConnectingState();
+            this.StateRunners[AdminConnectionState.Disconnecting] = new AdminPortDisconnectingState();
+            this.StateRunners[AdminConnectionState.Connected] = new AdminPortConnectedState();
+            this.StateRunners[AdminConnectionState.Errored] = new AdminPortErroredState();
+            this.StateRunners[AdminConnectionState.ErroredOut] = new AdminPortErroredOutState();
         }
 
         private void AdminPortTcpClient_Errored(object sender, Exception e)
