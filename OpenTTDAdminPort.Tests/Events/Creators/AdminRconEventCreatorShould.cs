@@ -22,7 +22,7 @@ namespace OpenTTDAdminPort.Tests.Events.Creators
         public void CreateCorrectEvent()
         {
             var ev = (AdminRconEvent)new AdminRconEventCreator()
-                .Create(new AdminRconMessage("nuke"), Mock.Of<IAdminPortClientContext>());
+                .Create(new AdminServerRconMessage(5, "nuke"), Mock.Of<IAdminPortClientContext>());
 
             Assert.Equal("nuke", ev.Message);
         }
