@@ -17,7 +17,7 @@ namespace OpenTTDAdminPort.Tests
     public class AdminPortClientShould
     {
         Mock<IAdminPortTcpClient> tcpClientMock = new Mock<IAdminPortTcpClient>();
-        Mock<IAdminMessageProcessor> messageProcessorMock = new Mock<IAdminMessageProcessor>();
+        Mock<IAdminEventFactory> messageProcessorMock = new Mock<IAdminEventFactory>();
 
         IAdminPortClient client;
         public AdminPortClientShould()

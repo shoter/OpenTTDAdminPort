@@ -19,7 +19,7 @@ namespace OpenTTDAdminPort
     {
         private AdminPortClientContext Context { get; set; }
 
-        private readonly IAdminMessageProcessor messageProcessor;
+        private readonly IAdminEventFactory messageProcessor;
 
         private Dictionary<AdminConnectionState, IAdminPortClientState> StateRunners { get; } = new Dictionary<AdminConnectionState, IAdminPortClientState>();
 
@@ -40,11 +40,11 @@ namespace OpenTTDAdminPort
             IAdminPacketService packetService = new AdminPacketServiceFactory().Create();
             IAdminPortTcpClient tcpClient = new AdminPortTcpClient(new AdminPortTcpClientSender(packetService), new AdminPortTcpClientReceiver(packetService), new MyTcpClient());
             Context = new AdminPortClientContext(tcpClient, "AdminPort", "1.0.0", serverInfo);
-            messageProcessor = new AdminMessageProcessor();
+            messageProcessor = new AdminEventFactory();
             Init(tcpClient);
         }
 
-        internal AdminPortClient(IAdminPortTcpClient adminPortTcpClient, IAdminMessageProcessor messageProcessor, ServerInfo serverInfo)
+        internal AdminPortClient(IAdminPortTcpClient adminPortTcpClient, IAdminEventFactory messageProcessor, ServerInfo serverInfo)
         {
             Context = new AdminPortClientContext(adminPortTcpClient, "AdminPort", "1.0.0", serverInfo);
             this.messageProcessor = messageProcessor;
@@ -72,7 +72,7 @@ namespace OpenTTDAdminPort
         private void AdminPortTcpClient_MessageReceived(object sender, IAdminMessage e)
         {
             StateRunners[Context.State].OnMessageReceived(e, Context);
-            IAdminEvent? adminEvent = messageProcessor.ProcessMessage(e, Context);
+            IAdminEvent? adminEvent = messageProcessor.Create(e, Context);
             if(adminEvent != null)
                 EventReceived?.Invoke(this, adminEvent);
         }
