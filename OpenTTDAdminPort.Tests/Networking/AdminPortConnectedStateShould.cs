@@ -3,6 +3,7 @@ using OpenTTDAdminPort.Game;
 using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.States;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -37,6 +38,44 @@ namespace OpenTTDAdminPort.Tests.Networking
             {
                 tcpClientMock.Verify(x => x.SendMessage(msg), Times.Once);
             }
+        }
+
+        [Fact]
+        public void StartWatchdog_WhenStartingState()
+        {
+            var contextMock = new Mock<IAdminPortClientContext>();
+            var dogMock = new Mock<IConnectionWatchdog>();
+            var tcpClient = tcpClientMock.Object;
+            contextMock.Setup(x => x.WatchDog).Returns(dogMock.Object);
+            contextMock.Setup(x => x.TcpClient).Returns(tcpClientMock.Object);
+            contextMock.SetupGet(x => x.MessagesToSend).Returns(new ConcurrentQueue<IAdminMessage>());
+            state.OnStateStart(contextMock.Object);
+            dogMock.Verify(x => x.Start(tcpClientMock.Object), Times.Once);
+        }
+
+        [Fact]
+        public void StopWatchdog_WhenStateEnds()
+        {
+            var contextMock = new Mock<IAdminPortClientContext>();
+            var dogMock = new Mock<IConnectionWatchdog>();
+            contextMock.SetupGet(x => x.MessagesToSend).Returns(new ConcurrentQueue<IAdminMessage>());
+            contextMock.Setup(x => x.WatchDog).Returns(dogMock.Object);
+            contextMock.Setup(x => x.TcpClient).Returns(tcpClientMock.Object);
+            state.OnStateEnd(contextMock.Object);
+            dogMock.Verify(x => x.Stop(), Times.Once);
+        }
+
+        [Fact]
+        public void ErrorsOut_WhenWatchDogThrowErrorAfterStart()
+        {
+            var contextMock = new Mock<IAdminPortClientContext>();
+            var dogMock = new Mock<IConnectionWatchdog>();
+            contextMock.SetupGet(x => x.MessagesToSend).Returns(new ConcurrentQueue<IAdminMessage>());
+            contextMock.Setup(x => x.WatchDog).Returns(dogMock.Object);
+            contextMock.Setup(x => x.TcpClient).Returns(tcpClientMock.Object);
+            state.OnStateStart(contextMock.Object);
+            dogMock.Raise(x => x.Errored += null, this, new Exception());
+            contextMock.VerifySet(x => x.State = AdminConnectionState.Errored);
         }
 
         [Fact]
