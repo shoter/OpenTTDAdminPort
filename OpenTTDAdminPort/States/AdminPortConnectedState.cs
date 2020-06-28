@@ -21,6 +21,16 @@ namespace OpenTTDAdminPort.States
             {
                 context.TcpClient.SendMessage(msg);
             }
+
+            context.WatchDog.Start(context.TcpClient);
+            context.WatchDog.Errored += (who, e) => context.State = AdminConnectionState.Errored;
+        }
+
+
+        public override void OnStateEnd(IAdminPortClientContext context)
+        {
+            context.WatchDog.Stop();
+            base.OnStateEnd(context);
         }
 
         public override void OnMessageReceived(IAdminMessage message, IAdminPortClientContext context)

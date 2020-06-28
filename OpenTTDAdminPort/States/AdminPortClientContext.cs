@@ -30,6 +30,8 @@ namespace OpenTTDAdminPort.States
         public ConcurrentDictionary<uint, Player> Players { get; } = new ConcurrentDictionary<uint, Player>();
         public AdminServerInfo? AdminServerInfo { get; set; }
 
+        public IConnectionWatchdog WatchDog { get; } = new ConnectionWatchdog(TimeSpan.FromMinutes(1));
+
 
         public AdminConnectionState state = AdminConnectionState.Idle;
         public AdminConnectionState State

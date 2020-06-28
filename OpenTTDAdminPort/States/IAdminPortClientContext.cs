@@ -18,11 +18,13 @@ namespace OpenTTDAdminPort.States
         string ClientVersion { get; }
         ServerInfo ServerInfo { get; }
 
+
         event EventHandler<AdminConnectionStateChangedArgs>? StateChanged;
 
         ConcurrentDictionary<AdminUpdateType, AdminUpdateSetting> AdminUpdateSettings { get; } 
         ConcurrentDictionary<uint, Player> Players { get; }
-        AdminServerInfo AdminServerInfo { get; set; }
+        AdminServerInfo? AdminServerInfo { get; set; }
+        IConnectionWatchdog WatchDog { get; }
 
         AdminConnectionState State { get; set; }
 

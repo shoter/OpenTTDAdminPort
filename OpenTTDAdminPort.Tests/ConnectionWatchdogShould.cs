@@ -1,5 +1,6 @@
 ﻿using Moq;
 using OpenTTDAdminPort.Messages;
+using OpenTTDAdminPort.Networking;
 using OpenTTDAdminPort.Tests.Networking;
 using System;
 using System.Collections.Generic;
@@ -100,5 +101,13 @@ namespace OpenTTDAdminPort.Tests
             Assert.True(dog.Enabled);
         }
 
+        [Fact]
+        public void ThrowException_WhenTryingToStartItWithDifferentClientWhileItIsWorking()
+        {
+            var dog = new ConnectionWatchdog(TimeSpan.FromSeconds(5000));
+
+            dog.Start(tcpClientMock.Object);
+            Assert.Throws<AdminPortException>(() => dog.Start(Mock.Of<IAdminPortTcpClient>()));
+        }
     }
 }
