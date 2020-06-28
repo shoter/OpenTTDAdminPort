@@ -30,6 +30,20 @@ namespace OpenTTDAdminPort.Tests
         {
             tcpClientMock.Verify(x => x.Start(It.IsAny<string>(), It.IsAny<int>()), Times.Never);
         }
-        
+
+        [Fact]
+        public void StartConnectToServer_WhenConnectWasExecutedForFirstTime()
+        {
+            client.Connect();
+            tcpClientMock.Verify(x => x.Start(client.ServerInfo.ServerIp, client.ServerInfo.ServerPort));
+            Assert.Equal(AdminConnectionState.Connecting, client.ConnectionState);
+        }
+
+        [Fact]
+        public async Task ErrorOut_AfterConnecting_WhenStateWillNotTurnIntoConnected_After10Seconds()
+        {
+            await Assert.ThrowsAsync<AdminPortException>(async () => await client.Connect());
+            Assert.Equal(AdminConnectionState.ErroredOut, client.ConnectionState);
+        }
     }
 }
