@@ -37,6 +37,5 @@ namespace _1_PingPong
             Console.WriteLine("Press any button to quit");
             Console.ReadLine();
         }
-
     }
 }
