@@ -8,34 +8,34 @@ namespace OpenTTDAdminPort.Networking
     public class MyTcpClient : ITcpClient
     {
         // The real implementation
-        private readonly TcpClient _client;
-        public EndPoint RemoteEndPoint => _client.Client.RemoteEndPoint;
-        public Stream GetStream() => _client.GetStream();
+        private readonly TcpClient client;
+        public EndPoint RemoteEndPoint => client.Client.RemoteEndPoint;
+        public Stream GetStream() => client.GetStream();
 
         public MyTcpClient()
         {
-            _client = new TcpClient();
+            client = new TcpClient();
         }
 
         public MyTcpClient(TcpClient client)
         {
-            _client = client;
+            this.client = client;
         }
 
         public Task ConnectAsync(string ip, int port)
         {
-            return _client.ConnectAsync(IPAddress.Parse(ip), port);
+            return client.ConnectAsync(IPAddress.Parse(ip), port);
         }
 
         public void Dispose()
         {
-            _client.Dispose();
+            client.Dispose();
         }
 
         public void Close()
         {
-            _client.GetStream().Close();
-            _client.Close();
+            client.GetStream().Close();
+            client.Close();
         }
     }
 }
