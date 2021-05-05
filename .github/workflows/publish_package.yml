@@ -91,7 +91,7 @@ jobs:
 
 
     - name: Create Packages 
-      run: dotnet pack --version-suffix $VERSION_SUFFIX -c Release -o packages OpenTTDAdminPort/OpenTTDAdminPort.csproj
+      run: dotnet pack --version-suffix "$VERSION_SUFFIX" -c Release -o packages OpenTTDAdminPort/OpenTTDAdminPort.csproj
 
     - name: Push packages to NuGet.org
       run: |
