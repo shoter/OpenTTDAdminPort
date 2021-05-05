@@ -1,4 +1,5 @@
-﻿using OpenTTDAdminPort.Common;
+﻿using Microsoft.Extensions.Logging;
+using OpenTTDAdminPort.Common;
 using OpenTTDAdminPort.Events;
 using OpenTTDAdminPort.Game;
 using OpenTTDAdminPort.Messages;
@@ -34,6 +35,8 @@ namespace OpenTTDAdminPort
 
         public ConcurrentDictionary<uint, Player> Players => Context.Players;
 
+        private readonly ILogger? logger;
+
 
         public AdminPortClient(ServerInfo serverInfo)
         {
@@ -43,6 +46,12 @@ namespace OpenTTDAdminPort
             eventFactory = new AdminEventFactory();
             Init(tcpClient);
         }
+
+        public AdminPortClient(ServerInfo serverInfo, ILogger<AdminPortClient> logger) : this(serverInfo)
+        {
+            this.logger = logger;
+        }
+
 
         internal AdminPortClient(IAdminPortTcpClient adminPortTcpClient, IAdminEventFactory eventFactory, ServerInfo serverInfo)
         {
@@ -67,6 +76,7 @@ namespace OpenTTDAdminPort
 
         private void AdminPortTcpClient_Errored(object sender, Exception e)
         {
+            logger.LogError(e, $"TCP client had internal error {e.Message}.");
             Context.state = AdminConnectionState.Errored;
         }
 
@@ -85,8 +95,9 @@ namespace OpenTTDAdminPort
                 StateRunners[e.Old].OnStateEnd(Context);
                 StateRunners[e.New].OnStateStart(Context);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                logger.LogError(ex, $"Error during changing state from {e.Old} into {e.New}");
                 Context.State = AdminConnectionState.ErroredOut;
                 throw;
             }
@@ -103,8 +114,9 @@ namespace OpenTTDAdminPort
                     throw new AdminPortException("Admin port could not connect to the server");
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                logger.LogError(ex, "Error during Connect");
                 Context.State = AdminConnectionState.ErroredOut;
                 throw;
             }
@@ -121,8 +133,9 @@ namespace OpenTTDAdminPort
                     throw new AdminPortException($"Encountered internal error. Expected state {AdminConnectionState.Idle} but got {Context.State}."); 
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                logger.LogError(ex, "Error during Connect");
                 Context.State = AdminConnectionState.ErroredOut;
                 throw;
             }
