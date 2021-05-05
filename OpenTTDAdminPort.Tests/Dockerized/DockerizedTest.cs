@@ -125,12 +125,22 @@ namespace OpenTTDAdminPort.Tests.Dockerized
         private async Task StartContainer(string containerName)
         {
             this.Port = GetFreeTcpPort();
+            string image = "redditopenttd/openttd";
+            string tag = "1.11.2";
             string configPath = Path.Combine(Directory.GetCurrentDirectory(), nameof(Dockerized), "openttd.cfg");
+
+            var pullParam = new ImagesCreateParameters()
+            {
+                FromImage = image,
+                Tag = tag
+            };
+
+            await client.Images.CreateImageAsync(pullParam, new AuthConfig(), new DockerizePullProgress(image));
 
             var response = await client.Containers.CreateContainerAsync(new Docker.DotNet.Models.CreateContainerParameters()
             {
                 Name = containerName,
-                Image = "redditopenttd/openttd",
+                Image = $"{image}:{tag}",
                 HostConfig = new HostConfig
                 {
                     PortBindings = new Dictionary<string, IList<PortBinding>>
@@ -160,7 +170,7 @@ namespace OpenTTDAdminPort.Tests.Dockerized
                 }
             }); ;
 
-            await client.Networks.ConnectNetworkAsync("jenkins", new NetworkConnectParameters
+            await client.Networks.ConnectNetworkAsync("bridge", new NetworkConnectParameters
             {
                 Container = response.ID,
             });
