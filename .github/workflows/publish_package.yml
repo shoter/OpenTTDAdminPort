@@ -80,20 +80,14 @@ jobs:
         dotnet-version: '5.0.202'
 
     # Execute all unit tests in the solution
-    #- name: Execute unit tests
-    #  run: dotnet test
-    #  env:
-    #      CI: true
-
-    - name: Set version suffix
-      if: ${{ github.event.inputs.createPrereleasePackage == 'true'}}
-      run: export VERSION_SUFFIX=${{ github.run_number }}
-    - name: Print version suffix
-      run: echo "Suffix= $VERSION_SUFFIX"
+    - name: Execute unit tests
+      run: dotnet test
+      env:
+          CI: true
 
 
     - name: Create Packages 
-      run: dotnet pack --version-suffix "$VERSION_SUFFIX" -c Release -o packages OpenTTDAdminPort/OpenTTDAdminPort.csproj
+      run: dotnet pack --version-suffix ${{ github.run_number }} -c Release -o packages OpenTTDAdminPort/OpenTTDAdminPort.csproj
 
     - name: Push package to NuGet.org
       run: |
