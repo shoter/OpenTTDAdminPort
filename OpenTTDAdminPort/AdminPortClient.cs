@@ -118,7 +118,7 @@ namespace OpenTTDAdminPort
 
                 if (!(await TaskHelper.WaitUntil(() => Context.State == AdminConnectionState.Idle, delayBetweenChecks: TimeSpan.FromSeconds(0.5), duration: TimeSpan.FromSeconds(10))))
                 {
-                    throw new AdminPortException("Encountered internal error.");
+                    throw new AdminPortException($"Encountered internal error. Expected state {AdminConnectionState.Idle} but got {Context.State}."); 
                 }
             }
             catch (Exception)
