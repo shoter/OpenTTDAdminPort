@@ -9,6 +9,7 @@ using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using Xunit.Abstractions;
 
 namespace OpenTTDAdminPort.Tests.Dockerized
 {

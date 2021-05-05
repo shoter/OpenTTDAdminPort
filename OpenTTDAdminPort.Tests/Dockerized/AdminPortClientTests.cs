@@ -1,5 +1,7 @@
-﻿using Docker.DotNet;
+﻿using Divergic.Logging.Xunit;
+using Docker.DotNet;
 using Docker.DotNet.Models;
+using Microsoft.Extensions.Logging;
 using OpenTTDAdminPort.Events;
 using OpenTTDAdminPort.Messages;
 using System;
@@ -10,15 +12,22 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace OpenTTDAdminPort.Tests.Dockerized
 {
     public class AdminPortClientTests : DockerizedTest
     {
+        private readonly ILoggerFactory loggerFactory;
+        public AdminPortClientTests(ITestOutputHelper output)
+        {
+            loggerFactory = LogFactory.Create(output);
+
+        }
         [Fact]
         public Task PingPongTest() => StartTest(nameof(PingPongTest), async () =>
             {
-                AdminPortClient client = new AdminPortClient(ServerInfo);
+                AdminPortClient client = new AdminPortClient(ServerInfo, loggerFactory.CreateLogger<AdminPortClient>());
 
                 AdminPongEvent pongEvent = null;
                 client.EventReceived += (_, e) =>
