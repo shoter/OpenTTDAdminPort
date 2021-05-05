@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup Label="Nuget related settings">
-    <PackageId>OpenTTD AdminPort</PackageId>
+    <PackageId>Shoter.OpenTTD.AdminPort</PackageId>
     <Authors>Shoter</Authors>
     <Description>Library providing client to communicate with OpenTTD Admin Port.</Description>
     <PackageTags>OpenTTD AdminPort Admin Port</PackageTags>
 
     <LibraryVersion>0.1.0</LibraryVersion>
-    <Version>$(LibraryVersion)</Version>
+    <VersionPrefix>$(LibraryVersion)</VersionPrefix>
     <AssemblyVersion>$(LibraryVersion)</AssemblyVersion>
     <FileVersion>$(LibraryVersion)</FileVersion>
 
