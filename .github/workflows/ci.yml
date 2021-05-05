@@ -68,11 +68,10 @@ jobs:
       with:
         dotnet-version: 3.1.101
 
-    # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1 
       with:
-        dotnet-version: '5.0.5'
+        dotnet-version: '5.0.202'
 
     # Execute all unit tests in the solution
     - name: Execute unit tests
