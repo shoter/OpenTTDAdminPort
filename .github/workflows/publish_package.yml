@@ -41,10 +41,10 @@ name: Publish Nuget
 on: 
   workflow_dispatch:
     inputs:
-      versionSuffix:
-        description: 'Version suffix - used to create pre-release packages'
+      createPrereleasePackage:
+        description: 'type true to create prerelease package'
         required: false
-        default: ''
+        default: 'false'
 
 jobs:
 
@@ -81,17 +81,17 @@ jobs:
 
     # Execute all unit tests in the solution
     - name: Execute unit tests
-      run: dotnet test --collect "XPlat Code Coverage" -c ${{matrix.configuration}}
+      run: dotnet test
       env:
           CI: true
 
-    - name: Upload unit Test result
-      uses: codecov/codecov-action@v1.0.7
-      with:
-          flags: unittests
+    - name: Set version suffix
+      if: ${{ github.event.inputs.createPrereleasePackage == 'true'}}
+      run: export VERSION_SUFFIX=$GITHUB_RUN_NUMBER
+
 
     - name: Create Packages 
-      run: dotnet pack --version-suffix ${{ github.event.inputs.versionSuffix }} -c Release -o packages OpenTTDAdminPort/OpenTTDAdminPort.csproj
+      run: dotnet pack --version-suffix $VERSION_SUFFIX -c Release -o packages OpenTTDAdminPort/OpenTTDAdminPort.csproj
 
     - name: Push packages to NuGet.org
       run: |
