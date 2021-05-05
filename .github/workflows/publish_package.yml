@@ -38,13 +38,13 @@
 
 name: Publish Nuget
 
-on: workflow_dispatch
-
-inputs:
-  versionSuffix:
-    description: 'used to create pre-release packages'
-    required: false
-    default: ''
+on: 
+  workflow_dispatch:
+    inputs:
+      versionSuffix:
+        description: 'used to create pre-release packages'
+        required: false
+        default: ''
 
 jobs:
 
