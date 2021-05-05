@@ -1,18 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup Label="Nuget related settings">
+    <PackageId>OpenTTD AdminPort</PackageId>
     <Authors>Shoter</Authors>
     <Description>Library providing client to communicate with OpenTTD Admin Port.</Description>
-    <PackageTags>OpenTTD AdminPort</PackageTags>
-
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/shoter/OpenTTDAdminPort</RepositoryUrl>
+    <PackageTags>OpenTTD AdminPort Admin Port</PackageTags>
 
     <LibraryVersion>0.1.0</LibraryVersion>
     <Version>$(LibraryVersion)</Version>
     <AssemblyVersion>$(LibraryVersion)</AssemblyVersion>
     <FileVersion>$(LibraryVersion)</FileVersion>
-    
+
+    <RepositoryType>git</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <RepositoryUrl>https://github.com/shoter/OpenTTDAdminPort</RepositoryUrl>
+
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup> 
 
   <PropertyGroup>
@@ -26,6 +31,18 @@
     <PackageReference Include="RandomAnalyzers.RequiredMember" Version="1.0.0" />
   </ItemGroup>
 
+  <PropertyGroup Label="Release (ci-cd) nuget settings" Condition="'$(Configuration)' == 'Release'">
+    <!-- https://github.com/dotnet/sourcelink/blob/main/docs/README.md#continuousintegrationbuild -->
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <!-- https://github.com/dotnet/sourcelink/blob/main/docs/README.md#deterministicsourcepaths -->
+    <DeterministicSourcePaths>true</DeterministicSourcePaths>
+  </PropertyGroup>
+
+  <ItemGroup Label="Source link - dev only asset. It adds source link (https://github.com/dotnet/sourcelink) capabilities to the nuget package.">
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+  </ItemGroup>
+  
+  
   <ItemGroup Label="I do not need those inside my nuget dependencies. Too much dependencies is not good." Condition="'$(IgnoreDevDependencies)'=='False'">
     <PackageReference Include="RandomAnalyzers.RequiredMember.Analyzer" Version="1.0.0" />
   </ItemGroup>
