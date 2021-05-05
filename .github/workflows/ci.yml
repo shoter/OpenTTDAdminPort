@@ -69,12 +69,14 @@ jobs:
         dotnet-version: 3.1.101
 
     # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
-    - name: Setup MSBuild.exe
-      uses: microsoft/setup-msbuild@2008f912f56e61277eefaac6d1888b750582aa16
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1 
+      with:
+        dotnet-version: '5.0.5'
 
     # Execute all unit tests in the solution
     - name: Execute unit tests
-      run: ./ci-test.ps1 ${{matrix.configuration}}
+      run: dotnet test --collect "XPlat Code Coverage" -c ${{matrix.configuration}}
       env:
           CI: true
 
