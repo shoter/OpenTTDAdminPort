@@ -44,7 +44,7 @@ on:
       createPrereleasePackage:
         description: 'type true to create prerelease package'
         required: false
-        default: 'false'
+        default: 'true'
 
 jobs:
 
