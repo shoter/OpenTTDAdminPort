@@ -42,7 +42,7 @@ on:
   workflow_dispatch:
     inputs:
       versionSuffix:
-        description: 'used to create pre-release packages'
+        description: 'Version suffix - used to create pre-release packages'
         required: false
         default: ''
 
