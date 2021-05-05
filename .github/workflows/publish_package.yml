@@ -91,8 +91,4 @@ jobs:
 
     - name: Push package to NuGet.org
       run: |
-        dotnet nuget push "./packages/Shoter.OpenTTD.AdminPort.*.nupkg" -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json
-
-    - name: Push symbols package to NuGet.org
-      run: |
-        dotnet nuget push "./packages/Shoter.OpenTTD.AdminPort.*.snupkg" -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json -ss  https://symbols.nuget.org/download/symbols
+        dotnet nuget push "./packages/Shoter.OpenTTD.AdminPort.*.nupkg" -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json  -ss  https://symbols.nuget.org/download/symbols
