@@ -87,7 +87,7 @@ jobs:
 
 
     - name: Create Packages 
-      run: dotnet pack --version-suffix ${{ github.run_number }} -c Release -o packages OpenTTDAdminPort/OpenTTDAdminPort.csproj
+      run: dotnet pack --version-suffix "run-${{ github.run_number }}" -c Release -o packages OpenTTDAdminPort/OpenTTDAdminPort.csproj
 
     - name: Push package to NuGet.org
       run: |
