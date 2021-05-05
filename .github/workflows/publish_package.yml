@@ -87,9 +87,7 @@ jobs:
 
     - name: Set version suffix
       if: ${{ github.event.inputs.createPrereleasePackage == 'true'}}
-      env:
-        RUN_NUMBER: ${{ github.run_number }}
-      run: export VERSION_SUFFIX=$RUN_NUMBER
+      run: export VERSION_SUFFIX=${{ github.run_number }}
     - name: Print version suffix
       run: echo "Suffix= $VERSION_SUFFIX"
 
