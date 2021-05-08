@@ -86,8 +86,14 @@ jobs:
           CI: true
 
 
-    - name: Create Packages 
+    - name: Create Prerelease Packages 
+      if: ${{ github.event.inputs.createPrereleasePackage == 'true' }}
       run: dotnet pack --version-suffix "run-${{ github.run_number }}" -c Release -o packages OpenTTDAdminPort/OpenTTDAdminPort.csproj
+
+    - name: Create Release Packages 
+      if: ${{ github.event.inputs.createPrereleasePackage != 'true' }}
+      run: dotnet pack -c Release -o packages OpenTTDAdminPort/OpenTTDAdminPort.csproj
+
 
     - name: Push package to NuGet.org
       run: |
