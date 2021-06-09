@@ -72,6 +72,8 @@ namespace OpenTTDAdminPort
             this.StateRunners[AdminConnectionState.Connected] = new AdminPortConnectedState();
             this.StateRunners[AdminConnectionState.Errored] = new AdminPortErroredState();
             this.StateRunners[AdminConnectionState.ErroredOut] = new AdminPortErroredOutState();
+            
+            logger?.LogInformation($"{ServerInfo} Admin Port Client Initialized.")
         }
 
         private void AdminPortTcpClient_Errored(object sender, Exception e)
@@ -82,6 +84,7 @@ namespace OpenTTDAdminPort
 
         private void AdminPortTcpClient_MessageReceived(object sender, IAdminMessage e)
         {
+            logger?.LogTrace($"{ServerInfo} Received message {e.MessageType} - {e}");
             StateRunners[Context.State].OnMessageReceived(e, Context);
             IAdminEvent? adminEvent = eventFactory.Create(e, Context);
             if(adminEvent != null)
@@ -94,7 +97,7 @@ namespace OpenTTDAdminPort
             {
                 StateRunners[e.Old].OnStateEnd(Context);
                 StateRunners[e.New].OnStateStart(Context);
-                logger?.LogInformation($"{ServerInfo}State changed from {e.Old} to {e.New}.");
+                logger?.LogTrace($"{ServerInfo}State changed from {e.Old} to {e.New}.");
             }
             catch (Exception ex)
             {
