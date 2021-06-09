@@ -76,7 +76,7 @@ namespace OpenTTDAdminPort
 
         private void AdminPortTcpClient_Errored(object sender, Exception e)
         {
-            logger?.LogError(e, $"TCP client had internal error {e.Message}.");
+            logger?.LogError(e, $"{ServerInfo}TCP client had internal error {e.Message}.");
             Context.state = AdminConnectionState.Errored;
         }
 
@@ -94,10 +94,11 @@ namespace OpenTTDAdminPort
             {
                 StateRunners[e.Old].OnStateEnd(Context);
                 StateRunners[e.New].OnStateStart(Context);
+                logger?.LogInformation($"{ServerInfo}State changed from {e.Old} to {e.New}.");
             }
             catch (Exception ex)
             {
-                logger?.LogError(ex, $"Error during changing state from {e.Old} into {e.New}");
+                logger?.LogError(ex, $"{ServerInfo}Error during changing state from {e.Old} into {e.New}");
                 Context.State = AdminConnectionState.ErroredOut;
                 throw;
             }
@@ -116,7 +117,7 @@ namespace OpenTTDAdminPort
             }
             catch (Exception ex)
             {
-                logger?.LogError(ex, "Error during Connect");
+                logger?.LogError(ex, $"{ServerInfo}Error during Connect");
                 Context.State = AdminConnectionState.ErroredOut;
                 throw;
             }
@@ -135,7 +136,7 @@ namespace OpenTTDAdminPort
             }
             catch (Exception ex)
             {
-                logger?.LogError(ex, "Error during Connect");
+                logger?.LogError(ex, $"{ServerInfo}Error during Connect");
                 Context.State = AdminConnectionState.ErroredOut;
                 throw;
             }
