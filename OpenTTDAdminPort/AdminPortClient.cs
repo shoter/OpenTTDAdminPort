@@ -72,8 +72,8 @@ namespace OpenTTDAdminPort
             this.StateRunners[AdminConnectionState.Connected] = new AdminPortConnectedState();
             this.StateRunners[AdminConnectionState.Errored] = new AdminPortErroredState();
             this.StateRunners[AdminConnectionState.ErroredOut] = new AdminPortErroredOutState();
-            
-            logger?.LogInformation($"{ServerInfo} Admin Port Client Initialized.")
+
+            logger?.LogInformation($"{ServerInfo} Admin Port Client Initialized.");
         }
 
         private void AdminPortTcpClient_Errored(object sender, Exception e)
