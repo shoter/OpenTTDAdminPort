@@ -87,6 +87,7 @@ namespace OpenTTDAdminPort
             logger?.LogTrace($"{ServerInfo} Received message {e.MessageType} - {e}");
             StateRunners[Context.State].OnMessageReceived(e, Context);
             IAdminEvent? adminEvent = eventFactory.Create(e, Context);
+            logger?.LogWarning($"{ServerInfo} adminEvent is null for {e.MessageType} {e}");
             if(adminEvent != null)
                 EventReceived?.Invoke(this, adminEvent);
         }
