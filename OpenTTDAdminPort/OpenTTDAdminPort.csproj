@@ -6,7 +6,7 @@
     <Description>Library providing client to communicate with OpenTTD Admin Port.</Description>
     <PackageTags>OpenTTD AdminPort Admin Port</PackageTags>
 
-    <LibraryVersion>0.2.0</LibraryVersion>
+    <LibraryVersion>0.2.1</LibraryVersion>
     <PackageReleaseNotes>Alpha Release</PackageReleaseNotes>
     <VersionPrefix>$(LibraryVersion)</VersionPrefix>
     <AssemblyVersion>$(LibraryVersion)</AssemblyVersion>
