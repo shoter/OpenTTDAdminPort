@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace OpenTTDAdminPort.Networking
 {
-    internal class AdminPortTcpClient : IAdminPortTcpClient
+    internal class AdminPortTcpClient : IAdminPortTcpClient, IDisposable
     {
         public event EventHandler<IAdminMessage>? MessageReceived;
         public event EventHandler<Exception>? Errored;
@@ -83,6 +83,11 @@ namespace OpenTTDAdminPort.Networking
             Debug.Assert(this.ip != null);
             await Stop(tcpClient);
             await Start(this.ip, this.port);
+        }
+
+        public void Dispose()
+        {
+            tcpClient.Close();
         }
     }
 }

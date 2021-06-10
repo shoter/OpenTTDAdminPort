@@ -2,10 +2,11 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using System;
 
 namespace OpenTTDAdminPort.Networking
 {
-    public class MyTcpClient : ITcpClient
+    public class MyTcpClient : ITcpClient,  IDisposable 
     {
         // The real implementation
         private readonly TcpClient _client;
