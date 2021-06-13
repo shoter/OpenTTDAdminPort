@@ -78,7 +78,7 @@ namespace OpenTTDAdminPort
 
         private void AdminPortTcpClient_Errored(object sender, Exception e)
         {
-            logger?.LogError(e, $"{ServerInfo} TCP client had internal error {e.Message}.");
+            logger?.LogError(e, $"{ServerInfo} TCP client had internal error: {e.Message}.");
             Context.State = AdminConnectionState.Errored;
         }
 

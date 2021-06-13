@@ -24,6 +24,8 @@ namespace OpenTTDAdminPort.Networking
 
         private readonly IAdminPacketService adminPacketService;
 
+        private bool isStopped = false;
+
         public AdminPortTcpClientSender(IAdminPacketService adminPacketService)
         {
             this.adminPacketService = adminPacketService;
@@ -44,6 +46,7 @@ namespace OpenTTDAdminPort.Networking
             }
 
             ThreadPool.QueueUserWorkItem(new WaitCallback((_) => MainLoop(stream, cancellationTokenSource.Token)), null);
+            isStopped = false;
             State = WorkState.Working;
             return Task.CompletedTask;
         }
@@ -54,8 +57,11 @@ namespace OpenTTDAdminPort.Networking
             {
                 cancellationTokenSource.Cancel();
 
-                // give it some time to cancel MainLoop
-                await Task.Delay(TimeSpan.FromSeconds(2));
+                if (!await TaskHelper.WaitUntil(() => !isStopped, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(10)))
+                {
+                    throw new Exception();
+                }
+
                 State = WorkState.Stopped;
             }
         }
@@ -81,6 +87,7 @@ namespace OpenTTDAdminPort.Networking
                     State = WorkState.Errored;
                 }
             }
+            isStopped = true;
 
         }
     }

@@ -6,7 +6,7 @@ using System;
 
 namespace OpenTTDAdminPort.Networking
 {
-    public class MyTcpClient : ITcpClient,  IDisposable 
+    public class MyTcpClient : ITcpClient, IDisposable
     {
         // The real implementation
         private readonly TcpClient _client;
