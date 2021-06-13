@@ -42,7 +42,10 @@ namespace OpenTTDAdminPort.Tests.Dockerized
                     await client.Connect();
                 }
 
-                catch (Exception) { /* swallow the exception */ }
+                catch (Exception)
+                {
+                    await client.Disconnect();
+                }
             }
             await client?.Disconnect();
         }
