@@ -96,9 +96,9 @@ namespace OpenTTDAdminPort
         {
             try
             {
+                logger?.LogTrace($"{ServerInfo} State changed from {e.Old} to {e.New}.");
                 StateRunners[e.Old].OnStateEnd(Context);
                 StateRunners[e.New].OnStateStart(Context);
-                logger?.LogTrace($"{ServerInfo} State changed from {e.Old} to {e.New}.");
             }
             catch (Exception ex)
             {
