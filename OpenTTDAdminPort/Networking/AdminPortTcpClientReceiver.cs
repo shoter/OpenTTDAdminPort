@@ -1,4 +1,5 @@
-﻿using OpenTTDAdminPort.Common;
+﻿using Microsoft.Extensions.Logging;
+using OpenTTDAdminPort.Common;
 using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Packets;
 using System;
@@ -15,25 +16,29 @@ namespace OpenTTDAdminPort.Networking
 {
     internal class AdminPortTcpClientReceiver : IAdminPortTcpClientReceiver
     {
-        private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
         public event EventHandler<Exception>? ErrorOcurred;
         public event EventHandler<IAdminMessage>? MessageReceived;
 
         private readonly ConcurrentQueue<IAdminMessage> receivedMessages = new ConcurrentQueue<IAdminMessage>();
         private readonly IAdminPacketService adminPacketService;
+        private readonly ILogger? logger;
 
         private bool isStopped = false;
 
         public WorkState State { get; private set; } = WorkState.NotStarted;
 
-        public AdminPortTcpClientReceiver(IAdminPacketService adminPacketService)
+        public AdminPortTcpClientReceiver(IAdminPacketService adminPacketService, ILogger? logger = null)
         {
             this.adminPacketService = adminPacketService;
+            this.logger = logger;
         }
 
         public Task Start(Stream stream)
         {
+            this.cancellationTokenSource = new CancellationTokenSource();
+
             if (State != WorkState.NotStarted)
             {
                 State = WorkState.Errored;
@@ -41,11 +46,16 @@ namespace OpenTTDAdminPort.Networking
                 throw new AdminPortException("This Receiver had been started before! You cannot start receiver more than 1 time");
             }
 
+            logger?.LogTrace("Receiver Starting!");
+
             ThreadPool.QueueUserWorkItem(new WaitCallback((_) => MainLoop(stream, cancellationTokenSource.Token)), null);
             ThreadPool.QueueUserWorkItem(new WaitCallback((_) => EventLoop(cancellationTokenSource.Token)), null);
 
             isStopped = false;
             State = WorkState.Working;
+
+            logger?.LogTrace("Receiver Started!");
+
 
             return Task.CompletedTask;
         }
@@ -54,6 +64,8 @@ namespace OpenTTDAdminPort.Networking
         {
             if (State == WorkState.Working)
             {
+                logger?.LogTrace("Receiver Stopping!");
+
                 cancellationTokenSource.Cancel();
 
                 if (!await TaskHelper.WaitUntil(() => !isStopped, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(10)))
@@ -62,6 +74,7 @@ namespace OpenTTDAdminPort.Networking
                 }
 
                 State = WorkState.Stopped;
+                logger?.LogTrace("Receiver Stopped!");
             }
         }
 
@@ -74,6 +87,8 @@ namespace OpenTTDAdminPort.Networking
                 {
                     Packet packet = await WaitForPacket(stream, token);
                     IAdminMessage message = adminPacketService.ReadPacket(packet);
+                    logger?.LogTrace($"Receiver received message {message}!");
+
                     if (!token.IsCancellationRequested)
                         receivedMessages.Enqueue(message);
                 }

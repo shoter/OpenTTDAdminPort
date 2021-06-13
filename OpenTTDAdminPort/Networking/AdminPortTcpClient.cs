@@ -1,4 +1,5 @@
-﻿using OpenTTDAdminPort.Messages;
+﻿using Microsoft.Extensions.Logging;
+using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Packets;
 using System;
 using System.Collections.Generic;
@@ -22,13 +23,16 @@ namespace OpenTTDAdminPort.Networking
         private string? ip;
         private int port;
 
+        private readonly ILogger? logger;
+
 
         public WorkState State { get; set; } = WorkState.NotStarted;
-        public AdminPortTcpClient(IAdminPortTcpClientSender sender, IAdminPortTcpClientReceiver receiver, ITcpClient tcpClient)
+        public AdminPortTcpClient(IAdminPortTcpClientSender sender, IAdminPortTcpClientReceiver receiver, ITcpClient tcpClient, ILogger? logger = null)
         { 
             this.sender = sender;
             this.receiver = receiver;
             this.tcpClient = tcpClient;
+            this.logger = logger;
 
             sender.ErrorOcurred += (e, arg) => OnError(e, arg);
             receiver.ErrorOcurred += (e, arg) => OnError(e, arg);
@@ -42,6 +46,7 @@ namespace OpenTTDAdminPort.Networking
 
         public async Task Start(string ip, int port)
         {
+            logger?.LogTrace($"Starting {nameof(AdminPortTcpClient)} on {ip}:{port}");
             if (State != WorkState.NotStarted && State != WorkState.Stopped)
             {
                 State = WorkState.Errored;
@@ -63,15 +68,19 @@ namespace OpenTTDAdminPort.Networking
         {
             if (State == WorkState.Working)
             {
+                logger?.LogTrace($"Stopping {nameof(AdminPortTcpClient)} on {ip}:{port}");
+
                 await Task.WhenAll(receiver.Stop(), sender.Stop());
+                logger?.LogTrace($"Received and sender stopped for {ip}:{port}");
                 this.tcpClient.Close();
                 this.tcpClient = tcpClient;
                 this.State = WorkState.Stopped;
             }
         }
 
-        public void OnError(object _, Exception e)
+        public void OnError(object origin, Exception e)
         {
+            logger?.LogTrace($"{origin} errored. Stopping tcp client for {ip}:{port}");
             State = WorkState.Errored;
             receiver?.Stop().Wait();
             sender?.Stop().Wait();

@@ -44,7 +44,10 @@ namespace OpenTTDAdminPort.Tests.Dockerized
 
                 catch (Exception)
                 {
-                    await client.Disconnect();
+                    if (client.ConnectionState != AdminConnectionState.ErroredOut)
+                    {
+                        await client.Disconnect();
+                    }
                 }
             }
             await client?.Disconnect();

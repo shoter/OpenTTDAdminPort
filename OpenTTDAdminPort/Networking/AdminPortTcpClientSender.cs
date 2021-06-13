@@ -1,4 +1,5 @@
-﻿using OpenTTDAdminPort.Common;
+﻿using Microsoft.Extensions.Logging;
+using OpenTTDAdminPort.Common;
 using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Packets;
 using System;
@@ -20,15 +21,18 @@ namespace OpenTTDAdminPort.Networking
 
         private readonly ConcurrentQueue<IAdminMessage> messagesToSend = new ConcurrentQueue<IAdminMessage>();
 
-        private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
         private readonly IAdminPacketService adminPacketService;
 
         private bool isStopped = false;
 
-        public AdminPortTcpClientSender(IAdminPacketService adminPacketService)
+        private readonly ILogger? logger;
+
+        public AdminPortTcpClientSender(IAdminPacketService adminPacketService, ILogger? logger = null)
         {
             this.adminPacketService = adminPacketService;
+            this.logger = logger;
         }
 
         public void SendMessage(IAdminMessage message)
@@ -38,6 +42,7 @@ namespace OpenTTDAdminPort.Networking
 
         public Task Start(Stream stream)
         {
+            cancellationTokenSource = new CancellationTokenSource();
             if (State != WorkState.NotStarted)
             {
                 State = WorkState.Errored;
@@ -48,6 +53,8 @@ namespace OpenTTDAdminPort.Networking
             ThreadPool.QueueUserWorkItem(new WaitCallback((_) => MainLoop(stream, cancellationTokenSource.Token)), null);
             isStopped = false;
             State = WorkState.Working;
+
+            logger?.LogTrace("Sender started!");
             return Task.CompletedTask;
         }
 
@@ -55,6 +62,8 @@ namespace OpenTTDAdminPort.Networking
         {
             if (State == WorkState.Working)
             {
+                logger?.LogTrace("Sender Stopping!");
+
                 cancellationTokenSource.Cancel();
 
                 if (!await TaskHelper.WaitUntil(() => !isStopped, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(10)))
@@ -63,6 +72,8 @@ namespace OpenTTDAdminPort.Networking
                 }
 
                 State = WorkState.Stopped;
+                logger?.LogTrace("Sender Stopped!");
+
             }
         }
 
@@ -76,12 +87,16 @@ namespace OpenTTDAdminPort.Networking
 
                     while (messagesToSend.TryDequeue(out IAdminMessage msg))
                     {
+                        logger?.LogTrace($"Sender sending {msg}!");
+
                         Packet packet = this.adminPacketService.CreatePacket(msg);
                         await stream.WriteAsync(packet.Buffer, 0, packet.Size, token).WaitMax(TimeSpan.FromSeconds(2));
                     }
                 }
                 catch (Exception e)
                 {
+                    logger?.LogError(e, "Sender errored");
+
                     cancellationTokenSource.Cancel();
                     ErrorOcurred?.Invoke(this, e);
                     State = WorkState.Errored;

@@ -47,9 +47,16 @@ namespace OpenTTDAdminPort
             Init(tcpClient);
         }
 
-        public AdminPortClient(ServerInfo serverInfo, ILogger<AdminPortClient> logger) : this(serverInfo)
+        public AdminPortClient(ServerInfo serverInfo, ILogger<AdminPortClient> logger)
         {
             this.logger = logger;
+
+            IAdminPacketService packetService = new AdminPacketServiceFactory().Create();
+            IAdminPortTcpClient tcpClient = new AdminPortTcpClient(new AdminPortTcpClientSender(packetService, logger), new AdminPortTcpClientReceiver(packetService, logger), new MyTcpClient(), logger);
+            Context = new AdminPortClientContext(tcpClient, "AdminPort", "1.0.0", serverInfo);
+            eventFactory = new AdminEventFactory();
+            Init(tcpClient);
+
         }
 
 
