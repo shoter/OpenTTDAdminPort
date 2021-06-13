@@ -47,14 +47,16 @@ namespace OpenTTDAdminPort.Networking
             return Task.CompletedTask;
         }
 
-        public Task Stop()
+        public async Task Stop()
         {
             if (State == WorkState.Working)
             {
                 cancellationTokenSource.Cancel();
+
+                // give it some time to cancel MainLoop
+                await Task.Delay(TimeSpan.FromSeconds(2));
                 State = WorkState.Stopped;
             }
-            return Task.CompletedTask;
         }
 
         private async void MainLoop(Stream stream, CancellationToken token)
