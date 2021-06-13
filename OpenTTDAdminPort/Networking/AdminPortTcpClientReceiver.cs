@@ -68,9 +68,9 @@ namespace OpenTTDAdminPort.Networking
 
                 cancellationTokenSource.Cancel();
 
-                if (!await TaskHelper.WaitUntil(() => !isStopped, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(10)))
+                if (!await TaskHelper.WaitUntil(() => isStopped, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(10)))
                 {
-                    throw new Exception();
+                    throw new AdminPortException("Receiver waiting for Main Loop stop timed out");
                 }
 
                 State = WorkState.Stopped;
@@ -80,7 +80,6 @@ namespace OpenTTDAdminPort.Networking
 
         private async void MainLoop(Stream stream, CancellationToken token)
         {
-
             while (token.IsCancellationRequested == false)
             {
                 try
@@ -99,6 +98,8 @@ namespace OpenTTDAdminPort.Networking
                     State = WorkState.Errored;
                 }
             }
+            logger?.LogTrace("Receiver Main Loop Stopped!");
+
             isStopped = true;
         }
 
@@ -132,7 +133,8 @@ namespace OpenTTDAdminPort.Networking
             {
                 await Task.Delay(TimeSpan.FromMilliseconds(1));
                 Task<int> task = stream
-                    .ReadAsync(result, currentSize, dataSize - currentSize, token);
+                    .ReadAsync(result, currentSize, dataSize - currentSize, token)
+                    .WaitWithToken(token);
                 await task;
                 currentSize += task.Result;
             } while (currentSize < dataSize);

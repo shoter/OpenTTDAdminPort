@@ -66,9 +66,9 @@ namespace OpenTTDAdminPort.Networking
 
                 cancellationTokenSource.Cancel();
 
-                if (!await TaskHelper.WaitUntil(() => !isStopped, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(10)))
+                if (!await TaskHelper.WaitUntil(() => isStopped, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(10)))
                 {
-                    throw new Exception();
+                    throw new AdminPortException("Sender waiting for Main Loop stop timed out");
                 }
 
                 State = WorkState.Stopped;
@@ -90,7 +90,7 @@ namespace OpenTTDAdminPort.Networking
                         logger?.LogTrace($"Sender sending {msg}!");
 
                         Packet packet = this.adminPacketService.CreatePacket(msg);
-                        await stream.WriteAsync(packet.Buffer, 0, packet.Size, token).WaitMax(TimeSpan.FromSeconds(2));
+                        await stream.WriteAsync(packet.Buffer, 0, packet.Size, token).WaitMax(TimeSpan.FromSeconds(2)).WaitWithToken(token);
                     }
                 }
                 catch (Exception e)
@@ -102,6 +102,7 @@ namespace OpenTTDAdminPort.Networking
                     State = WorkState.Errored;
                 }
             }
+            logger?.LogTrace("Sender Main Loop Stopped!");
             isStopped = true;
 
         }
