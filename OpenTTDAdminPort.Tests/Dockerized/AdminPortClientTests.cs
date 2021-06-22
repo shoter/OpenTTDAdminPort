@@ -2,6 +2,7 @@
 using Docker.DotNet;
 using Docker.DotNet.Models;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Debug;
 using OpenTTDAdminPort.Common;
 using OpenTTDAdminPort.Events;
 using OpenTTDAdminPort.Messages;
@@ -26,7 +27,7 @@ namespace OpenTTDAdminPort.Tests.Dockerized
         public AdminPortClientTests(ITestOutputHelper output)
         {
             loggerFactory = LogFactory.Create(output);
-
+            loggerFactory.AddProvider(new DebugLoggerProvider());
         }
 
         [Fact]
@@ -43,7 +44,7 @@ namespace OpenTTDAdminPort.Tests.Dockerized
             };
 
             await client.Connect();
-            client.SendMessage(new AdminPingMessage(55));
+            client.SendMessage(new AdminPingMessage(55u));
 
             while (pongEvent == null)
             {

@@ -73,16 +73,16 @@ namespace OpenTTDAdminPort.Common
             {
                 await Task.Delay(refreshDelay);
                 if (token.IsCancellationRequested)
-                    break;
-                if (task.IsCompleted)
-                    break;
-            }
-
-
+                {
 #pragma warning disable CS8603 // Possible null reference return. (I am unable to declare return type as Task<T?> as it is not Net5. Also Nullable<T> would change semantics of returned value.
-            return default;
+                    return default;
 #pragma warning restore CS8603 // Possible null reference return.
-
+                }
+                if (task.IsCompleted)
+                {
+                    return task.Result;
+                }
+            }
         }
     }
 }

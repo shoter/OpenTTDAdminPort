@@ -16,7 +16,7 @@ namespace OpenTTDAdminPort.Tests.Dockerized
 
         private string containerName;
 
-        private ContainerApplicationState State { get; set; } = ContainerApplicationState.Idle;
+        public ContainerApplicationState State { private get; set; } = ContainerApplicationState.Idle;
 
         private readonly DockerClient client = DockerClientProvider.Instance;
 

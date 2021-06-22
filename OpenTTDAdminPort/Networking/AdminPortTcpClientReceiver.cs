@@ -37,14 +37,16 @@ namespace OpenTTDAdminPort.Networking
 
         public Task Start(Stream stream)
         {
-            this.cancellationTokenSource = new CancellationTokenSource();
-
             if (State != WorkState.NotStarted)
             {
                 State = WorkState.Errored;
                 cancellationTokenSource.Cancel();
                 throw new AdminPortException("This Receiver had been started before! You cannot start receiver more than 1 time");
             }
+
+            this.cancellationTokenSource.Cancel();
+            this.cancellationTokenSource = new CancellationTokenSource();
+
 
             logger?.LogTrace("Receiver Starting!");
 
@@ -68,7 +70,7 @@ namespace OpenTTDAdminPort.Networking
 
                 cancellationTokenSource.Cancel();
 
-                if (!await TaskHelper.WaitUntil(() => isStopped, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(10)))
+                if (!await TaskHelper.WaitUntil(() => isStopped, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(100)))
                 {
                     throw new AdminPortException("Receiver waiting for Main Loop stop timed out");
                 }
@@ -80,27 +82,33 @@ namespace OpenTTDAdminPort.Networking
 
         private async void MainLoop(Stream stream, CancellationToken token)
         {
-            while (token.IsCancellationRequested == false)
+            try
             {
-                try
+                while (token.IsCancellationRequested == false)
                 {
-                    Packet packet = await WaitForPacket(stream, token);
-                    IAdminMessage message = adminPacketService.ReadPacket(packet);
-                    logger?.LogTrace($"Receiver received message {message}!");
+                    try
+                    {
+                        Packet packet = await WaitForPacket(stream, token);
+                        logger?.LogTrace($"Receiver receiving new message!");
+                        IAdminMessage message = adminPacketService.ReadPacket(packet);
+                        logger?.LogTrace($"Receiver received message {message}!");
 
-                    if (!token.IsCancellationRequested)
-                        receivedMessages.Enqueue(message);
+                        if (!token.IsCancellationRequested)
+                            receivedMessages.Enqueue(message);
+                    }
+                    catch (Exception e) when (!(e is TaskCanceledException))
+                    {
+                        cancellationTokenSource.Cancel();
+                        ErrorOcurred?.Invoke(this, e);
+                        State = WorkState.Errored;
+                    }
                 }
-                catch (Exception e)
-                {
-                    cancellationTokenSource.Cancel();
-                    ErrorOcurred?.Invoke(this, e);
-                    State = WorkState.Errored;
-                }
+                logger?.LogTrace("Receiver Main Loop Stopped!");
             }
-            logger?.LogTrace("Receiver Main Loop Stopped!");
-
-            isStopped = true;
+            finally
+            {
+                isStopped = true;
+            }
         }
 
         private async Task<Packet> WaitForPacket(Stream stream, CancellationToken token)
@@ -108,6 +116,12 @@ namespace OpenTTDAdminPort.Networking
             byte[] sizeBuffer = await Read(stream, 2, token);
             ushort size = BitConverter.ToUInt16(sizeBuffer, 0);
             byte[] content = await Read(stream, size - 2, token).WaitMax(TimeSpan.FromSeconds(5));
+
+            if(token.IsCancellationRequested)
+            {
+                // Task read has been probably interrupted. In this situation it is highly likely that we have gibberish in the array. It is better to not read it.
+                throw new TaskCanceledException();
+            }
             Packet packet = CreatePacket(sizeBuffer, content);
             return packet;
         }
@@ -131,13 +145,14 @@ namespace OpenTTDAdminPort.Networking
 
             do
             {
-                await Task.Delay(TimeSpan.FromMilliseconds(1));
+                await Task.Delay(TimeSpan.FromMilliseconds(1000));
                 Task<int> task = stream
                     .ReadAsync(result, currentSize, dataSize - currentSize, token)
                     .WaitWithToken(token);
                 await task;
                 currentSize += task.Result;
-            } while (currentSize < dataSize);
+                logger?.LogTrace("Receiver trying to receive packet");
+            } while (currentSize < dataSize && !token.IsCancellationRequested);
 
             return result;
         }

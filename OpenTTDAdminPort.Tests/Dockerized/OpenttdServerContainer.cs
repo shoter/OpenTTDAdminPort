@@ -4,8 +4,11 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Divergic.Logging.Xunit;
 using Docker.DotNet;
 using Docker.DotNet.Models;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Debug;
 
 namespace OpenTTDAdminPort.Tests.Dockerized
 {
@@ -33,15 +36,17 @@ namespace OpenTTDAdminPort.Tests.Dockerized
 
         protected override async Task WaitForContainerStart()
         {
+            var logFactory = new LoggerFactory();
+            logFactory.AddProvider(new DebugLoggerProvider());
+
             AdminPortClient client = null;
             while (client?.ConnectionState != AdminConnectionState.Connected)
             {
                 try
                 {
-                    client = new AdminPortClient(ServerInfo);
+                    client = new AdminPortClient(ServerInfo, logFactory.CreateLogger<AdminPortClient>());
                     await client.Connect();
                 }
-
                 catch (Exception)
                 {
                     if (client.ConnectionState != AdminConnectionState.ErroredOut)
