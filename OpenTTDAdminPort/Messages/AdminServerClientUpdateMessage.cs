@@ -16,5 +16,10 @@
             this.ClientName = clientName;
             this.PlayingAs = playingAs;
         }
+
+        public override string ToString()
+        {
+            return $"{ClientId} - {ClientName} - {PlayingAs}";
+        }
     }
 }

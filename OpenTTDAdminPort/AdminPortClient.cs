@@ -95,15 +95,21 @@ namespace OpenTTDAdminPort
 
         private void AdminPortTcpClient_MessageReceived(object sender, IAdminMessage e)
         {
-            logger?.LogTrace($"{ServerInfo} Received message {e.MessageType} - {e}");
-            StateRunners[Context.State].OnMessageReceived(e, Context);
-            IAdminEvent? adminEvent = eventFactory.Create(e, Context);
-            logger?.LogWarning($"{ServerInfo} adminEvent is null for {e.MessageType} {e}");
-            if (adminEvent != null)
+            try
             {
-                EventReceived?.Invoke(this, adminEvent);
-                logger?.LogTrace($"{ServerInfo} Created admin event {adminEvent.EventType} - {adminEvent}");
-
+                logger?.LogTrace($"{ServerInfo} Received message {e.MessageType} - {e}");
+                StateRunners[Context.State].OnMessageReceived(e, Context);
+                IAdminEvent? adminEvent = eventFactory.Create(e, Context);
+                logger?.LogWarning($"{ServerInfo} adminEvent is null for {e.MessageType} {e}");
+                if (adminEvent != null)
+                {
+                    EventReceived?.Invoke(this, adminEvent);
+                    logger?.LogTrace($"{ServerInfo} Created admin event {adminEvent.EventType} - {adminEvent}");
+                }
+            }
+            catch(Exception ex)
+            {
+                logger?.LogError(ex, "Could not complete AdminPortTcpClient_MessageReceived");
             }
         }
 
