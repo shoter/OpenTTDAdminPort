@@ -13,7 +13,7 @@ namespace OpenTTDAdminPort.Events
 
         public Player Player { get; }
 
-        public AdminEventType EventType => AdminEventType.ConsoleMessage;
+        public AdminEventType EventType => AdminEventType.ClientUpdate;
 
         public AdminClientInfoEvent(Player player, OttdDate joinDate, byte playingAs, string hostName)
         {

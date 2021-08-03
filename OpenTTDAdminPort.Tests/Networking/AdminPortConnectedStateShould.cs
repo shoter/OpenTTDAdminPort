@@ -136,6 +136,8 @@ namespace OpenTTDAdminPort.Tests.Networking
             state.OnMessageReceived(updateMessage, context);
 
             Assert.Equal("OldPlayer", context.Players[11u].Name);
+            Assert.Equal(5, context.Players[11u].PlayingAs);
+
         }
 
         [Fact]

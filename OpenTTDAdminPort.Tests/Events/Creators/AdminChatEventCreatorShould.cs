@@ -26,7 +26,7 @@ namespace OpenTTDAdminPort.Tests.Events.Creators
         public void CreateCorrectEvent()
         {
             ConcurrentDictionary<uint, Player> playerDic = new ConcurrentDictionary<uint, Player>();
-            playerDic.TryAdd(11u, new Player(11u, "Johny", DateTimeOffset.Now, "127.0.0.1"));
+            playerDic.TryAdd(11u, new Player(11u, "Johny", DateTimeOffset.Now, "127.0.0.1", 5));
             Mock<IAdminPortClientContext> contextMock = new Mock<IAdminPortClientContext>();
             contextMock.SetupGet(x => x.Players).Returns(playerDic);
 
@@ -42,6 +42,7 @@ namespace OpenTTDAdminPort.Tests.Events.Creators
             var ev = (AdminChatMessageEvent)creator.Create(msg, contextMock.Object);
 
             Assert.Equal(11u, ev.Player.ClientId);
+            Assert.Equal(5, ev.Player.PlayingAs);
             Assert.Equal("Johny", ev.Player.Name);
             Assert.Equal(ChatDestination.DESTTYPE_BROADCAST, msg.ChatDestination);
             Assert.Equal(NetworkAction.NETWORK_ACTION_CHAT, msg.NetworkAction);

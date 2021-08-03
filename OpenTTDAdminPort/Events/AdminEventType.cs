@@ -6,6 +6,8 @@
         ConsoleMessage = 2,
         AdminRcon = 3,
         Pong = 4,
+        ClientInfo = 5,
+        ClientUpdate = 6
 
     }
 }
