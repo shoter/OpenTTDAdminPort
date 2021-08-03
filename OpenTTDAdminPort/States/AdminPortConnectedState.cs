@@ -22,6 +22,8 @@ namespace OpenTTDAdminPort.States
                 context.TcpClient.SendMessage(msg);
             }
 
+            context.TcpClient.SendMessage(new AdminUpdateFrequencyMessage(AdminUpdateType.ADMIN_UPDATE_CLIENT_INFO, UpdateFrequency.ADMIN_FREQUENCY_AUTOMATIC));
+
             context.WatchDog.Start(context.TcpClient);
             context.WatchDog.Errored += (who, e) => context.State = AdminConnectionState.Errored;
         }
