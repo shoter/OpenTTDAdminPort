@@ -73,6 +73,7 @@ namespace OpenTTDAdminPort.Networking
                 await Task.WhenAll(receiver.Stop(), sender.Stop());
                 logger?.LogTrace($"Received and sender stopped for {ip}:{port}");
                 this.tcpClient.Close();
+                this.tcpClient.Dispose();
                 this.tcpClient = tcpClient;
                 this.State = WorkState.Stopped;
             }
