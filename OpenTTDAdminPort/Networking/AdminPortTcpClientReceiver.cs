@@ -159,7 +159,7 @@ namespace OpenTTDAdminPort.Networking
 
             do
             {
-                await Task.Delay(TimeSpan.FromMilliseconds(1000));
+                await Task.Delay(TimeSpan.FromMilliseconds(1));
                 Task<int> task = stream
                     .ReadAsync(result, currentSize, dataSize - currentSize, token)
                     .WaitWithToken(token);

@@ -43,7 +43,7 @@ namespace OpenTTDAdminPort.Common
 
             await Task.WhenAny(task, delayTask);
 
-            if (delayTask.IsCompleted)
+            if (!task.IsCompleted)
             {
                 throw new TaskWaitException($"Inside {callerName} there was task timeout. Refer to exception to find more details.");
             }
@@ -51,7 +51,7 @@ namespace OpenTTDAdminPort.Common
             return await task;
         }
 
-        public static Task WaitWithToken(this Task task, CancellationToken token) => task.WaitWithToken(token, TimeSpan.FromSeconds(1));
+        public static Task WaitWithToken(this Task task, CancellationToken token) => task.WaitWithToken(token, TimeSpan.FromMilliseconds(50));
 
         public static async Task WaitWithToken(this Task task, CancellationToken token, TimeSpan refreshDelay)
         {
@@ -65,7 +65,7 @@ namespace OpenTTDAdminPort.Common
             }
         }
 
-        public static Task<T> WaitWithToken<T>(this Task<T> task, CancellationToken token) => task.WaitWithToken(token, TimeSpan.FromSeconds(1));
+        public static Task<T> WaitWithToken<T>(this Task<T> task, CancellationToken token) => task.WaitWithToken(token, TimeSpan.FromMilliseconds(50));
 
         public static async Task<T> WaitWithToken<T>(this Task<T> task, CancellationToken token, TimeSpan refreshDelay)
         {
