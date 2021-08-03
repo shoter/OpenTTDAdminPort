@@ -15,7 +15,7 @@ namespace OpenTTDAdminPort.Events.Creators
 
         public IAdminEvent? Create(in IAdminMessage message, in IAdminPortClientContext context)
         {
-            var msg = (AdminServerClientInfoMessage)message;
+            var msg = (AdminServerClientUpdateMessage)message;
             var player = context.Players[msg.ClientId];
 
             return new AdminClientUpdateEvent(player);
