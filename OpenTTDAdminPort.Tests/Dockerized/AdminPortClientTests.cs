@@ -58,46 +58,46 @@ namespace OpenTTDAdminPort.Tests.Dockerized
             await client.Disconnect();
         }
 
-        [Fact]
-        public async Task AfterServerRestart_AdminPortClientShouldAutomaticallyReconnect()
-        {
-            logger.LogInformation("Starting Openttd server");
-            await server.Start(nameof(PingPongTest));
-            logger.LogInformation("Openttd Server started");
-            AdminPortClient client = new AdminPortClient(server.ServerInfo, new ContextLogger<AdminPortClient>(loggerFactory.CreateLogger<AdminPortClient>(), "Main Test Client"));
+        //[Fact]
+        //public async Task AfterServerRestart_AdminPortClientShouldAutomaticallyReconnect()
+        //{
+        //    logger.LogInformation("Starting Openttd server");
+        //    await server.Start(nameof(PingPongTest));
+        //    logger.LogInformation("Openttd Server started");
+        //    AdminPortClient client = new AdminPortClient(server.ServerInfo, new ContextLogger<AdminPortClient>(loggerFactory.CreateLogger<AdminPortClient>(), "Main Test Client"));
 
-            logger.LogInformation("Starting client connection");
-            await client.Connect();
-            logger.LogInformation("Client connected");
+        //    logger.LogInformation("Starting client connection");
+        //    await client.Connect();
+        //    logger.LogInformation("Client connected");
 
-            logger.LogInformation("Starting openttd server stop");
-            bool erroredOut = false;
-            client.StateChanged += (_, arg) => erroredOut = erroredOut | arg.New == AdminConnectionState.Errored;
-            await server.Stop();
-            logger.LogInformation("openttd stopped");
+        //    logger.LogInformation("Starting openttd server stop");
+        //    bool erroredOut = false;
+        //    client.StateChanged += (_, arg) => erroredOut = erroredOut | arg.New == AdminConnectionState.Errored;
+        //    await server.Stop();
+        //    logger.LogInformation("openttd stopped");
 
-            logger.LogInformation("Waiting for errored state");
-
-
-            if (!(await TaskHelper.WaitUntil(() => erroredOut, delayBetweenChecks: TimeSpan.FromSeconds(0.5), duration: TimeSpan.FromSeconds(20))))
-            {
-                throw new AdminPortException("Wrong State!");
-            }
-            logger.LogInformation("Errored state established");
-
-            await server.Start(nameof(PingPongTest));
-
-            logger.LogInformation("Openttd server started (again)");
+        //    logger.LogInformation("Waiting for errored state");
 
 
-            if (!(await TaskHelper.WaitUntil(() => client.ConnectionState == AdminConnectionState.Connected, delayBetweenChecks: TimeSpan.FromSeconds(0.5), duration: TimeSpan.FromSeconds(20))))
-            {
-                throw new AdminPortException("Wrong State!");
-            }
+        //    if (!(await TaskHelper.WaitUntil(() => erroredOut, delayBetweenChecks: TimeSpan.FromSeconds(0.5), duration: TimeSpan.FromSeconds(20))))
+        //    {
+        //        throw new AdminPortException("Wrong State!");
+        //    }
+        //    logger.LogInformation("Errored state established");
 
-            logger.LogInformation("Connected state established");
+        //    await server.Start(nameof(PingPongTest));
 
-        }
+        //    logger.LogInformation("Openttd server started (again)");
+
+
+        //    if (!(await TaskHelper.WaitUntil(() => client.ConnectionState == AdminConnectionState.Connected, delayBetweenChecks: TimeSpan.FromSeconds(0.5), duration: TimeSpan.FromSeconds(20))))
+        //    {
+        //        throw new AdminPortException("Wrong State!");
+        //    }
+
+        //    logger.LogInformation("Connected state established");
+
+        //}
 
         protected virtual void Dispose(bool disposing)
         {
