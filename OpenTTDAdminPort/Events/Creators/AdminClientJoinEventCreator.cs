@@ -13,7 +13,7 @@ namespace OpenTTDAdminPort.Events.Creators
             var msg = (AdminServerClientInfoMessage)message;
             var player = context.Players[msg.ClientId];
 
-            return new AdminClientInfoEvent(player, msg.JoinDate, msg.PlayingAs, msg.Hostname);
+            return new AdminClientInfoEvent(player, msg.JoinDate);
         }
     }
 }
