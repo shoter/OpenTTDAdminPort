@@ -1,4 +1,6 @@
 ﻿using Moq;
+
+using OpenTTDAdminPort.Common;
 using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Networking;
 using OpenTTDAdminPort.Packets;
@@ -31,7 +33,7 @@ namespace OpenTTDAdminPort.Tests.Networking
             stream.Write(packet.Buffer, 0, packet.Size);
             stream.Position = 0;
 
-            await WaitForMessage(receivedMessage);
+            await TaskHelper.WaitUntil(() => receivedMessage != null, delayBetweenChecks: TimeSpan.FromSeconds(0.5), duration: TimeSpan.FromSeconds(3));
             VerifyMessage(receivedMessage);
         }
 
@@ -54,7 +56,7 @@ namespace OpenTTDAdminPort.Tests.Networking
             stream.Write(packet.Buffer, 2, packet.Size - 2);
             stream.Position = 0;
 
-            await WaitForMessage(receivedMessage);
+            await TaskHelper.WaitUntil(() => receivedMessage != null, delayBetweenChecks: TimeSpan.FromSeconds(0.5), duration: TimeSpan.FromSeconds(3));
             VerifyMessage(receivedMessage);
         }
 
@@ -67,7 +69,10 @@ namespace OpenTTDAdminPort.Tests.Networking
             var receiver = new AdminPortTcpClientReceiver(packetService);
             await receiver.Start(stream);
             IAdminMessage receivedMessage = null;
-            receiver.MessageReceived += (_, msg) => receivedMessage = msg;
+            receiver.MessageReceived += (_, msg) =>
+            {
+                receivedMessage = msg;
+            };
 
             for(int i = 0; i < packet.Size; ++i)
             {
@@ -77,7 +82,7 @@ namespace OpenTTDAdminPort.Tests.Networking
 
 
             stream.Position = 0;
-            await WaitForMessage(receivedMessage);
+            await TaskHelper.WaitUntil(() => receivedMessage != null, delayBetweenChecks: TimeSpan.FromSeconds(0.5), duration: TimeSpan.FromSeconds(3));
             VerifyMessage(receivedMessage);
         }
 
@@ -90,14 +95,17 @@ namespace OpenTTDAdminPort.Tests.Networking
             var receiver = new AdminPortTcpClientReceiver(packetService);
             await receiver.Start(stream);
             IAdminMessage receivedMessage = null;
-            receiver.MessageReceived += (_, msg) => receivedMessage = msg;
+            receiver.MessageReceived += (_, msg) =>
+            {
+                receivedMessage = msg;
+            };
 
             await Task.Delay(TimeSpan.FromSeconds(10));
 
             stream.Write(packet.Buffer, 0, packet.Size);
             stream.Position = 0;
 
-            await WaitForMessage(receivedMessage);
+            await TaskHelper.WaitUntil(() => receivedMessage != null, delayBetweenChecks: TimeSpan.FromSeconds(0.5), duration: TimeSpan.FromSeconds(3));
             VerifyMessage(receivedMessage);
         }
 
@@ -116,7 +124,7 @@ namespace OpenTTDAdminPort.Tests.Networking
             stream.Write(packet.Buffer, 0, packet.Size);
             stream.Position = 0;
 
-            await WaitForMessage(receivedMessage);
+            await TaskHelper.WaitUntil(() => receivedMessage != null, delayBetweenChecks: TimeSpan.FromSeconds(0.5), duration: TimeSpan.FromSeconds(3));
             Assert.Null(receivedMessage);
         }
 
@@ -162,7 +170,7 @@ namespace OpenTTDAdminPort.Tests.Networking
             stream.Write(packet.Buffer, 0, packet.Size);
             stream.Position = 0;
 
-            await WaitForMessage(receivedMessage);
+            await TaskHelper.WaitUntil(() => receivedMessage != null, delayBetweenChecks: TimeSpan.FromSeconds(0.5), duration: TimeSpan.FromSeconds(3));
             Assert.Null(receivedMessage);
         }
 
@@ -174,13 +182,14 @@ namespace OpenTTDAdminPort.Tests.Networking
 
             var receiver = new AdminPortTcpClientReceiver(packetService);
             await receiver.Start(stream);
-            IAdminMessage receivedMessage = null;
-            receiver.MessageReceived += (_, msg) => receivedMessage = msg;
 
             stream.Write(packet.Buffer, 0, packet.Size);
             stream.Position = 0;
 
-            await Task.Delay(TimeSpan.FromSeconds(1));
+            if (!(await TaskHelper.WaitUntil(() => receiver.State == WorkState.Errored, delayBetweenChecks: TimeSpan.FromSeconds(0.5), duration: TimeSpan.FromSeconds(20))))
+            {
+                Assert.Equal(WorkState.Errored, receiver.State);
+            }
             Assert.Equal(WorkState.Errored, receiver.State);
         }
 
@@ -203,7 +212,7 @@ namespace OpenTTDAdminPort.Tests.Networking
             stream.Write(packet.Buffer, 0, packet.Size);
             stream.Position = savedPos;
 
-            await WaitForMessage(receivedMessage);
+            await TaskHelper.WaitUntil(() => receivedMessage != null, delayBetweenChecks: TimeSpan.FromSeconds(0.5), duration: TimeSpan.FromSeconds(3));
             Assert.Null(receivedMessage);
         }
 
@@ -221,18 +230,6 @@ namespace OpenTTDAdminPort.Tests.Networking
             await Task.Delay(TimeSpan.FromSeconds(1));
             Assert.Equal(WorkState.Working, receiver.State);
         }
-
-
-        private static async Task WaitForMessage(IAdminMessage receivedMessage)
-        {
-            for (int i = 0; i < 100; ++i)
-            {
-                if (receivedMessage != null)
-                    break;
-                await Task.Delay(1);
-            }
-        }
-
 
 
         private static void VerifyMessage(IAdminMessage receivedMessage)

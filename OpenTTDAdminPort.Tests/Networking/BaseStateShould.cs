@@ -1,4 +1,6 @@
-﻿using Moq;
+﻿using Microsoft.Extensions.Logging.Abstractions;
+
+using Moq;
 using OpenTTDAdminPort.Packets;
 using OpenTTDAdminPort.States;
 using System;
@@ -21,7 +23,7 @@ namespace OpenTTDAdminPort.Tests.Networking
         {
             tcpClientMock.CallBase = true;
             context = new AdminPortClientContext(tcpClientMock.Object, "adminPortTest", "1.0.0.0",
-                    new ServerInfo("127.0.0.1", 123, "LubiePlacki"));
+                    new ServerInfo("127.0.0.1", 123, "LubiePlacki"), NullLogger.Instance);
         }
 
     }

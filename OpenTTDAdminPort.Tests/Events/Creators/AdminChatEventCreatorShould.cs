@@ -26,7 +26,7 @@ namespace OpenTTDAdminPort.Tests.Events.Creators
         public void CreateCorrectEvent()
         {
             ConcurrentDictionary<uint, Player> playerDic = new ConcurrentDictionary<uint, Player>();
-            playerDic.TryAdd(11u, new Player(11u, "Johny"));
+            playerDic.TryAdd(11u, new Player(11u, "Johny", DateTimeOffset.Now));
             Mock<IAdminPortClientContext> contextMock = new Mock<IAdminPortClientContext>();
             contextMock.SetupGet(x => x.Players).Returns(playerDic);
 

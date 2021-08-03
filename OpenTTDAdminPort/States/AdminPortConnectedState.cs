@@ -40,7 +40,7 @@ namespace OpenTTDAdminPort.States
                 case AdminMessageType.ADMIN_PACKET_SERVER_CLIENT_INFO:
                     {
                         var msg = (AdminServerClientInfoMessage)message;
-                        var player = new Player(msg.ClientId, msg.ClientName);
+                        var player = new Player(msg.ClientId, msg.ClientName, DateTimeOffset.Now);
                         context.Players.AddOrUpdate(msg.ClientId, player, (_, __) => player);
 
                         break;

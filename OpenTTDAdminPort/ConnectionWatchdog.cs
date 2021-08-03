@@ -1,4 +1,6 @@
-﻿using OpenTTDAdminPort.Messages;
+﻿using Microsoft.Extensions.Logging;
+
+using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Networking;
 using System;
 using System.Collections.Generic;
@@ -15,22 +17,24 @@ namespace OpenTTDAdminPort
         private uint lastSendPingArg = 0;
         private bool lastPingReceived = true;
         private IAdminPortTcpClient? client;
+        private readonly ILogger logger;
 
         private readonly Random rand = new Random();
         private readonly Timer timer;
 
         public bool Enabled => timer.Enabled;
 
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ConnectionWatchdog"/> class.
         /// </summary>
         /// <param name="pingRespondTime">Specify how long will be time between pings to the server. 
         /// It is also specifying how long time does server have in order to respond to the message.</param>
-        public ConnectionWatchdog(TimeSpan pingRespondTime)
+        public ConnectionWatchdog(TimeSpan pingRespondTime, ILogger logger)
         {
             timer = new Timer(pingRespondTime.TotalMilliseconds);
             timer.Elapsed += Timer_Elapsed;
-
+            this.logger = logger;
         }
 
 
@@ -38,8 +42,11 @@ namespace OpenTTDAdminPort
         {
             if(message.MessageType == AdminMessageType.ADMIN_PACKET_SERVER_PONG)
             {
+                
                 var pongMsg = (AdminServerPongMessage)message;
                 lastPingReceived = lastPingReceived || pongMsg.Argument == lastSendPingArg;
+                logger.LogTrace($"Watchdog received ping {pongMsg.Argument} == {lastSendPingArg} ({lastPingReceived})");
+
             }
         }
 
@@ -72,8 +79,10 @@ namespace OpenTTDAdminPort
 
         private void Timer_Elapsed(object sender, ElapsedEventArgs e)
         {
+            logger.LogTrace($"Timer elapsed for watchdog {lastPingReceived}");
             if (lastPingReceived == false)
             {
+                logger.LogTrace("Invoking errored state on watchdog due to ping received in timely manner");
                 Errored?.Invoke(this, new AdminPortException("Server did not respond in predefined time"));
                 Stop();
             }
@@ -90,6 +99,8 @@ namespace OpenTTDAdminPort
             lastPingReceived = false;
             var pingMsg = new AdminPingMessage(lastSendPingArg);
             client?.SendMessage(pingMsg);
+            logger.LogTrace($"Watchdog sent ping {lastSendPingArg} ({lastPingReceived})");
+
         }
     }
 }

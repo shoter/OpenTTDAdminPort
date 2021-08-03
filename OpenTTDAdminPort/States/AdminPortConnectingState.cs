@@ -11,13 +11,17 @@ using System.Net.Sockets;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 
 namespace OpenTTDAdminPort.States
 {
     internal class AdminPortConnectingState : BaseAdminPortClientState
     {
+        private readonly Timer timer = new Timer(10_000);
+
         public override void OnMessageReceived(IAdminMessage message, IAdminPortClientContext context)
         {
+            // DTODO: This state also requires some kind of watchdog. 10s to complete?
             switch (message.MessageType)
             {
                 case AdminMessageType.ADMIN_PACKET_SERVER_PROTOCOL:
@@ -47,12 +51,32 @@ namespace OpenTTDAdminPort.States
                             RevisionName = msg.NetworkRevision,
                             ServerName = msg.ServerName
                         };
+
+                        timer.Stop();
                         context.State = AdminConnectionState.Connected;
 
                         //this.logger.LogInformation($"{ServerInfo.ServerIp}:{ServerInfo.ServerPort} - connected");
                         break;
                     }
             }
+        }
+
+        public override void OnStateStart(IAdminPortClientContext context)
+        {
+            // stop timer if it was started in the past.
+            timer.Stop();
+
+            timer.Elapsed += (_, __) =>
+            {
+                if(context.State == AdminConnectionState.Connecting)
+                {
+                    context.State = AdminConnectionState.Errored;
+                }
+            };
+
+            timer.Start();
+
+            base.OnStateStart(context);
         }
 
         public override Task Connect(IAdminPortClientContext context)

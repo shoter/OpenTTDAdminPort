@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace OpenTTDAdminPort.Networking
 {
-    internal interface ITcpClient
+    internal interface ITcpClient : IDisposable
     {
         Stream GetStream();
         EndPoint RemoteEndPoint { get; }

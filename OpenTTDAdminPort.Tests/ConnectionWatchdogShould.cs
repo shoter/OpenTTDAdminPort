@@ -1,4 +1,6 @@
-﻿using Moq;
+﻿using Microsoft.Extensions.Logging.Abstractions;
+
+using Moq;
 using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Networking;
 using OpenTTDAdminPort.Tests.Networking;
@@ -23,7 +25,7 @@ namespace OpenTTDAdminPort.Tests
         [Fact]
         public async Task ErrorOut_IfServerDoesNotRespondInTime()
         {
-            var dog = new ConnectionWatchdog(TimeSpan.FromSeconds(0.2));
+            var dog = new ConnectionWatchdog(TimeSpan.FromSeconds(0.2), NullLogger.Instance);
             Exception e = null;
             dog.Errored += (_, ex) => e = ex;
             dog.Start(tcpClientMock.Object);
@@ -35,7 +37,7 @@ namespace OpenTTDAdminPort.Tests
         [Fact]
         public async Task NotErrorOut_WhenFakeClientWillRespondWithPongs()
         {
-            var dog = new ConnectionWatchdog(TimeSpan.FromSeconds(0.1));
+            var dog = new ConnectionWatchdog(TimeSpan.FromSeconds(0.1), NullLogger.Instance);
             Exception e = null;
             dog.Errored += (_, ex) => e = ex;
             tcpClientMock.Setup(x => x.SendMessage(It.IsAny<IAdminMessage>()))
@@ -53,7 +55,7 @@ namespace OpenTTDAdminPort.Tests
         [Fact]
         public async Task ErrorOut_WhenPongMsgArgumentIsNotMatchingPing()
         {
-            var dog = new ConnectionWatchdog(TimeSpan.FromSeconds(0.1));
+            var dog = new ConnectionWatchdog(TimeSpan.FromSeconds(0.1), NullLogger.Instance);
             Exception e = null;
             dog.Errored += (_, ex) => e = ex;
             tcpClientMock.Setup(x => x.SendMessage(It.IsAny<IAdminMessage>()))
@@ -71,7 +73,7 @@ namespace OpenTTDAdminPort.Tests
         [Fact]
         public async Task NotErrorOut_AfterWatchdogIsStopped()
         {
-            var dog = new ConnectionWatchdog(TimeSpan.FromSeconds(0.1));
+            var dog = new ConnectionWatchdog(TimeSpan.FromSeconds(0.1), NullLogger.Instance);
             Exception e = null;
             dog.Errored += (_, ex) => e = ex;
             dog.Start(tcpClientMock.Object);
@@ -84,7 +86,7 @@ namespace OpenTTDAdminPort.Tests
         [Fact]
         public async Task BeAbleToStartAgain_AndWorkCorrect()
         {
-            var dog = new ConnectionWatchdog(TimeSpan.FromSeconds(0.1));
+            var dog = new ConnectionWatchdog(TimeSpan.FromSeconds(0.1), NullLogger.Instance);
             Exception e = null;
             dog.Errored += (_, ex) => e = ex;
             dog.Start(tcpClientMock.Object);
@@ -104,7 +106,7 @@ namespace OpenTTDAdminPort.Tests
         [Fact]
         public void ThrowException_WhenTryingToStartItWithDifferentClientWhileItIsWorking()
         {
-            var dog = new ConnectionWatchdog(TimeSpan.FromSeconds(5000));
+            var dog = new ConnectionWatchdog(TimeSpan.FromSeconds(5000), NullLogger.Instance);
 
             dog.Start(tcpClientMock.Object);
             Assert.Throws<AdminPortException>(() => dog.Start(Mock.Of<IAdminPortTcpClient>()));
