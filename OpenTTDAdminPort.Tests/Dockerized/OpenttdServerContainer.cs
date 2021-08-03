@@ -10,11 +10,15 @@ using Docker.DotNet.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Debug;
 
+using OpenTTDAdminPort.Logging;
+
 namespace OpenTTDAdminPort.Tests.Dockerized
 {
     public class OpenttdServerContainer : ContainerApplication
     {
         public ServerInfo ServerInfo => new ServerInfo("127.0.0.1", Port, "admin_pass");
+
+        private int createdAdminClientNumber = 0;
 
         public OpenttdServerContainer(DockerClient client) : base(client)
         {
@@ -44,7 +48,7 @@ namespace OpenTTDAdminPort.Tests.Dockerized
             {
                 try
                 {
-                    client = new AdminPortClient(ServerInfo, logFactory.CreateLogger<AdminPortClient>());
+                    client = new AdminPortClient(ServerInfo, new ContextLogger<AdminPortClient>(logFactory.CreateLogger<AdminPortClient>(), $"TestClient{createdAdminClientNumber++}"));
                     await client.Connect();
                 }
                 catch (Exception)

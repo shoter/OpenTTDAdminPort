@@ -1,7 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+
 using OpenTTDAdminPort.Common;
 using OpenTTDAdminPort.Events;
 using OpenTTDAdminPort.Game;
+using OpenTTDAdminPort.Logging;
 using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Networking;
 using OpenTTDAdminPort.Packets;
@@ -25,6 +28,7 @@ namespace OpenTTDAdminPort
         private Dictionary<AdminConnectionState, IAdminPortClientState> StateRunners { get; } = new Dictionary<AdminConnectionState, IAdminPortClientState>();
 
         public event EventHandler<IAdminEvent>? EventReceived;
+        public event EventHandler<AdminConnectionStateChangedArgs>? StateChanged;
 
         public AdminServerInfo? AdminServerInfo => Context?.AdminServerInfo;
         public ServerInfo ServerInfo => Context.ServerInfo;
@@ -42,7 +46,7 @@ namespace OpenTTDAdminPort
         {
             IAdminPacketService packetService = new AdminPacketServiceFactory().Create();
             IAdminPortTcpClient tcpClient = new AdminPortTcpClient(new AdminPortTcpClientSender(packetService), new AdminPortTcpClientReceiver(packetService), new MyTcpClient());
-            Context = new AdminPortClientContext(tcpClient, "AdminPort", "1.0.0", serverInfo);
+            Context = new AdminPortClientContext(tcpClient, "AdminPort", "1.0.0", serverInfo, NullLogger.Instance);
             eventFactory = new AdminEventFactory();
             Init(tcpClient);
         }
@@ -53,7 +57,7 @@ namespace OpenTTDAdminPort
 
             IAdminPacketService packetService = new AdminPacketServiceFactory().Create();
             IAdminPortTcpClient tcpClient = new AdminPortTcpClient(new AdminPortTcpClientSender(packetService, logger), new AdminPortTcpClientReceiver(packetService, logger), new MyTcpClient(), logger);
-            Context = new AdminPortClientContext(tcpClient, "AdminPort", "1.0.0", serverInfo);
+            Context = new AdminPortClientContext(tcpClient, "AdminPort", "1.0.0", serverInfo, logger);
             eventFactory = new AdminEventFactory();
             Init(tcpClient);
 
@@ -62,7 +66,7 @@ namespace OpenTTDAdminPort
 
         internal AdminPortClient(IAdminPortTcpClient adminPortTcpClient, IAdminEventFactory eventFactory, ServerInfo serverInfo)
         {
-            Context = new AdminPortClientContext(adminPortTcpClient, "AdminPort", "1.0.0", serverInfo);
+            Context = new AdminPortClientContext(adminPortTcpClient, "AdminPort", "1.0.0", serverInfo, NullLogger.Instance);
             this.eventFactory = eventFactory;
             Init(adminPortTcpClient);
         }
@@ -106,6 +110,7 @@ namespace OpenTTDAdminPort
                 logger?.LogTrace($"{ServerInfo} State changed from {e.Old} to {e.New}.");
                 StateRunners[e.Old].OnStateEnd(Context);
                 StateRunners[e.New].OnStateStart(Context);
+                this.StateChanged?.Invoke(this, e);
             }
             catch (Exception ex)
             {

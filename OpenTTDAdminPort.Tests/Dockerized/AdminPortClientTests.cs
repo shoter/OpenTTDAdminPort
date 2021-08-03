@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Debug;
 using OpenTTDAdminPort.Common;
 using OpenTTDAdminPort.Events;
+using OpenTTDAdminPort.Logging;
 using OpenTTDAdminPort.Messages;
 using System;
 using System.Collections.Generic;
@@ -23,11 +24,13 @@ namespace OpenTTDAdminPort.Tests.Dockerized
         private readonly ILoggerFactory loggerFactory;
         private readonly OpenttdServerContainer server = new OpenttdServerContainer(DockerClientProvider.Instance);
         private bool disposedValue;
+        private ILogger logger;
 
         public AdminPortClientTests(ITestOutputHelper output)
         {
             loggerFactory = LogFactory.Create(output);
             loggerFactory.AddProvider(new DebugLoggerProvider());
+            logger = loggerFactory.CreateLogger<AdminPortClientTests>();
         }
 
         [Fact]
@@ -58,25 +61,41 @@ namespace OpenTTDAdminPort.Tests.Dockerized
         [Fact]
         public async Task AfterServerRestart_AdminPortClientShouldAutomaticallyReconnect()
         {
+            logger.LogInformation("Starting Openttd server");
             await server.Start(nameof(PingPongTest));
-            AdminPortClient client = new AdminPortClient(server.ServerInfo, loggerFactory.CreateLogger<AdminPortClient>());
+            logger.LogInformation("Openttd Server started");
+            AdminPortClient client = new AdminPortClient(server.ServerInfo, new ContextLogger<AdminPortClient>(loggerFactory.CreateLogger<AdminPortClient>(), "Main Test Client"));
 
+            logger.LogInformation("Starting client connection");
             await client.Connect();
+            logger.LogInformation("Client connected");
 
+            logger.LogInformation("Starting openttd server stop");
+            bool erroredOut = false;
+            client.StateChanged += (_, arg) => erroredOut = erroredOut | arg.New == AdminConnectionState.Errored;
             await server.Stop();
+            logger.LogInformation("openttd stopped");
 
-            if (!(await TaskHelper.WaitUntil(() => client.ConnectionState == AdminConnectionState.Errored, delayBetweenChecks: TimeSpan.FromSeconds(0.5), duration: TimeSpan.FromSeconds(20))))
+            logger.LogInformation("Waiting for errored state");
+
+
+            if (!(await TaskHelper.WaitUntil(() => erroredOut, delayBetweenChecks: TimeSpan.FromSeconds(0.5), duration: TimeSpan.FromSeconds(20))))
             {
                 throw new AdminPortException("Wrong State!");
             }
+            logger.LogInformation("Errored state established");
 
             await server.Start(nameof(PingPongTest));
+
+            logger.LogInformation("Openttd server started (again)");
+
 
             if (!(await TaskHelper.WaitUntil(() => client.ConnectionState == AdminConnectionState.Connected, delayBetweenChecks: TimeSpan.FromSeconds(0.5), duration: TimeSpan.FromSeconds(20))))
             {
                 throw new AdminPortException("Wrong State!");
             }
 
+            logger.LogInformation("Connected state established");
 
         }
 

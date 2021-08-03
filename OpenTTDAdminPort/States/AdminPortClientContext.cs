@@ -1,4 +1,6 @@
-﻿using OpenTTDAdminPort.Common;
+﻿using Microsoft.Extensions.Logging;
+
+using OpenTTDAdminPort.Common;
 using OpenTTDAdminPort.Events;
 using OpenTTDAdminPort.Game;
 using OpenTTDAdminPort.Messages;
@@ -30,7 +32,7 @@ namespace OpenTTDAdminPort.States
         public ConcurrentDictionary<uint, Player> Players { get; } = new ConcurrentDictionary<uint, Player>();
         public AdminServerInfo? AdminServerInfo { get; set; }
 
-        public IConnectionWatchdog WatchDog { get; } = new ConnectionWatchdog(TimeSpan.FromSeconds(15));
+        public IConnectionWatchdog WatchDog { get; } 
 
 
         public AdminConnectionState state = AdminConnectionState.Idle;
@@ -46,15 +48,16 @@ namespace OpenTTDAdminPort.States
         }
         public ConcurrentQueue<IAdminMessage> MessagesToSend { get; } = new ConcurrentQueue<IAdminMessage>();
 
-        public AdminPortClientContext(IAdminPortTcpClient adminPortTcpClient, string clientName, string clientVersion, ServerInfo serverInfo)
+        public AdminPortClientContext(IAdminPortTcpClient adminPortTcpClient, string clientName, string clientVersion, ServerInfo serverInfo, ILogger logger)
         {
             this.ClientName = clientName;
             this.ClientVersion = clientVersion;
             this.State = AdminConnectionState.Idle;
             this.TcpClient = adminPortTcpClient;
             this.ServerInfo = serverInfo;
+            this.WatchDog = new ConnectionWatchdog(TimeSpan.FromSeconds(15), logger);
 
-            foreach(var updateType in Enums.ToArray<AdminUpdateType>())
+            foreach (var updateType in Enums.ToArray<AdminUpdateType>())
             {
                 this.AdminUpdateSettings.TryAdd(updateType, new AdminUpdateSetting(false, updateType, UpdateFrequency.ADMIN_FREQUENCY_POLL));
             }
