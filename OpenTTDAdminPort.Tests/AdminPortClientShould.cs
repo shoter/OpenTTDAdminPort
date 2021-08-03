@@ -66,11 +66,11 @@ namespace OpenTTDAdminPort.Tests
         }
 
         [Fact]
-        public async Task TurnIntoErrored_WhenTcpClientErrorsOut()
+        public async Task TurnIntoConnecting_WhenTcpClientErrorsOut()
         {
             await Connect();
             tcpClientMock.Raise(x => x.Errored += null, this, new Exception("Boom!"));
-            Assert.Equal(AdminConnectionState.Errored, client.ConnectionState);
+            Assert.Equal(AdminConnectionState.Connecting, client.ConnectionState);
         }
 
         [Fact]
