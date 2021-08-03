@@ -187,7 +187,7 @@ namespace OpenTTDAdminPort.Networking
                     }
                 }
 
-                await Task.Delay(TimeSpan.FromSeconds(0.25));
+                await Task.Delay(TimeSpan.FromMilliseconds(10));
             }
 
             logger?.LogTrace("Receiver Event Loop Stopped!");
