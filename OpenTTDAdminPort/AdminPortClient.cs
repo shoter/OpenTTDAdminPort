@@ -99,8 +99,12 @@ namespace OpenTTDAdminPort
             StateRunners[Context.State].OnMessageReceived(e, Context);
             IAdminEvent? adminEvent = eventFactory.Create(e, Context);
             logger?.LogWarning($"{ServerInfo} adminEvent is null for {e.MessageType} {e}");
-            if(adminEvent != null)
+            if (adminEvent != null)
+            {
                 EventReceived?.Invoke(this, adminEvent);
+                logger?.LogTrace($"{ServerInfo} Created admin event {adminEvent.EventType} - {adminEvent}");
+
+            }
         }
 
         private void Context_StateChanged(object sender, AdminConnectionStateChangedArgs e)
