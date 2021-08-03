@@ -1,4 +1,6 @@
 ﻿using Moq;
+
+using OpenTTDAdminPort.Common;
 using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Networking;
 using OpenTTDAdminPort.Packets;
@@ -174,13 +176,14 @@ namespace OpenTTDAdminPort.Tests.Networking
 
             var receiver = new AdminPortTcpClientReceiver(packetService);
             await receiver.Start(stream);
-            IAdminMessage receivedMessage = null;
-            receiver.MessageReceived += (_, msg) => receivedMessage = msg;
 
             stream.Write(packet.Buffer, 0, packet.Size);
             stream.Position = 0;
 
-            await Task.Delay(TimeSpan.FromSeconds(1));
+            if (!(await TaskHelper.WaitUntil(() => receiver.State == WorkState.Errored, delayBetweenChecks: TimeSpan.FromSeconds(0.5), duration: TimeSpan.FromSeconds(20))))
+            {
+                Assert.Equal(WorkState.Errored, receiver.State);
+            }
             Assert.Equal(WorkState.Errored, receiver.State);
         }
 
