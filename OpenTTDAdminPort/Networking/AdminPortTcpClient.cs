@@ -98,6 +98,7 @@ namespace OpenTTDAdminPort.Networking
         public void Dispose()
         {
             tcpClient.Close();
+            tcpClient.Dispose();
         }
     }
 }
