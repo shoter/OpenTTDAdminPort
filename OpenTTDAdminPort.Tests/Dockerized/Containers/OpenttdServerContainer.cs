@@ -1,18 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Divergic.Logging.Xunit;
+
 using Docker.DotNet;
 using Docker.DotNet.Models;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Debug;
 
 using OpenTTDAdminPort.Logging;
 
-namespace OpenTTDAdminPort.Tests.Dockerized
+namespace OpenTTDAdminPort.Tests.Dockerized.Containers
 {
     public class OpenttdServerContainer : ContainerApplication
     {
