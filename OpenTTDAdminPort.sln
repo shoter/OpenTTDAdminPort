@@ -14,7 +14,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTTDAdminPort.Tests", "O
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{F7E1163D-9656-4E24-B5C8-AB4C6138A2BA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "1_PingPong", "Examples\1_PingPong\1_PingPong.csproj", "{9D5574D9-EF0F-4298-A6F2-25E40289CC5F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "1_PingPong", "Examples\1_PingPong\1_PingPong.csproj", "{9D5574D9-EF0F-4298-A6F2-25E40289CC5F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "2_ChitChat", "2_ChitChat\2_ChitChat.csproj", "{4CBC3AC1-068E-4B46-8902-47DA862593A0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -34,12 +36,17 @@ Global
 		{9D5574D9-EF0F-4298-A6F2-25E40289CC5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9D5574D9-EF0F-4298-A6F2-25E40289CC5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9D5574D9-EF0F-4298-A6F2-25E40289CC5F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4CBC3AC1-068E-4B46-8902-47DA862593A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4CBC3AC1-068E-4B46-8902-47DA862593A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4CBC3AC1-068E-4B46-8902-47DA862593A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4CBC3AC1-068E-4B46-8902-47DA862593A0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{9D5574D9-EF0F-4298-A6F2-25E40289CC5F} = {F7E1163D-9656-4E24-B5C8-AB4C6138A2BA}
+		{4CBC3AC1-068E-4B46-8902-47DA862593A0} = {F7E1163D-9656-4E24-B5C8-AB4C6138A2BA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {44125B85-25FD-42CC-B123-792BC4C294D3}
