@@ -14,7 +14,7 @@ namespace OpenTTDAdminPort.Tests.Dockerized.Containers
         {
         }
 
-        protected override string ImageName => "MockServer";
+        protected override string ImageName => "mockserver/mockserver";
 
         protected override string TagName => "latest";
 
@@ -31,7 +31,7 @@ namespace OpenTTDAdminPort.Tests.Dockerized.Containers
             {
                 try
                 {
-                    ITcpClient client = new MyTcpClient();
+                    using ITcpClient client = new MyTcpClient();
                     await client.ConnectAsync("127.0.0.1", Port);
                     break;
                 }

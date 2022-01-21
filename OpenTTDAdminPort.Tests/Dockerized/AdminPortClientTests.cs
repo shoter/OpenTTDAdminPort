@@ -1,19 +1,17 @@
 ﻿using Divergic.Logging.Xunit;
-using Docker.DotNet;
-using Docker.DotNet.Models;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Debug;
+
 using OpenTTDAdminPort.Common;
 using OpenTTDAdminPort.Events;
 using OpenTTDAdminPort.Logging;
 using OpenTTDAdminPort.Messages;
+using OpenTTDAdminPort.Tests.Dockerized.Containers;
+
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading.Tasks;
+
 using Xunit;
 using Xunit.Abstractions;
 
