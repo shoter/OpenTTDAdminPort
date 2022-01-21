@@ -8,6 +8,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflow", "workflow", "{D56581D4-9775-451C-B8A3-BB2BDBB1F448}"
 	ProjectSection(SolutionItems) = preProject
 		.github\workflows\ci.yml = .github\workflows\ci.yml
+		.github\workflows\publish_package.yml = .github\workflows\publish_package.yml
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTTDAdminPort.Tests", "OpenTTDAdminPort.Tests\OpenTTDAdminPort.Tests.csproj", "{CAA109E8-28E2-4A35-A905-8DE1A4841126}"

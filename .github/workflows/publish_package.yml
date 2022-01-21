@@ -1,4 +1,4 @@
-# This workflow uses actions that are not certified by GitHub.
+﻿# This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
 # separate terms of service, privacy policy, and support
 # documentation.
@@ -36,9 +36,15 @@
 # For a complete CI/CD sample to get started with GitHub Action workflows for Desktop Applications,
 # refer to https://github.com/microsoft/github-actions-for-desktop-apps
 
-name: Continous Integration
+name: Publish Nuget
 
-on: [push, pull_request]
+on: 
+  workflow_dispatch:
+    inputs:
+      createPrereleasePackage:
+        description: 'type true to create prerelease package'
+        required: false
+        default: 'true'
 
 jobs:
 
@@ -46,7 +52,7 @@ jobs:
 
     strategy:
       matrix:
-        configuration: [Debug, Release]
+        configuration: [Release]
 
     runs-on: ubuntu-latest  # For a list of available runner types, refer to 
                              # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
@@ -75,11 +81,20 @@ jobs:
 
     # Execute all unit tests in the solution
     - name: Execute unit tests
-      run: dotnet test --collect "XPlat Code Coverage" -c ${{matrix.configuration}}
+      run: dotnet test
       env:
           CI: true
 
-    - name: Upload unit Test result
-      uses: codecov/codecov-action@v1.0.7
-      with:
-          flags: unittests
+
+    - name: Create Prerelease Packages 
+      if: ${{ github.event.inputs.createPrereleasePackage == 'true' }}
+      run: dotnet pack --version-suffix "run-${{ github.run_number }}" -c Release -o packages OpenTTDAdminPort/OpenTTDAdminPort.csproj
+
+    - name: Create Release Packages 
+      if: ${{ github.event.inputs.createPrereleasePackage != 'true' }}
+      run: dotnet pack -c Release -o packages OpenTTDAdminPort/OpenTTDAdminPort.csproj
+
+
+    - name: Push package to NuGet.org
+      run: |
+        dotnet nuget push "./packages/Shoter.OpenTTD.AdminPort.*.nupkg" -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json  -ss  https://symbols.nuget.org/download/symbols

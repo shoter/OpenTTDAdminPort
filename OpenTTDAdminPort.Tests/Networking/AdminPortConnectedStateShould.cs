@@ -97,6 +97,26 @@ namespace OpenTTDAdminPort.Tests.Networking
         }
 
         [Fact]
+        public void RemoveNewPlayerEntry_WhenReceiveMessageAboutQuiting()
+        {
+            var msg = new AdminServerClientInfoMessage()
+            {
+                ClientId = 11u,
+                ClientName = "NewPlayer",
+                Hostname = "127.0.0.1",
+                JoinDate = new OttdDate(1, 1, 1),
+                Language = 1,
+                PlayingAs = 1
+            };
+
+            state.OnMessageReceived(msg, context);
+            state.OnMessageReceived(new AdminServerClientQuitMessage(11u), context);
+
+            Assert.False(context.Players.ContainsKey(11u));
+        }
+
+
+        [Fact]
         public void UpdatePlayerEntry_WhenReceiveUpdateMessage()
         {
             var msg = new AdminServerClientInfoMessage()
@@ -116,6 +136,8 @@ namespace OpenTTDAdminPort.Tests.Networking
             state.OnMessageReceived(updateMessage, context);
 
             Assert.Equal("OldPlayer", context.Players[11u].Name);
+            Assert.Equal(5, context.Players[11u].PlayingAs);
+
         }
 
         [Fact]

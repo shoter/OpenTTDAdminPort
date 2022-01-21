@@ -1,4 +1,5 @@
-﻿using OpenTTDAdminPort.Common;
+﻿using Microsoft.Extensions.Logging;
+using OpenTTDAdminPort.Common;
 using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Packets;
 using System;
@@ -20,13 +21,18 @@ namespace OpenTTDAdminPort.Networking
 
         private readonly ConcurrentQueue<IAdminMessage> messagesToSend = new ConcurrentQueue<IAdminMessage>();
 
-        private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
         private readonly IAdminPacketService adminPacketService;
 
-        public AdminPortTcpClientSender(IAdminPacketService adminPacketService)
+        private bool isStopped = false;
+
+        private readonly ILogger? logger;
+
+        public AdminPortTcpClientSender(IAdminPacketService adminPacketService, ILogger? logger = null)
         {
             this.adminPacketService = adminPacketService;
+            this.logger = logger;
         }
 
         public void SendMessage(IAdminMessage message)
@@ -36,6 +42,8 @@ namespace OpenTTDAdminPort.Networking
 
         public Task Start(Stream stream)
         {
+            logger?.LogTrace("Sender starting!");
+
             if (State != WorkState.NotStarted)
             {
                 State = WorkState.Errored;
@@ -43,41 +51,71 @@ namespace OpenTTDAdminPort.Networking
                 throw new AdminPortException("This Sender had been started before! You cannot start sender more than 1 time");
             }
 
+            this.cancellationTokenSource.Cancel();
+            this.cancellationTokenSource = new CancellationTokenSource();
+
             ThreadPool.QueueUserWorkItem(new WaitCallback((_) => MainLoop(stream, cancellationTokenSource.Token)), null);
+            isStopped = false;
             State = WorkState.Working;
+
+            logger?.LogTrace("Sender started!");
             return Task.CompletedTask;
         }
 
-        public Task Stop()
+        public async Task Stop()
         {
             if (State == WorkState.Working)
             {
+                logger?.LogTrace("Sender Stopping!");
+
                 cancellationTokenSource.Cancel();
+
+                if (!await TaskHelper.WaitUntil(() => isStopped, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(10)))
+                {
+                    throw new AdminPortException("Sender waiting for Main Loop stop timed out");
+                }
+
                 State = WorkState.Stopped;
+                logger?.LogTrace("Sender Stopped!");
+
             }
-            return Task.CompletedTask;
         }
 
         private async void MainLoop(Stream stream, CancellationToken token)
         {
-            while (token.IsCancellationRequested == false)
+            try
             {
-                try
+                while (token.IsCancellationRequested == false)
                 {
-                    await Task.Delay(TimeSpan.FromSeconds(0.1));
-
-                    while (messagesToSend.TryDequeue(out IAdminMessage msg))
+                    try
                     {
-                        Packet packet = this.adminPacketService.CreatePacket(msg);
-                        await stream.WriteAsync(packet.Buffer, 0, packet.Size).WaitMax(TimeSpan.FromSeconds(2));
+                        await Task.Delay(TimeSpan.FromSeconds(0.1));
+
+                        while (messagesToSend.TryDequeue(out IAdminMessage msg))
+                        {
+                            logger?.LogTrace($"Sender sending {msg}!");
+
+                            Packet packet = this.adminPacketService.CreatePacket(msg);
+                            await stream.WriteAsync(packet.Buffer, 0, packet.Size, token).WaitMax(TimeSpan.FromSeconds(2)).WaitWithToken(token);
+
+                            logger?.LogTrace($"Sender sent {msg}!");
+
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        logger?.LogError(e, "Sender errored");
+
+                        cancellationTokenSource.Cancel();
+                        ErrorOcurred?.Invoke(this, e);
+                        State = WorkState.Errored;
                     }
                 }
-                catch (Exception e)
-                {
-                    cancellationTokenSource.Cancel();
-                    ErrorOcurred?.Invoke(this, e);
-                    State = WorkState.Errored;
-                }
+                logger?.LogTrace("Sender Main Loop Stopped!");
+            }
+            finally
+            {
+                isStopped = true;
             }
 
         }

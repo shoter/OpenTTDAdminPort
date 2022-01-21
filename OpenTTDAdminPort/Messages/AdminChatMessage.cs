@@ -21,5 +21,7 @@ namespace OpenTTDAdminPort.Messages
             this.Message = message;
             this.Destination = destination;
         }
+
+        public override string ToString() => $"{MessageType} - {NetworkAction} - {ChatDestination} - {Destination} - {Message}";
     }
 }

@@ -2,10 +2,11 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using System;
 
 namespace OpenTTDAdminPort.Networking
 {
-    public class MyTcpClient : ITcpClient
+    public class MyTcpClient : ITcpClient, IDisposable
     {
         // The real implementation
         private readonly TcpClient client;
@@ -34,8 +35,11 @@ namespace OpenTTDAdminPort.Networking
 
         public void Close()
         {
-            client.GetStream().Close();
-            client.Close();
+            if (_client.Connected)
+            {
+                _client.GetStream().Close();
+                _client.Close();
+            }
         }
     }
 }

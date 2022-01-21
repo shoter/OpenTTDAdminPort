@@ -14,7 +14,7 @@ namespace OpenTTDAdminPort.States
         {
             base.OnStateStart(context);
             context.TcpClient.SendMessage(new AdminQuitMessage());
-            context.TcpClient.Stop(new MyTcpClient());
+            context.TcpClient.Stop(new MyTcpClient()).Wait();
             context.State = AdminConnectionState.Idle;
         }
         public override Task Connect(IAdminPortClientContext context)

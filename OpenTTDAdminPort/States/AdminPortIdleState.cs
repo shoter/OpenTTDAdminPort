@@ -20,8 +20,6 @@ namespace OpenTTDAdminPort.States
                 await context.TcpClient.Start(context.ServerInfo.ServerIp, context.ServerInfo.ServerPort);
                 context.TcpClient.SendMessage(new AdminJoinMessage(context.ServerInfo.Password, context.ClientName, context.ClientVersion));
                 context.State = AdminConnectionState.Connecting;
-
-               
             }
             catch (Exception e)
             {

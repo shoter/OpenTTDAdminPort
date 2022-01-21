@@ -22,6 +22,8 @@ namespace OpenTTDAdminPort.States
                 context.TcpClient.SendMessage(msg);
             }
 
+            context.TcpClient.SendMessage(new AdminUpdateFrequencyMessage(AdminUpdateType.ADMIN_UPDATE_CLIENT_INFO, UpdateFrequency.ADMIN_FREQUENCY_AUTOMATIC));
+
             context.WatchDog.Start(context.TcpClient);
             context.WatchDog.Errored += (who, e) => context.State = AdminConnectionState.Errored;
         }
@@ -40,7 +42,7 @@ namespace OpenTTDAdminPort.States
                 case AdminMessageType.ADMIN_PACKET_SERVER_CLIENT_INFO:
                     {
                         var msg = (AdminServerClientInfoMessage)message;
-                        var player = new Player(msg.ClientId, msg.ClientName);
+                        var player = new Player(msg.ClientId, msg.ClientName, DateTimeOffset.Now, msg.Hostname, msg.PlayingAs);
                         context.Players.AddOrUpdate(msg.ClientId, player, (_, __) => player);
 
                         break;
@@ -50,6 +52,13 @@ namespace OpenTTDAdminPort.States
                         var msg = (AdminServerClientUpdateMessage)message;
                         var player = context.Players[msg.ClientId];
                         player.Name = msg.ClientName;
+                        player.PlayingAs = msg.PlayingAs;
+                        break;
+                    }
+                case AdminMessageType.ADMIN_PACKET_SERVER_CLIENT_QUIT:
+                    {
+                        var msg = (AdminServerClientQuitMessage)message;
+                        context.Players.Remove(msg.ClientId, out _);
                         break;
                     }
             }
