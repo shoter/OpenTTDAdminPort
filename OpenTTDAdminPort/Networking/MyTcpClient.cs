@@ -35,10 +35,10 @@ namespace OpenTTDAdminPort.Networking
 
         public void Close()
         {
-            if (_client.Connected)
+            if (client.Connected)
             {
-                _client.GetStream().Close();
-                _client.Close();
+                client.GetStream().Close();
+                client.Close();
             }
         }
     }
