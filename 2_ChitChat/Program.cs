@@ -5,13 +5,14 @@ using OpenTTDAdminPort.Messages;
 using System;
 using System.Collections.Concurrent;
 using System.Dynamic;
+using System.Threading.Tasks;
 
 namespace _2_ChitChat
 {
     class Program
     {
         public static ConcurrentQueue<IAdminEvent> EventQueue { get; } = new ConcurrentQueue<IAdminEvent>(); 
-        static async void Main(string[] args)
+        static async Task Main(string[] args)
         {
             var client = new AdminPortClient(new ServerInfo(
             "127.0.0.1", 3982, "admin_pass"));

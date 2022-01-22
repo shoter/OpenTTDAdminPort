@@ -16,7 +16,7 @@ namespace OpenTTDAdminPort.Tests.Networking
         public virtual event EventHandler<Exception> Errored;
 
 
-        public virtual Task Restart(ITcpClient tcpClient)
+        public virtual Task Restart()
         {
             return Task.CompletedTask;
         }
@@ -31,7 +31,7 @@ namespace OpenTTDAdminPort.Tests.Networking
             return Task.CompletedTask;
         }
 
-        public virtual Task Stop(ITcpClient client)
+        public virtual Task Stop()
         {
             State = WorkState.Stopped;
             return Task.CompletedTask;

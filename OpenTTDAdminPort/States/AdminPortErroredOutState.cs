@@ -33,7 +33,7 @@ namespace OpenTTDAdminPort.States
         {
             context.MessagesToSend.Clear();
             // We do not need to await this call.
-            context.TcpClient.Stop(new MyTcpClient());
+            context.TcpClient.Stop();
         }
 
         public void SendMessage(IAdminMessage message, IAdminPortClientContext context)

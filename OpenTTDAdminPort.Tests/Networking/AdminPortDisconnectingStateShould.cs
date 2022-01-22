@@ -28,7 +28,7 @@ namespace OpenTTDAdminPort.Tests.Networking
             state.OnStateStart(context);
 
             tcpClientMock.Verify(x => x.SendMessage(It.Is<IAdminMessage>(m => m is AdminQuitMessage)), Times.Once);
-            tcpClientMock.Verify(x => x.Stop(It.IsAny<ITcpClient>()), Times.Once);
+            tcpClientMock.Verify(x => x.Stop(), Times.Once);
             Assert.Equal(AdminConnectionState.Idle, context.State);
         }
 

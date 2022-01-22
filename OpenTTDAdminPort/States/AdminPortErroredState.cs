@@ -29,7 +29,7 @@ namespace OpenTTDAdminPort.States
                 context.TcpClient.SendMessage(new AdminQuitMessage());
             }
             catch (Exception) { }
-            context.TcpClient.Restart(new MyTcpClient());
+            context.TcpClient.Restart();
             context.TcpClient.SendMessage(new AdminJoinMessage(context.ServerInfo.Password, context.ClientName, context.ClientVersion));
             context.MessagesToSend.Clear();
             context.State = AdminConnectionState.Connecting;

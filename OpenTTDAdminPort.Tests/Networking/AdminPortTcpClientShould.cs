@@ -88,7 +88,7 @@ namespace OpenTTDAdminPort.Tests.Networking
         public async Task BeAbleToStop()
         {
             await client.Start(ip, port);
-            await client.Stop(Mock.Of<ITcpClient>());
+            await client.Stop();
             Assert.Equal(WorkState.Stopped, client.State);
             senderMock.Verify(x => x.Stop(), Times.Once);
             receiverMock.Verify(x => x.Stop(), Times.Once);
@@ -99,20 +99,20 @@ namespace OpenTTDAdminPort.Tests.Networking
         {
             var tcpClientNewMock = new Mock<ITcpClient>();
             await client.Start(ip, port);
-            await client.Stop(tcpClientNewMock.Object);
+            await client.Stop();
             await client.Start(ip, port);
             Assert.Equal(WorkState.Working, client.State);
             tcpClientNewMock.Verify(x => x.ConnectAsync(ip, port), Times.Once);
         }
 
         [Fact]
-        public async Task SttopAndStartSenderReceiver_AfterRestart()
+        public async Task StopAndStartSenderReceiver_AfterRestart()
         {
             var newTcpClientMock = new Mock<ITcpClient>();
             Stream someStream = new MemoryStream();
             newTcpClientMock.Setup(x => x.GetStream()).Returns(someStream);
             await client.Start(ip, port);
-            await client.Restart(newTcpClientMock.Object);
+            await client.Restart();
 
             senderMock.Verify(x => x.Stop(), Times.Once);
             receiverMock.Verify(x => x.Stop(), Times.Once);

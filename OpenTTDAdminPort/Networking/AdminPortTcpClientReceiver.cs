@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
+
 using OpenTTDAdminPort.Common;
 using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Packets;
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -25,9 +27,12 @@ namespace OpenTTDAdminPort.Networking
         private readonly IAdminPacketService adminPacketService;
         private readonly ILogger? logger;
 
-        private bool isStopped = false;
+        private bool isStopped = true;
 
         public WorkState State { get; private set; } = WorkState.NotStarted;
+
+        private readonly SemaphoreSlim semaphore = new SemaphoreSlim(1);
+
 
         public AdminPortTcpClientReceiver(IAdminPacketService adminPacketService, ILogger? logger = null)
         {
@@ -35,50 +40,65 @@ namespace OpenTTDAdminPort.Networking
             this.logger = logger;
         }
 
-        public Task Start(Stream stream)
+        public async Task Start(Stream stream)
         {
-            if (State != WorkState.NotStarted)
+            await semaphore.WaitAsync();
+
+            try
             {
-                State = WorkState.Errored;
-                cancellationTokenSource.Cancel();
-                throw new AdminPortException("This Receiver had been started before! You cannot start receiver more than 1 time");
+                if (State != WorkState.NotStarted)
+                {
+                    State = WorkState.Errored;
+                    cancellationTokenSource.Cancel();
+                    throw new AdminPortException("This Receiver had been started before! You cannot start receiver more than 1 time");
+                }
+
+                State = WorkState.Working;
+
+                this.cancellationTokenSource.Cancel();
+                this.cancellationTokenSource = new CancellationTokenSource();
+
+
+                logger?.LogTrace("Receiver Starting!");
+
+                ThreadPool.QueueUserWorkItem(new WaitCallback((_) => MainLoop(stream, cancellationTokenSource.Token)), null);
+                ThreadPool.QueueUserWorkItem(new WaitCallback((_) => EventLoop(cancellationTokenSource.Token)), null);
+
+                isStopped = false;
+
+                logger?.LogTrace("Receiver Started!");
             }
-
-            State = WorkState.Working;
-
-            this.cancellationTokenSource.Cancel();
-            this.cancellationTokenSource = new CancellationTokenSource();
-
-
-            logger?.LogTrace("Receiver Starting!");
-
-            ThreadPool.QueueUserWorkItem(new WaitCallback((_) => MainLoop(stream, cancellationTokenSource.Token)), null);
-            ThreadPool.QueueUserWorkItem(new WaitCallback((_) => EventLoop(cancellationTokenSource.Token)), null);
-
-            isStopped = false;
-
-            logger?.LogTrace("Receiver Started!");
-
-
-            return Task.CompletedTask;
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         public async Task Stop()
         {
-            if (State == WorkState.Working)
+            await semaphore.WaitAsync();
+            try
             {
-                logger?.LogTrace("Receiver Stopping!");
-
-                cancellationTokenSource.Cancel();
-
-                if (!await TaskHelper.WaitUntil(() => isStopped, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(100)))
+                if (State == WorkState.Working)
                 {
-                    throw new AdminPortException("Receiver waiting for Main Loop stop timed out");
-                }
+                    logger?.LogTrace("Receiver Stopping!");
 
-                State = WorkState.Stopped;
-                logger?.LogTrace("Receiver Stopped!");
+                    cancellationTokenSource.Cancel();
+
+                    if (!await TaskHelper.WaitUntil(() => isStopped, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(100)))
+                    {
+                        throw new AdminPortException("Receiver waiting for Main Loop stop timed out");
+                    }
+
+                    State = WorkState.Stopped;
+                    logger?.LogTrace("Receiver Stopped!");
+                }
             }
+            finally
+            {
+                semaphore.Release();
+            }
+
         }
 
         private async void MainLoop(Stream stream, CancellationToken token)
@@ -104,7 +124,7 @@ namespace OpenTTDAdminPort.Networking
                         ErrorOcurred?.Invoke(this, e);
                         State = WorkState.Errored;
                     }
-                    catch(Exception e) when (e is TaskCanceledException)
+                    catch (Exception e) when (e is TaskCanceledException)
                     {
                         logger?.LogInformation("Receiver main loop receives TaskCancelled Exception");
 
@@ -131,7 +151,7 @@ namespace OpenTTDAdminPort.Networking
             ushort size = BitConverter.ToUInt16(sizeBuffer, 0);
             byte[] content = await Read(stream, size - 2, token).WaitMax(TimeSpan.FromSeconds(5));
 
-            if(token.IsCancellationRequested)
+            if (token.IsCancellationRequested)
             {
                 // Task read has been probably interrupted. In this situation it is highly likely that we have gibberish in the array. It is better to not read it.
                 throw new TaskCanceledException();

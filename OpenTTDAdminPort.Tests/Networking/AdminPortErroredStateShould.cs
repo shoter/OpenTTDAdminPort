@@ -28,7 +28,7 @@ namespace OpenTTDAdminPort.Tests.Networking
             Assert.Equal(AdminConnectionState.Connecting, context.State);
             tcpClientMock.Verify(x => x.SendMessage(It.Is<IAdminMessage>(msg => msg is AdminJoinMessage)), Times.Once);
             tcpClientMock.Verify(x => x.SendMessage(It.Is<IAdminMessage>(msg => msg is AdminQuitMessage)), Times.Once);
-            tcpClientMock.Verify(x => x.Restart(It.IsAny<ITcpClient>()), Times.Once);
+            tcpClientMock.Verify(x => x.Restart(), Times.Once);
         }
 
         [Fact]
@@ -43,7 +43,7 @@ namespace OpenTTDAdminPort.Tests.Networking
         public void NotErrorOut_WhenSendingMessageWillFail()
         {
             tcpClientMock.Setup(x => x.SendMessage(It.IsAny<IAdminMessage>())).Throws<Exception>();
-            tcpClientMock.Setup(x => x.Restart(It.IsAny<ITcpClient>()))
+            tcpClientMock.Setup(x => x.Restart())
                 .Callback(() => tcpClientMock.Setup(x => x.SendMessage(It.IsAny<IAdminMessage>())));
             state.OnStateStart(context);
             Assert.Equal(AdminConnectionState.Connecting, context.State);

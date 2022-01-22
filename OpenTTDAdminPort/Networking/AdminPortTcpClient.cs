@@ -25,7 +25,6 @@ namespace OpenTTDAdminPort.Networking
 
         private readonly ILogger? logger;
 
-
         public WorkState State { get; set; } = WorkState.NotStarted;
         public AdminPortTcpClient(IAdminPortTcpClientSender sender, IAdminPortTcpClientReceiver receiver, ITcpClient tcpClient, ILogger? logger = null)
         { 
@@ -64,7 +63,7 @@ namespace OpenTTDAdminPort.Networking
             State = WorkState.Working;
         }
 
-        public async Task Stop(ITcpClient tcpClient)
+        public async Task Stop()
         {
             if (State == WorkState.Working)
             {
@@ -73,8 +72,6 @@ namespace OpenTTDAdminPort.Networking
                 await Task.WhenAll(receiver.Stop(), sender.Stop());
                 logger?.LogTrace($"Received and sender stopped for {ip}:{port}");
                 this.tcpClient.Close();
-                this.tcpClient.Dispose();
-                this.tcpClient = tcpClient;
                 this.State = WorkState.Stopped;
             }
         }
@@ -88,10 +85,10 @@ namespace OpenTTDAdminPort.Networking
             Errored?.Invoke(this, e);
         }
 
-        public async Task Restart(ITcpClient tcpClient)
+        public async Task Restart()
         {
             Debug.Assert(this.ip != null);
-            await Stop(tcpClient);
+            await Stop();
             await Start(this.ip, this.port);
         }
 
