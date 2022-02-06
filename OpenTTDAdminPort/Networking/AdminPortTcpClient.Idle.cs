@@ -8,12 +8,16 @@ using System.Threading.Tasks;
 
 namespace OpenTTDAdminPort.Networking
 {
-    internal partial class AdminPortTcpClient : FSM<AdminPortTcpClientState, IAdminPortTcpClientMessage>, IAdminPortTcpClient, IDisposable
+    internal partial class AdminPortTcpClient : FSM<WorkState, IAdminPortTcpClientMessage>, IAdminPortTcpClient, IDisposable
     {
         internal void IdleState()
         {
-            When(AdminPortTcpClientState.Idle, state =>
+            When(WorkState.Idle, state =>
             {
+                if(state.FsmEvent is AdminPortTcpClientConnect connect)
+                {
+                    tcpClient.ConnectAsync(connect.Ip, connect.Port).Wait();
+                }
 
                 return null;
             });

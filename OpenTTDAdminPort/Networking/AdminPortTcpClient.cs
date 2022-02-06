@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace OpenTTDAdminPort.Networking
 {
-    internal partial class AdminPortTcpClient : FSM<AdminPortTcpClientState, IAdminPortTcpClientMessage>, IAdminPortTcpClient, IDisposable
+    internal partial class AdminPortTcpClient : FSM<WorkState, IAdminPortTcpClientMessage>, IAdminPortTcpClient, IDisposable
     {
         public event EventHandler<IAdminMessage>? MessageReceived;
         public event EventHandler<Exception>? Errored;
