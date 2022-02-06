@@ -38,26 +38,26 @@ namespace OpenTTDAdminPort.Tests.Dockerized.Containers
 
         protected override async Task WaitForContainerStart()
         {
-            var logFactory = new LoggerFactory();
-            logFactory.AddProvider(new DebugLoggerProvider());
+            //var logFactory = new LoggerFactory();
+            //logFactory.AddProvider(new DebugLoggerProvider());
 
-            AdminPortClient client = null;
-            while (client?.ConnectionState != AdminConnectionState.Connected)
-            {
-                try
-                {
-                    client = new AdminPortClient(AdminPortClientSettings.Default, ServerInfo, new ContextLogger<AdminPortClient>(logFactory.CreateLogger<AdminPortClient>(), $"TestClient{createdAdminClientNumber++}"));
-                    await client.Connect();
-                }
-                catch (Exception)
-                {
-                    if (client.ConnectionState != AdminConnectionState.ErroredOut)
-                    {
-                        await client.Disconnect();
-                    }
-                }
-            }
-            await client?.Disconnect();
+            //AdminPortClient client = null;
+            //while (client?.ConnectionState != AdminConnectionState.Connected)
+            //{
+            //    try
+            //    {
+            //        client = new AdminPortClient(AdminPortClientSettings.Default, ServerInfo, new ContextLogger<AdminPortClient>(logFactory.CreateLogger<AdminPortClient>(), $"TestClient{createdAdminClientNumber++}"));
+            //        await client.Connect();
+            //    }
+            //    catch (Exception)
+            //    {
+            //        if (client.ConnectionState != AdminConnectionState.ErroredOut)
+            //        {
+            //            await client.Disconnect();
+            //        }
+            //    }
+            //}
+            //await client?.Disconnect();
         }
     }
 }

@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="States\**" />
+    <EmbeddedResource Remove="States\**" />
+    <None Remove="States\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Resource Include="Dockerized\openttd.cfg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
@@ -35,7 +41,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="States\" />
+    <Folder Include="Events\" />
+    <Folder Include="Networking\" />
   </ItemGroup>
 
   <ItemGroup>
