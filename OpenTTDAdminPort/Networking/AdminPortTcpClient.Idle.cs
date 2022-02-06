@@ -1,25 +1,19 @@
 ﻿using Akka.Actor;
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OpenTTDAdminPort.Networking
 {
-    internal partial class AdminPortTcpClient : FSM<WorkState, IAdminPortTcpClientMessage>, IAdminPortTcpClient, IDisposable
+    internal partial class AdminPortTcpClient : ReceiveActor 
     {
-        internal void IdleState()
+        internal void IdleReady()
         {
-            When(WorkState.Idle, state =>
+            ReceiveAsync<AdminPortTcpClientConnect>(async c =>
             {
-                if(state.FsmEvent is AdminPortTcpClientConnect connect)
-                {
-                    tcpClient.ConnectAsync(connect.Ip, connect.Port).Wait();
-                }
-
-                return null;
+                await tcpClient.ConnectAsync(c.Ip, c.Port);
+                this.stream = tcpClient.GetStream();
+                this.receiver = actorFactory.CreateActor(Context, sp => Props.Create(() => new AdminPortTcpClientReceiver(sp, stream)));
+                Become(ConnectedReady);
             });
         }
         

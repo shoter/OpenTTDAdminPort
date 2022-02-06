@@ -9,9 +9,8 @@ namespace OpenTTDAdminPort.Networking
     public class MyTcpClient : ITcpClient, IDisposable
     {
         // The real implementation
-        private TcpClient Client { get; set; } = new TcpClient();
+        private TcpClient Client { get; } = new();
 
-        public EndPoint RemoteEndPoint => Client.Client.RemoteEndPoint;
         public Stream GetStream() => Client.GetStream();
 
         public Task ConnectAsync(string ip, int port)
@@ -30,7 +29,6 @@ namespace OpenTTDAdminPort.Networking
             {
                 Client.GetStream().Close();
                 Client.Close();
-                Client = new TcpClient();
             }
         }
     }

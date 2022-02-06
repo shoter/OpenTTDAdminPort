@@ -8,7 +8,6 @@ using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Packets;
 
 using System;
-using System.Collections.Concurrent;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,7 +24,7 @@ namespace OpenTTDAdminPort.Networking
 
         private Stream stream;
 
-        public AdminPortTcpClientReceiver(IServiceProvider serviceProvider, Stream stream, ILogger? logger = null)
+        public AdminPortTcpClientReceiver(IServiceProvider serviceProvider, Stream stream)
         {
             scope = serviceProvider.CreateScope();
             serviceProvider = scope.ServiceProvider;
@@ -135,5 +134,6 @@ namespace OpenTTDAdminPort.Networking
 
             return result;
         }
+
     }
 }
