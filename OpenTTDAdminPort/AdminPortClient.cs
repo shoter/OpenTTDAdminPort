@@ -42,31 +42,31 @@ namespace OpenTTDAdminPort
         private readonly ILogger? logger;
 
 
-        public AdminPortClient(ServerInfo serverInfo)
+        public AdminPortClient(AdminPortClientSettings settings, ServerInfo serverInfo)
         {
             IAdminPacketService packetService = new AdminPacketServiceFactory().Create();
             IAdminPortTcpClient tcpClient = new AdminPortTcpClient(new AdminPortTcpClientSender(packetService), new AdminPortTcpClientReceiver(packetService), new MyTcpClient());
-            Context = new AdminPortClientContext(tcpClient, "AdminPort", "1.0.0", serverInfo, NullLogger.Instance);
+            Context = new AdminPortClientContext(tcpClient, "AdminPort", "1.0.0", serverInfo, NullLogger.Instance, settings);
             eventFactory = new AdminEventFactory();
             Init(tcpClient);
         }
 
-        public AdminPortClient(ServerInfo serverInfo, ILogger<AdminPortClient> logger)
+        public AdminPortClient(AdminPortClientSettings settings, ServerInfo serverInfo, ILogger<AdminPortClient> logger)
         {
             this.logger = logger;
 
             IAdminPacketService packetService = new AdminPacketServiceFactory().Create();
             IAdminPortTcpClient tcpClient = new AdminPortTcpClient(new AdminPortTcpClientSender(packetService, logger), new AdminPortTcpClientReceiver(packetService, logger), new MyTcpClient(), logger);
-            Context = new AdminPortClientContext(tcpClient, "AdminPort", "1.0.0", serverInfo, logger);
+            Context = new AdminPortClientContext(tcpClient, "AdminPort", "1.0.0", serverInfo, logger, settings);
             eventFactory = new AdminEventFactory();
             Init(tcpClient);
 
         }
 
 
-        internal AdminPortClient(IAdminPortTcpClient adminPortTcpClient, IAdminEventFactory eventFactory, ServerInfo serverInfo)
+        internal AdminPortClient(IAdminPortTcpClient adminPortTcpClient, IAdminEventFactory eventFactory, AdminPortClientSettings settings, ServerInfo serverInfo)
         {
-            Context = new AdminPortClientContext(adminPortTcpClient, "AdminPort", "1.0.0", serverInfo, NullLogger.Instance);
+            Context = new AdminPortClientContext(adminPortTcpClient, "AdminPort", "1.0.0", serverInfo, NullLogger.Instance, settings);
             this.eventFactory = eventFactory;
             Init(adminPortTcpClient);
         }

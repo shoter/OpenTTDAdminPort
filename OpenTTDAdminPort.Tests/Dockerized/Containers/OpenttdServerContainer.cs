@@ -46,7 +46,7 @@ namespace OpenTTDAdminPort.Tests.Dockerized.Containers
             {
                 try
                 {
-                    client = new AdminPortClient(ServerInfo, new ContextLogger<AdminPortClient>(logFactory.CreateLogger<AdminPortClient>(), $"TestClient{createdAdminClientNumber++}"));
+                    client = new AdminPortClient(AdminPortClientSettings.Default, ServerInfo, new ContextLogger<AdminPortClient>(logFactory.CreateLogger<AdminPortClient>(), $"TestClient{createdAdminClientNumber++}"));
                     await client.Connect();
                 }
                 catch (Exception)

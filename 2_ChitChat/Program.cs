@@ -14,7 +14,7 @@ namespace _2_ChitChat
         public static ConcurrentQueue<IAdminEvent> EventQueue { get; } = new ConcurrentQueue<IAdminEvent>(); 
         static async Task Main(string[] args)
         {
-            var client = new AdminPortClient(new ServerInfo(
+            var client = new AdminPortClient(AdminPortClientSettings.Default, new ServerInfo(
             "127.0.0.1", 3982, "admin_pass"));
 
             // This will be running on different thread - it is important to use multi-thread safe constructs that will enable sharing data between client and our thread.

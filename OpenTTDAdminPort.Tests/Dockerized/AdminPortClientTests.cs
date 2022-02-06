@@ -35,7 +35,7 @@ namespace OpenTTDAdminPort.Tests.Dockerized
         public async Task PingPongTest()
         {
             await server.Start(nameof(PingPongTest));
-            AdminPortClient client = new AdminPortClient(server.ServerInfo, loggerFactory.CreateLogger<AdminPortClient>());
+            AdminPortClient client = new AdminPortClient(AdminPortClientSettings.Default, server.ServerInfo, loggerFactory.CreateLogger<AdminPortClient>());
 
             AdminPongEvent pongEvent = null;
             client.EventReceived += (_, e) =>
@@ -59,10 +59,15 @@ namespace OpenTTDAdminPort.Tests.Dockerized
         [Fact]
         public async Task AfterServerRestart_AdminPortClientShouldAutomaticallyReconnect()
         {
+            var settings = new AdminPortClientSettings()
+            {
+                WatchdogInterval = TimeSpan.FromSeconds(5),
+            };
             logger.LogInformation("Starting Openttd server");
             await server.Start(nameof(PingPongTest));
             logger.LogInformation("Openttd Server started");
-            AdminPortClient client = new AdminPortClient(server.ServerInfo, new ContextLogger<AdminPortClient>(loggerFactory.CreateLogger<AdminPortClient>(), "Main Test Client"));
+            AdminPortClient client = new AdminPortClient(settings, server.ServerInfo, new ContextLogger<AdminPortClient>(loggerFactory.CreateLogger<AdminPortClient>(), "Main Test Client"));
+            
 
             logger.LogInformation("Starting client connection");
             await client.Connect();
@@ -77,7 +82,7 @@ namespace OpenTTDAdminPort.Tests.Dockerized
             logger.LogInformation("Waiting for errored state");
 
 
-            if (!(await TaskHelper.WaitUntil(() => erroredOut, delayBetweenChecks: TimeSpan.FromSeconds(0.5), duration: TimeSpan.FromSeconds(20))))
+            if (!(await TaskHelper.WaitUntil(() => erroredOut, delayBetweenChecks: TimeSpan.FromSeconds(0.5), duration: 4 * settings.WatchdogInterval)))
             {
                 throw new AdminPortException("Wrong State!");
             }

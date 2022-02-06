@@ -1,17 +1,16 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Akka.Actor;
+
+using Microsoft.Extensions.Logging;
+
 using OpenTTDAdminPort.Messages;
-using OpenTTDAdminPort.Packets;
+
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Net.Sockets;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace OpenTTDAdminPort.Networking
 {
-    internal class AdminPortTcpClient : IAdminPortTcpClient, IDisposable
+    internal partial class AdminPortTcpClient : FSM<AdminPortTcpClientState, IAdminPortTcpClientMessage>, IAdminPortTcpClient, IDisposable
     {
         public event EventHandler<IAdminMessage>? MessageReceived;
         public event EventHandler<Exception>? Errored;

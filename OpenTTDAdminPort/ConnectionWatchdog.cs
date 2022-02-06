@@ -79,7 +79,7 @@ namespace OpenTTDAdminPort
 
         private void Timer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            logger.LogTrace($"Timer elapsed for watchdog {lastPingReceived}");
+            logger.LogTrace($"{DateTime.Now:hh mm ss}. Timer elapsed for watchdog {lastPingReceived}");
             if (lastPingReceived == false)
             {
                 logger.LogTrace("Invoking errored state on watchdog due to ping received in timely manner");

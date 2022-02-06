@@ -185,7 +185,7 @@ namespace OpenTTDAdminPort.Networking
                     .WaitWithToken(token);
                 await task;
                 currentSize += task.Result;
-                logger?.LogTrace($"Receiver trying to receive packet({token.IsCancellationRequested})");
+                logger?.LogTrace($"{DateTime.Now:hh mm ss} Receiver trying to receive packet({token.IsCancellationRequested})");
             } while (currentSize < dataSize && !token.IsCancellationRequested);
 
             return result;

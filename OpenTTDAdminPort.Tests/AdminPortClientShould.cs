@@ -24,7 +24,7 @@ namespace OpenTTDAdminPort.Tests
         {
             tcpClientMock.CallBase = true;
 
-            client = new AdminPortClient(tcpClientMock.Object, messageProcessorMock.Object,
+            client = new AdminPortClient(tcpClientMock.Object, messageProcessorMock.Object, AdminPortClientSettings.Default,
                 new ServerInfo("127.0.0.1", 123, "LubiePlacki"));
         }
 

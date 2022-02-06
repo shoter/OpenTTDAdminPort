@@ -48,14 +48,14 @@ namespace OpenTTDAdminPort.States
         }
         public ConcurrentQueue<IAdminMessage> MessagesToSend { get; } = new ConcurrentQueue<IAdminMessage>();
 
-        public AdminPortClientContext(IAdminPortTcpClient adminPortTcpClient, string clientName, string clientVersion, ServerInfo serverInfo, ILogger logger)
+        public AdminPortClientContext(IAdminPortTcpClient adminPortTcpClient, string clientName, string clientVersion, ServerInfo serverInfo, ILogger logger, AdminPortClientSettings settings)
         {
             this.ClientName = clientName;
             this.ClientVersion = clientVersion;
             this.State = AdminConnectionState.Idle;
             this.TcpClient = adminPortTcpClient;
             this.ServerInfo = serverInfo;
-            this.WatchDog = new ConnectionWatchdog(TimeSpan.FromSeconds(15), logger);
+            this.WatchDog = new ConnectionWatchdog(settings.WatchdogInterval, logger);
 
             foreach (var updateType in Enums.ToArray<AdminUpdateType>())
             {
