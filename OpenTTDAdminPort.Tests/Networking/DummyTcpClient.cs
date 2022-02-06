@@ -7,7 +7,7 @@ namespace OpenTTDAdminPort.Tests.Networking
 {
     public class DummyTcpClient : ITcpClient
     {
-        private readonly MemoryStream stream = new();
+        public MemoryStream Stream { get; } = new();
 
         public bool IsConnected { get; set; } = false;
 
@@ -30,10 +30,10 @@ namespace OpenTTDAdminPort.Tests.Networking
 
         public void Dispose()
         {
-            stream.Dispose();
+            Stream.Dispose();
         }
 
-        public Stream GetStream() => stream;
+        public Stream GetStream() => Stream;
         
     }
 }

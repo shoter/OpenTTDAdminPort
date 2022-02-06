@@ -32,10 +32,15 @@ namespace OpenTTDAdminPort.Networking
             this.logger = serviceProvider.GetRequiredService<ILogger<AdminPortTcpClientReceiver>>();
             this.stream = stream;
 
-
-            ThreadPool.QueueUserWorkItem(new WaitCallback((_) => ReceiveLoop(receiveLoopCTS.Token)), null);
-
             ReceiveAsync<ReceiveLoopException>(e => throw e);
+        }
+
+        public static Props Create(IServiceProvider serviceProvider, Stream stream) => Props.Create(() => new AdminPortTcpClientReceiver(serviceProvider, stream));
+
+        protected override void PreStart()
+        {
+            ThreadPool.QueueUserWorkItem(new WaitCallback((_) => ReceiveLoop(receiveLoopCTS.Token, Self)), null);
+            base.PreStart();
         }
 
         protected override void PostStop()
@@ -45,7 +50,7 @@ namespace OpenTTDAdminPort.Networking
             base.PostStop();
         }
 
-        private async void ReceiveLoop(CancellationToken token)
+        private async void ReceiveLoop(CancellationToken token, IActorRef self)
         {
             try
             {
@@ -66,7 +71,7 @@ namespace OpenTTDAdminPort.Networking
                     catch (Exception e) when (!(e is TaskCanceledException))
                     {
                         logger.LogError(e, e.ToString());
-                        Self.Tell(new ReceiveLoopException("Something went wrong in receive loop", e));
+                        self.Tell(new ReceiveLoopException("Something went wrong in receive loop", e));
                     }
                     catch (Exception e) when (e is TaskCanceledException)
                     {
@@ -78,7 +83,7 @@ namespace OpenTTDAdminPort.Networking
             catch (Exception e)
             {
                 logger.LogError(e, e.ToString());
-                Self.Tell(new ReceiveLoopException("Something went wrong in receive loop", e));
+                self.Tell(new ReceiveLoopException("Something went wrong in receive loop", e));
             }
         }
 

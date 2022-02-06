@@ -6,7 +6,7 @@ namespace OpenTTDAdminPort.Akkas
 {
     public class ActorFactory : IActorFactory
     {
-        private readonly IServiceProvider serviceProvider;
+        protected readonly IServiceProvider serviceProvider;
 
         public ActorFactory(IServiceProvider serviceProvider)
         {
