@@ -26,7 +26,7 @@ namespace OpenTTDAdminPort.Networking
 
         private readonly ILogger logger;
 
-        public AdminPortTcpClient(IServiceProvider serviceProvider)
+        public AdminPortTcpClient(IServiceProvider serviceProvider, string ip, int port)
         {
             this.scope = serviceProvider.CreateScope();
             serviceProvider = this.scope.ServiceProvider;
@@ -35,11 +35,15 @@ namespace OpenTTDAdminPort.Networking
             this.actorFactory = serviceProvider.GetRequiredService<IActorFactory>();
             this.logger = serviceProvider.GetRequiredService<ILogger<AdminPortTcpClient>>();
 
+            tcpClient.ConnectAsync(ip, port).Wait();
             this.stream = tcpClient.GetStream();
             this.receiver = actorFactory.CreateActor(Context, sp => Props.Create(() => new AdminPortTcpClientReceiver(sp, stream)));
 
             Ready();
         }
+
+        public static Props Create(IServiceProvider sp, string ip, int port)
+            => Props.Create(() => new AdminPortTcpClient(sp, ip, port));
 
         private void Ready()
         {
@@ -78,6 +82,7 @@ namespace OpenTTDAdminPort.Networking
                 Context.Parent.Tell(receiveMessage);
             });
         }
+
         protected override SupervisorStrategy SupervisorStrategy()
         {
             return new OneForOneStrategy(
