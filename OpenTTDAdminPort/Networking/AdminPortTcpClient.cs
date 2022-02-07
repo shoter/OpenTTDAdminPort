@@ -9,6 +9,7 @@ using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Packets;
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace OpenTTDAdminPort.Networking
@@ -19,6 +20,7 @@ namespace OpenTTDAdminPort.Networking
         private readonly IAdminPacketService adminPacketService;
         private readonly INetworkingActorFactory actorFactory;
         private readonly IServiceScope scope;
+        private readonly HashSet<IActorRef> subscribers = new();
 
         // Obtained after connect
         private Stream? stream;
@@ -80,7 +82,14 @@ namespace OpenTTDAdminPort.Networking
             Receive<ReceiveMessage>(receiveMessage =>
             {
                 Context.Parent.Tell(receiveMessage);
+                foreach(var s in subscribers)
+                {
+                    s.Tell(receiveMessage);
+                }
             });
+
+            Receive<TcpClientSubscribe>(_ => subscribers.Add(Sender));
+            Receive<TcpClientUnsubscribe>(_ => subscribers.Remove(Sender));
         }
 
         protected override SupervisorStrategy SupervisorStrategy()
