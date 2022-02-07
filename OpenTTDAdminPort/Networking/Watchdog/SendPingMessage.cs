@@ -1,4 +1,4 @@
-﻿namespace OpenTTDAdminPort.Watchdog
+﻿namespace OpenTTDAdminPort.Networking.Watchdog
 {
     public class SendPingMessage
     {

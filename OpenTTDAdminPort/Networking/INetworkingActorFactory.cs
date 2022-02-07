@@ -2,6 +2,7 @@
 
 using OpenTTDAdminPort.Akkas;
 
+using System;
 using System.IO;
 
 namespace OpenTTDAdminPort.Networking
@@ -10,5 +11,6 @@ namespace OpenTTDAdminPort.Networking
     {
         IActorRef CreateReceiver(IActorContext context, Stream stream);
 
+        IActorRef CreateWatchdog(IActorContext context, IActorRef tcpClient, TimeSpan maximumPingTime);
     }
 }
