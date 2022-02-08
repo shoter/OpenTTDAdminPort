@@ -42,7 +42,7 @@ namespace OpenTTDAdminPort.Tests.Networking.Watchdog
 
             for (int i = 0; i < 5; ++i)
             {
-                probe.Within(pingTime * 2, () =>
+                probe.Within(pingTime * 3, () =>
                 {
                     uint arg = 0;
                     probe.ExpectMsg<SendMessage>(msg =>
@@ -61,7 +61,96 @@ namespace OpenTTDAdminPort.Tests.Networking.Watchdog
             }
 
             // Parent should receive nothing through whole test.
-            parent.ExpectNoMsg();
+            parent.ExpectNoMsg(1.Millis());
+        }
+
+        [Fact]
+        public void DoNothing_WhenReceivesWrongPongs_AndFinallyReceivesCorrectOne()
+        {
+            TimeSpan pingTime = 1.Seconds();
+            TestProbe parent = CreateTestProbe();
+            IActorRef dog = parent.ChildActorOf(ConnectionWatchdog.Create(defaultServiceProvider, tcpClient: probe.Ref, pingTime));
+            probe.ExpectMsg<TcpClientSubscribe>();
+
+
+            for (int i = 0; i < 5; ++i)
+            {
+                probe.Within(pingTime * 2, () =>
+                {
+                    uint arg = 0;
+                    probe.ExpectMsg<SendMessage>(msg =>
+                    {
+                        if (msg.Message is AdminPingMessage ping)
+                        {
+                            arg = ping.Argument;
+                            return true;
+                        }
+
+                        return false;
+                    });
+
+                    probe.Reply(new ReceiveMessage(new AdminServerPongMessage(arg + 1)));
+                    probe.Reply(new ReceiveMessage(new AdminServerPongMessage(arg + 2)));
+                    probe.Reply(new ReceiveMessage(new AdminServerPongMessage(arg + 3)));
+                    probe.Reply(new ReceiveMessage(new AdminServerPongMessage(arg + 4)));
+                    probe.Reply(new ReceiveMessage(new AdminServerPongMessage(arg + 5)));
+                    probe.Reply(new ReceiveMessage(new AdminServerPongMessage(arg + 6)));
+
+                    probe.Reply(new ReceiveMessage(new AdminServerPongMessage(arg)));
+                });
+            }
+
+            // Parent should receive nothing through whole test.
+            parent.ExpectNoMsg(1.Millis());
+        }
+
+        [Fact]
+        public void ErrorOut_WHenDOesNotReceiveReply_EvenAfterSuccessfullReplies()
+        {
+            TimeSpan pingTime = 1.Seconds();
+            TestProbe parent = CreateTestProbe();
+            IActorRef dog = parent.ChildActorOf(ConnectionWatchdog.Create(defaultServiceProvider, tcpClient: probe.Ref, pingTime));
+            probe.ExpectMsg<TcpClientSubscribe>();
+
+
+            for (int i = 0; i < 5; ++i)
+            {
+                probe.Within(pingTime * 3, () =>
+                {
+                    uint arg = 0;
+                    probe.ExpectMsg<SendMessage>(msg =>
+                    {
+                        if (msg.Message is AdminPingMessage ping)
+                        {
+                            arg = ping.Argument;
+                            return true;
+                        }
+
+                        return false;
+                    });
+
+                    probe.Reply(new ReceiveMessage(new AdminServerPongMessage(arg)));
+                });
+            }
+
+            // Parent should receive nothing through whole test.
+            parent.ExpectNoMsg(pingTime * 2);
+
+        }
+
+        [Fact]
+        public void ErrorOut_WhenDoesNotReceiveReply_InLongEnoughTime()
+        {
+            TimeSpan pingTime = 1.Seconds();
+            TestProbe parent = CreateTestProbe();
+            IActorRef dog = parent.ChildActorOf(ConnectionWatchdog.Create(defaultServiceProvider, tcpClient: probe.Ref, pingTime));
+            probe.ExpectMsg<TcpClientSubscribe>();
+
+
+            Within(pingTime * 2, () =>
+            {
+                parent.ExpectMsg<WatchdogConnectionLost>();
+            });
         }
     }
 }

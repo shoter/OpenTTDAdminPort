@@ -14,7 +14,7 @@ namespace OpenTTDAdminPort.Tests.Logging
     internal class XUnitLogger : ILogger
     {
         private readonly ITestOutputHelper _testOutputHelper;
-        private readonly string _categoryName;
+        private readonly string _className;
         private readonly LoggerExternalScopeProvider _scopeProvider;
 
         public static ILogger CreateLogger(ITestOutputHelper testOutputHelper) => new XUnitLogger(testOutputHelper, new LoggerExternalScopeProvider(), "");
@@ -24,7 +24,7 @@ namespace OpenTTDAdminPort.Tests.Logging
         {
             _testOutputHelper = testOutputHelper;
             _scopeProvider = scopeProvider;
-            _categoryName = categoryName;
+            _className = categoryName.Split(".").Last();
         }
 
         public bool IsEnabled(LogLevel logLevel) => logLevel != LogLevel.None;
@@ -35,8 +35,9 @@ namespace OpenTTDAdminPort.Tests.Logging
         {
             var sb = new StringBuilder();
             sb
+              .Append("[").Append(DateTime.Now.ToTime()).Append("]")
               .Append("[").Append(GetLogLevelString(logLevel).ToUpperInvariant()).Append("]")
-              .Append(" <").Append(_categoryName).Append("> ")
+              .Append(" <").Append(_className).Append("> ")
               .Append(formatter(state, exception));
 
             if (exception != null)
