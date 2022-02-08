@@ -134,7 +134,7 @@ namespace OpenTTDAdminPort.Tests.Networking.Watchdog
             }
 
             // Parent should receive nothing through whole test.
-            parent.ExpectNoMsg(pingTime * 2);
+            parent.ExpectMsg<WatchdogConnectionLost>(pingTime * 3);
 
         }
 
@@ -147,7 +147,7 @@ namespace OpenTTDAdminPort.Tests.Networking.Watchdog
             probe.ExpectMsg<TcpClientSubscribe>();
 
 
-            Within(pingTime * 2, () =>
+            Within(pingTime * 3, () =>
             {
                 parent.ExpectMsg<WatchdogConnectionLost>();
             });
