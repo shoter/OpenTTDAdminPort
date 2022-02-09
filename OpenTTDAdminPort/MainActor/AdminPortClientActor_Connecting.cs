@@ -1,5 +1,7 @@
 ﻿using Akka.Actor;
 
+using Microsoft.Extensions.Logging;
+
 using OpenTTDAdminPort.Akkas;
 using OpenTTDAdminPort.MainActor.Messages;
 using OpenTTDAdminPort.MainActor.StateData;
@@ -7,11 +9,6 @@ using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Networking;
 
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OpenTTDAdminPort.MainActor
 {
@@ -23,6 +20,8 @@ namespace OpenTTDAdminPort.MainActor
             {
                 if(newState == MainState.Connecting)
                 {
+                    logger.LogTrace("Initializing connecting state");
+
                     ConnectingData data = (NextStateData as ConnectingData)!;
                     var msg = new AdminJoinMessage(data.ServerInfo.Password, data.ClientName, this.version);
                     data.TcpClient.Tell(new SendMessage(msg));
@@ -35,12 +34,14 @@ namespace OpenTTDAdminPort.MainActor
 
                 if(state.FsmEvent is AdminPortDisconnect)
                 {
+                    logger.LogTrace("Disconnecting admin port client");
                     data.TcpClient.GracefulStop(3.Seconds()).Wait();
                     return GoTo(MainState.Idle).Using(new IdleData()).Replying(EmptyResponse.Instance);
                 }
                 else if(state.FsmEvent is ReceiveMessage rec)
                 {
                     var message = rec.Message;
+                    logger.LogTrace($"Received message {message.MessageType}");
                     switch (message.MessageType)
                     {
                         case AdminMessageType.ADMIN_PACKET_SERVER_PROTOCOL:
@@ -68,6 +69,7 @@ namespace OpenTTDAdminPort.MainActor
 
                                 IActorRef watchdog = actorFactory.CreateWatchdog(Context, data.TcpClient, 5.Seconds());
 
+                                logger.LogTrace("Moving to Connected state");
                                 return GoTo(MainState.Connected).Using(new ConnectedData(data, watchdog));
                             }
                     }

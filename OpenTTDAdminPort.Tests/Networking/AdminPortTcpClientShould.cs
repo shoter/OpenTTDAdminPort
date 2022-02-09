@@ -33,7 +33,7 @@ namespace OpenTTDAdminPort.Tests.Networking
 
         private readonly IServiceProvider defaultServiceProvider;
 
-        private readonly Mock<NetworkingActorFactory> actorFactory;
+        private readonly Mock<ActorFactory> actorFactory;
 
         private readonly Fixture fix = new();
 
@@ -50,8 +50,7 @@ namespace OpenTTDAdminPort.Tests.Networking
             defaultServiceProvider = new ServiceCollection()
                 .AddSingleton<ITcpClient>(tcpClient)
                 .AddSingleton<IAdminPacketService>(new AdminPacketServiceFactory().Create())
-                .AddSingleton<IActorFactory, ActorFactory>()
-                .AddSingleton<INetworkingActorFactory>(sp => actorFactory.Object)
+                .AddSingleton<IActorFactory>(sp => actorFactory.Object)
                 .AddLogging(logging =>
                 {
                     logging.AddProvider(new XUnitLoggerProvider(testOutputHelper));

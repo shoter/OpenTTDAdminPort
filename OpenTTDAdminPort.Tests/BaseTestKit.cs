@@ -34,7 +34,9 @@ namespace OpenTTDAdminPort.Tests
 
         private readonly DummyTcpClient tcpClient = new DummyTcpClient();
 
-        private readonly Mock<NetworkingActorFactory> networkingActorFactory;
+        protected readonly Mock<ActorFactory> networkingActorFactory;
+
+        protected readonly ILogger logger;
 
         protected TestProbe probe;
 
@@ -47,8 +49,7 @@ namespace OpenTTDAdminPort.Tests
             defaultServiceProvider = new ServiceCollection()
                 .AddSingleton<ITcpClient>(tcpClient)
                 .AddSingleton<IAdminPacketService>(new AdminPacketServiceFactory().Create())
-                .AddSingleton<IActorFactory, ActorFactory>()
-                .AddSingleton<INetworkingActorFactory>(sp => networkingActorFactory.Object)
+                .AddSingleton<IActorFactory>(sp => networkingActorFactory.Object)
                 .AddLogging(logging =>
                 {
                     logging.SetMinimumLevel(LogLevel.Trace);
@@ -58,7 +59,10 @@ namespace OpenTTDAdminPort.Tests
 
             networkingActorFactory = new(defaultServiceProvider);
 
+            this.logger = defaultServiceProvider.GetRequiredService<ILogger<BaseTestKit>>();
+
             probe = CreateTestProbe();
+
         }
 
     }

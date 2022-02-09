@@ -17,7 +17,7 @@ namespace OpenTTDAdminPort.Akkas
             this.serviceProvider = serviceProvider;
         }
 
-        public IActorRef CreateActor(IActorContext context, Func<IServiceProvider, Props> propsCreator)
+        public virtual IActorRef CreateActor(IActorContext context, Func<IServiceProvider, Props> propsCreator)
         {
             Props props = propsCreator.Invoke(serviceProvider);
             return context.ActorOf(props);
@@ -26,10 +26,10 @@ namespace OpenTTDAdminPort.Akkas
         public virtual IActorRef CreateReceiver(IActorContext context, Stream stream)
             => CreateActor(context, sp => AdminPortTcpClientReceiver.Create(sp, stream));
 
-        public IActorRef CreateTcpClient(IActorContext context, string ip, int port)
+        public virtual IActorRef CreateTcpClient(IActorContext context, string ip, int port)
             => CreateActor(context, sp => AdminPortTcpClient.Create(sp, ip, port));
 
-        public IActorRef CreateWatchdog(IActorContext context, IActorRef tcpClient, TimeSpan maximumPingTime)
+        public virtual IActorRef CreateWatchdog(IActorContext context, IActorRef tcpClient, TimeSpan maximumPingTime)
             => CreateActor(context, sp => ConnectionWatchdog.Create(sp, tcpClient, maximumPingTime));
 
     }

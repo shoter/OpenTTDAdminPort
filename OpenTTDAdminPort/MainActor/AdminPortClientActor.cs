@@ -1,6 +1,7 @@
 ﻿using Akka.Actor;
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 using OpenTTDAdminPort.Akkas;
 using OpenTTDAdminPort.MainActor.Messages;
@@ -15,30 +16,34 @@ namespace OpenTTDAdminPort.MainActor
 
         private readonly IActorFactory actorFactory;
 
-        private readonly string ip;
-        private readonly int port;
-
         private readonly string version;
 
         private readonly IServiceScope scope;
 
-        public AdminPortClientActor(IServiceProvider sp, string ip, int port)
-        {
-            this.ip = ip;
-            this.port = port;
+        private readonly ILogger logger;
 
+        public AdminPortClientActor(IServiceProvider sp)
+        {
             this.scope = sp.CreateScope();
             sp = this.scope.ServiceProvider;
+
+            this.logger = sp.GetRequiredService<ILogger<AdminPortClientActor>>();
 
             this.actorFactory = sp.GetRequiredService<IActorFactory>();
             this.version = "1.0.0";
 
+            Ready();
         }
+
+        public static Props Create(IServiceProvider sp)
+            => Props.Create(() => new AdminPortClientActor(sp));
 
         public void Ready()
         {
             StartWith(MainState.Idle, new IdleData());
             IdleState();
+            ConnectingState();
+            ConnectedState();
 
         }
 
