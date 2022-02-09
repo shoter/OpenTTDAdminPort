@@ -1,6 +1,6 @@
 ﻿namespace System
 {
-    public static class intExtensions
+    internal static class intExtensions
     {
         public static TimeSpan Millis(this int i) => TimeSpan.FromMilliseconds(i);
 

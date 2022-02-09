@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 using OpenTTDAdminPort.Messages;
-using OpenTTDAdminPort.Networking;
 
 using System;
 

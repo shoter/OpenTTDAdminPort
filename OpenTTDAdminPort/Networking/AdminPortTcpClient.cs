@@ -18,7 +18,7 @@ namespace OpenTTDAdminPort.Networking
     {
         private ITcpClient tcpClient;
         private readonly IAdminPacketService adminPacketService;
-        private readonly INetworkingActorFactory actorFactory;
+        private readonly IActorFactory actorFactory;
         private readonly IServiceScope scope;
         private readonly HashSet<IActorRef> subscribers = new();
 
@@ -34,7 +34,7 @@ namespace OpenTTDAdminPort.Networking
             serviceProvider = this.scope.ServiceProvider;
             this.tcpClient = serviceProvider.GetRequiredService<ITcpClient>();
             this.adminPacketService = serviceProvider.GetRequiredService<IAdminPacketService>();
-            this.actorFactory = serviceProvider.GetRequiredService<INetworkingActorFactory>();
+            this.actorFactory = serviceProvider.GetRequiredService<IActorFactory>();
             this.logger = serviceProvider.GetRequiredService<ILogger<AdminPortTcpClient>>();
 
             tcpClient.ConnectAsync(ip, port).Wait();
