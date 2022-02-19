@@ -12,7 +12,7 @@ using System;
 
 namespace OpenTTDAdminPort.MainActor
 {
-    public partial class AdminPortClientActor : FSM<MainState, IMainData>
+    public partial class AdminPortClientActor : FSM<MainState, IMainData>, IWithUnboundedStash
     {
         public void ConnectingState()
         {
@@ -20,6 +20,8 @@ namespace OpenTTDAdminPort.MainActor
             {
                 if(newState == MainState.Connecting)
                 {
+                    Stash.ClearStash();
+
                     logger.LogTrace("Initializing connecting state");
 
                     ConnectingData data = (NextStateData as ConnectingData)!;
@@ -36,7 +38,7 @@ namespace OpenTTDAdminPort.MainActor
                 {
                     logger.LogTrace("Disconnecting admin port client");
                     data.TcpClient.GracefulStop(3.Seconds()).Wait();
-                    return GoTo(MainState.Idle).Using(new IdleData()).Replying(EmptyResponse.Instance);
+                    return GoTo(MainState.Idle).Using(new IdleData()).Replying(AdminPortDisconnected.Instance);
                 }
                 else if(state.FsmEvent is ReceiveMessage rec)
                 {
@@ -74,7 +76,12 @@ namespace OpenTTDAdminPort.MainActor
                             }
                     }
 
+                } else if(state.FsmEvent is SendMessage m)
+                {
+                    // Let's handle it later when we connect to the server.
+                    Stash.Stash();
                 }
+
                 return null;
             });
 

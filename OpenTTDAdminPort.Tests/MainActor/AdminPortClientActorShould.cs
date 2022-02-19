@@ -1,8 +1,5 @@
 ﻿using Akka.Actor;
-using Akka.Dispatch.SysMsg;
 using Akka.TestKit;
-
-using Microsoft.Extensions.Logging;
 
 using Moq;
 
@@ -12,11 +9,6 @@ using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Networking;
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 using Xunit;
 using Xunit.Abstractions;

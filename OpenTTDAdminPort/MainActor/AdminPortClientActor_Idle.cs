@@ -7,7 +7,7 @@ using OpenTTDAdminPort.MainActor.StateData;
 
 namespace OpenTTDAdminPort.MainActor
 {
-    public partial class AdminPortClientActor : FSM<MainState, IMainData>
+    public partial class AdminPortClientActor : FSM<MainState, IMainData>, IWithUnboundedStash
     {
 
         public void IdleState()

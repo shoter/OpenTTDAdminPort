@@ -67,18 +67,6 @@ namespace OpenTTDAdminPort.Networking
                 }
             });
 
-            Receive<AdminPortTcpClientDisconnect>(_ =>
-            {
-                receiver.Tell(PoisonPill.Instance);
-                receiver = null;
-
-                tcpClient.Dispose();
-                stream = null;
-                tcpClient = scope.ServiceProvider.GetRequiredService<ITcpClient>();
-
-                UnbecomeStacked();
-            });
-
             Receive<ReceiveMessage>(receiveMessage =>
             {
                 Context.Parent.Tell(receiveMessage);
@@ -101,8 +89,8 @@ namespace OpenTTDAdminPort.Networking
                 {
                     switch (ex)
                     {
-                        case ReceiveLoopException:
-                            return Directive.Escalate;
+                        case ReceiveLoopException e:
+                            throw new AdminPortTcpClientConnectionLostException(e.Message, e);
                         default:
                             return Directive.Restart;
                     }

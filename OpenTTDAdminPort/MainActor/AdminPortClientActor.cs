@@ -11,7 +11,7 @@ using System;
 
 namespace OpenTTDAdminPort.MainActor
 {
-    public partial class AdminPortClientActor : FSM<MainState, IMainData>
+    public partial class AdminPortClientActor : FSM<MainState, IMainData>, IWithUnboundedStash
     {
 
         private readonly IActorFactory actorFactory;
@@ -21,6 +21,9 @@ namespace OpenTTDAdminPort.MainActor
         private readonly IServiceScope scope;
 
         private readonly ILogger logger;
+
+        // Initialized by Akka.net
+        public IStash Stash { get; set; } = default!;
 
         public AdminPortClientActor(IServiceProvider sp)
         {
@@ -52,5 +55,19 @@ namespace OpenTTDAdminPort.MainActor
 
             base.PostStop();
         }
+
+        protected override SupervisorStrategy SupervisorStrategy()
+        {
+            switch (StateName)
+            {
+                default:
+                    {
+                        return base.SupervisorStrategy();
+                    }
+
+            }
+        }
+
     }
+
 }
