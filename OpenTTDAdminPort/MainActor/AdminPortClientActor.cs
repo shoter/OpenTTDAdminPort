@@ -47,7 +47,6 @@ namespace OpenTTDAdminPort.MainActor
             IdleState();
             ConnectingState();
             ConnectedState();
-
         }
 
         protected override void PostStop()
@@ -60,10 +59,10 @@ namespace OpenTTDAdminPort.MainActor
         {
             switch (StateName)
             {
+                case MainState.Connected:
+                    return ConnectedSupervisorStrategy();
                 default:
-                    {
-                        return base.SupervisorStrategy();
-                    }
+                    return base.SupervisorStrategy();
 
             }
         }

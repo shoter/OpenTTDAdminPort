@@ -60,7 +60,7 @@ namespace OpenTTDAdminPort.MainActor
             });
         }
 
-        protected override SupervisorStrategy ConnectedSupervisorStrategy()
+        protected SupervisorStrategy ConnectedSupervisorStrategy()
         {
             return new OneForOneStrategy(
                 maxNrOfRetries: 10,
@@ -78,16 +78,15 @@ namespace OpenTTDAdminPort.MainActor
                         default:
                             return Directive.Escalate;
                     }
-    });
-
+                });
         }
 
         private static void killChildren(ConnectedData data)
         {
             Task[] killTasks = new Task[]
             {
-                        data.TcpClient.GracefulStop(3.Seconds()),
-                        data.Watchdog.GracefulStop(3.Seconds())
+                data.TcpClient.GracefulStop(3.Seconds()),
+                data.Watchdog.GracefulStop(3.Seconds())
             };
             Task.WaitAll(killTasks);
         }
