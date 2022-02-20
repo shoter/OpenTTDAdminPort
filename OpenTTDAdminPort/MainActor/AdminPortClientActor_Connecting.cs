@@ -52,7 +52,7 @@ namespace OpenTTDAdminPort.MainActor
 
                                 foreach (var s in msg.AdminUpdateSettings)
                                 {
-                                    data.AdminUpdateSettings.TryUpdate(s.Key, new AdminUpdateSetting(true, s.Key, s.Value), data.AdminUpdateSettings[s.Key]);
+                                    data.AdminUpdateSettings.Add(s.Key, new AdminUpdateSetting(true, s.Key, s.Value));
                                 }
 
                                 return Stay();

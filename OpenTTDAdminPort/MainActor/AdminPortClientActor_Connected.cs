@@ -3,6 +3,7 @@
 using Microsoft.Extensions.Logging;
 
 using OpenTTDAdminPort.Akkas;
+using OpenTTDAdminPort.Game;
 using OpenTTDAdminPort.MainActor.Messages;
 using OpenTTDAdminPort.MainActor.StateData;
 using OpenTTDAdminPort.Messages;
@@ -41,7 +42,7 @@ namespace OpenTTDAdminPort.MainActor
                 else if (state.FsmEvent is ReceiveMessage receive)
                 {
                     logger.LogTrace($"Received {receive.Message} - sending to Parent");
-
+                    ProcessAdminMessage(data, receive.Message);
                     Context.Parent.Tell(receive);
                 }
                 else if (state.FsmEvent is AdminPortDisconnect)
@@ -80,6 +81,36 @@ namespace OpenTTDAdminPort.MainActor
                             return Directive.Escalate;
                     }
                 });
+        }
+
+        private void ProcessAdminMessage(ConnectedData data, IAdminMessage message)
+        {
+            switch (message)
+            {
+                case AdminServerClientInfoMessage ci:
+                    {
+                        data.Players.Add(ci.ClientId, new Player(ci.ClientId, ci.ClientName, DateTimeOffset.Now, ci.Hostname, ci.PlayingAs));
+                        break;
+                    }
+                case AdminServerClientUpdateMessage cu:
+                    {
+                        var player = data.Players[cu.ClientId];
+                        player.Name = cu.ClientName;
+                        player.PlayingAs = cu.PlayingAs;
+                        break;
+                    }
+                case AdminServerClientQuitMessage cq:
+                    {
+                        data.Players.Remove(cq.ClientId);
+                        break;
+                    }
+                default:
+                    {
+                        // Other messages are not relevant to update server state
+                        break;
+                    }
+            }
+
         }
 
         private static void killChildren(ConnectedData data)

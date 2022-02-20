@@ -14,11 +14,6 @@ namespace OpenTTDAdminPort
     {
         AdminConnectionState ConnectionState { get; }
 
-        ConcurrentDictionary<AdminUpdateType, AdminUpdateSetting> AdminUpdateSettings { get; }
-
-        ConcurrentDictionary<uint, Player> Players { get; }
-
-        AdminServerInfo? AdminServerInfo { get; }
 
         event EventHandler<IAdminEvent> EventReceived;
 

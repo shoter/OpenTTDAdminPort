@@ -29,16 +29,6 @@ namespace OpenTTDAdminPort
         /// </remarks>
         public ConcurrentDictionary<AdminUpdateType, AdminUpdateSetting>? AdminUpdateSettings { get; set; }
 
-        public ConcurrentDictionary<uint, Player> Players { get; } = new ConcurrentDictionary<uint, Player>();
-
-        /// <remarks>
-        /// Null value until client connects to the server
-        /// </remarks>
-        public AdminServerInfo? AdminServerInfo { get ; private set; }
-
-        /// <remarks>
-        /// Null value until client connects to the server
-        /// </remarks>
         public ServerInfo ServerInfo { get; private set; }
 
         private IServiceProvider serviceProvider;
