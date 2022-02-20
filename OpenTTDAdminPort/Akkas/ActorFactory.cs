@@ -23,6 +23,11 @@ namespace OpenTTDAdminPort.Akkas
             return context.ActorOf(props);
         }
 
+        public IActorRef CreateMainActor(ActorSystem actorSystem, Func<IServiceProvider, Props> propsCreator)
+        {
+            return actorSystem.ActorOf(propsCreator(serviceProvider));
+        }
+
         public virtual IActorRef CreateReceiver(IActorContext context, Stream stream)
             => CreateActor(context, sp => AdminPortTcpClientReceiver.Create(sp, stream));
 

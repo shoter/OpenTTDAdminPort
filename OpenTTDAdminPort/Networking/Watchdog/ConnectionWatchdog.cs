@@ -27,26 +27,29 @@ namespace OpenTTDAdminPort.Networking.Watchdog
         // Initialized by Akka.NET
         public ITimerScheduler Timers { get; set; } = default!;
 
+        private AdminPortClientSettings Settings;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ConnectionWatchdog"/> class.
         /// </summary>
         /// <param name="pingRespondTime">Specify how long will be time between pings to the server. 
         /// It is also specifying how long time does server have in order to respond to the message.</param>
-        public ConnectionWatchdog(IServiceProvider sp, IActorRef tcpClient, TimeSpan maximumPingTime)
+        public ConnectionWatchdog(IServiceProvider sp, IActorRef tcpClient)
         {
             this.tcpClient = tcpClient;
-            this.maximumPingTime = maximumPingTime;
             this.scope = sp.CreateScope();
 
             sp = scope.ServiceProvider;
             logger = sp.GetRequiredService<ILogger<ConnectionWatchdog>>();
+            Settings = sp.GetRequiredService<AdminPortClientSettings>();
+            this.maximumPingTime = Settings.WatchdogInterval;
 
             tcpClient.Tell(new TcpClientSubscribe());
             Ready();
         }
 
         public static Props Create(IServiceProvider sp, IActorRef tcpClient, TimeSpan maximumPingTime)
-            => Props.Create(() => new ConnectionWatchdog(sp, tcpClient, maximumPingTime));
+            => Props.Create(() => new ConnectionWatchdog(sp, tcpClient));
 
         protected override void PostStop()
         {

@@ -1,17 +1,10 @@
-﻿using OpenTTDAdminPort.Assemblies;
-using OpenTTDAdminPort.Common;
-using OpenTTDAdminPort.Common.Assemblies;
-using OpenTTDAdminPort.Game;
-using OpenTTDAdminPort.Messages;
+﻿using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Networking;
 using OpenTTDAdminPort.Packets.MessageTransformers;
 using OpenTTDAdminPort.Packets.PacketTransformers;
-using System;
+
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OpenTTDAdminPort.Packets
 {

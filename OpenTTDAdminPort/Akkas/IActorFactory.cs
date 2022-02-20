@@ -9,6 +9,8 @@ namespace OpenTTDAdminPort.Akkas
     {
         IActorRef CreateActor(IActorContext context, Func<IServiceProvider, Props> propsCreator);
 
+        IActorRef CreateMainActor(ActorSystem actorSystem, Func<IServiceProvider, Props> propsCreator);
+
         IActorRef CreateReceiver(IActorContext context, Stream stream);
 
         IActorRef CreateWatchdog(IActorContext context, IActorRef tcpClient, TimeSpan maximumPingTime);

@@ -2,6 +2,7 @@
 
 using Microsoft.Extensions.Logging;
 
+using OpenTTDAdminPort.Akkas;
 using OpenTTDAdminPort.MainActor.Messages;
 using OpenTTDAdminPort.MainActor.StateData;
 using OpenTTDAdminPort.Messages;
@@ -47,7 +48,7 @@ namespace OpenTTDAdminPort.MainActor
                 {
                     killChildren(data);
 
-                    return GoTo(MainState.Idle).Using(new IdleData());
+                    return GoTo(MainState.Idle).Using(new IdleData()).Replying(EmptyResponse.Instance);
                 }
                 else if (state.FsmEvent is WatchdogConnectionLost)
                 {
