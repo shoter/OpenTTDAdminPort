@@ -8,6 +8,7 @@ using OpenTTDAdminPort.MainActor.Messages;
 using OpenTTDAdminPort.MainActor.StateData;
 
 using System;
+using System.Collections.Generic;
 
 namespace OpenTTDAdminPort.MainActor
 {
@@ -24,6 +25,8 @@ namespace OpenTTDAdminPort.MainActor
 
         // Initialized by Akka.net
         public IStash Stash { get; set; } = default!;
+
+        public HashSet<IActorRef> Subscribers { get; } = new();
 
         public AdminPortClientActor(IServiceProvider sp)
         {
@@ -47,6 +50,19 @@ namespace OpenTTDAdminPort.MainActor
             IdleState();
             ConnectingState();
             ConnectedState();
+
+            WhenUnhandled(state =>
+            {
+                if(state.FsmEvent is MainActorSubscribe)
+                {
+                    this.Subscribers.Add(Sender);
+                }
+                else if(state.FsmEvent is MainActorDesubscribe)
+                {
+                    Subscribers.Remove(Sender);
+                }
+                return Stay();
+            });
         }
 
         protected override void PostStop()

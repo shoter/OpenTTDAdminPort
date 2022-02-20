@@ -2,9 +2,7 @@
 
 using OpenTTDAdminPort.Game;
 using OpenTTDAdminPort.MainActor.Messages;
-using OpenTTDAdminPort.Messages;
 
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 

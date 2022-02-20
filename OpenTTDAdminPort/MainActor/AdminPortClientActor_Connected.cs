@@ -43,7 +43,15 @@ namespace OpenTTDAdminPort.MainActor
                 {
                     logger.LogTrace($"Received {receive.Message} - sending to Parent");
                     ProcessAdminMessage(data, receive.Message);
+
+                    foreach(var s in Subscribers)
+                    {
+                        s.Tell(receive);
+                    }
+
                     Context.Parent.Tell(receive);
+
+                    return Stay();
                 }
                 else if (state.FsmEvent is AdminPortDisconnect)
                 {
@@ -56,6 +64,10 @@ namespace OpenTTDAdminPort.MainActor
                     killChildren(data);
                     IActorRef tcpClient = actorFactory.CreateTcpClient(Context, data.ServerInfo.ServerIp, data.ServerInfo.ServerPort);
                     return GoTo(MainState.Connecting).Using(new ConnectingData(tcpClient, data.ServerInfo, data.ClientName));
+                }
+                else if(state.FsmEvent is AdminPortQueryState queryState)
+                {
+                    return Stay().Replying(new AdminPortReponseState(queryState, new MainActorState(data)));
                 }
 
                 return null;

@@ -1,6 +1,6 @@
 ﻿namespace OpenTTDAdminPort.MainActor.Messages
 {
-    public class AdminPortDisconnect
+    public class MainActorSubscribe
     {
 
     }

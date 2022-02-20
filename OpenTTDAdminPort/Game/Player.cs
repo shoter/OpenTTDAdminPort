@@ -21,5 +21,10 @@ namespace OpenTTDAdminPort.Game
             this.PlayingAs = playingAs;
         }
 
+        public Player Copy()
+        {
+            return new Player(this.ClientId, this.Name, this.ConnectedTime, this.Hostname, this.PlayingAs);
+        }
+
     }
 }
