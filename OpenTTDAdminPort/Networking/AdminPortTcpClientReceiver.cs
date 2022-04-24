@@ -35,6 +35,16 @@ namespace OpenTTDAdminPort.Networking
             ReceiveAsync<ReceiveLoopException>(e => throw e);
         }
 
+        protected override void PreRestart(Exception reason, object message)
+        {
+            if(reason != null)
+            {
+                Sender.Tell(reason);
+            }
+
+            base.PreRestart(reason, message);
+        }
+
         public static Props Create(IServiceProvider serviceProvider, Stream stream) => Props.Create(() => new AdminPortTcpClientReceiver(serviceProvider, stream));
 
         protected override void PreStart()

@@ -37,8 +37,6 @@ namespace OpenTTDAdminPort
 
         private IActorRef mainActor;
 
-        private Inbox inbox;
-
         public event EventHandler<IAdminEvent>? EventReceived;
 
         public AdminPortClient(AdminPortClientSettings settings, ServerInfo serverInfo)
@@ -61,16 +59,14 @@ namespace OpenTTDAdminPort
             mainActor = actorFactory.CreateMainActor(actorSystem, AdminPortClientActor.Create);
         }
 
-        public Task Connect()
+        public async Task Connect()
         {
-            mainActor.Ask(new AdminPortConnect(ServerInfo, "AdminPortClient"));
-            return Task.CompletedTask;
+            await mainActor.TryAsk(new AdminPortConnect(ServerInfo, "AdminPortClient"));
         }
 
-        public Task Disconnect()
+        public async Task Disconnect()
         {
-            mainActor.Ask(new AdminPortDisconnect());
-            return Task.CompletedTask;
+            await mainActor.TryAsk(new AdminPortDisconnect());
         }
 
         public void SendMessage(IAdminMessage message)
