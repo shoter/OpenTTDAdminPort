@@ -53,11 +53,11 @@ namespace OpenTTDAdminPort.MainActor
 
             WhenUnhandled(state =>
             {
-                if(state.FsmEvent is MainActorSubscribe)
+                if (state.FsmEvent is MainActorSubscribe)
                 {
                     this.Subscribers.Add(Sender);
                 }
-                else if(state.FsmEvent is MainActorDesubscribe)
+                else if (state.FsmEvent is MainActorDesubscribe)
                 {
                     Subscribers.Remove(Sender);
                 }

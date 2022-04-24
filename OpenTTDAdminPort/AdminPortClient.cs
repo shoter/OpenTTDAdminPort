@@ -37,12 +37,17 @@ namespace OpenTTDAdminPort
 
         private IActorRef mainActor;
 
+        private Inbox inbox;
+
         public event EventHandler<IAdminEvent>? EventReceived;
 
         public AdminPortClient(AdminPortClientSettings settings, ServerInfo serverInfo)
         {
             this.ServerInfo = serverInfo;
             this.actorSystem = ActorSystem.Create("AdminPortClient");
+
+            Inbox a;
+
 
             IServiceCollection services = new ServiceCollection();
             services.AddSingleton<IActorFactory, ActorFactory>();
@@ -72,5 +77,6 @@ namespace OpenTTDAdminPort
         {
             mainActor.Ask(new SendMessage(message));
         }
+
     }
 }
