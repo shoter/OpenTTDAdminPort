@@ -35,7 +35,7 @@ namespace OpenTTDAdminPort.Networking
             var myself = Self;
             ThreadPool.QueueUserWorkItem(new WaitCallback((_) => ReceiveLoop(receiveLoopCTS.Token, myself)), null);
             Receive<ReceiveLoopException>(e => throw e);
-            Receive<IAdminMessage>(m => Context.Parent.Tell(m));
+            Receive<IAdminMessage>(m => Context.Parent.Tell(new ReceiveMessage(m)));
         }
 
         protected override void PreRestart(Exception reason, object message)
