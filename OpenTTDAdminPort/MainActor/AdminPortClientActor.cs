@@ -28,14 +28,17 @@ namespace OpenTTDAdminPort.MainActor
 
         public HashSet<IActorRef> Subscribers { get; } = new();
 
+        private IActorRef Messager { get; }
+
         public AdminPortClientActor(IServiceProvider sp)
         {
             this.scope = sp.CreateScope();
             sp = this.scope.ServiceProvider;
 
             this.logger = sp.GetRequiredService<ILogger<AdminPortClientActor>>();
-
             this.actorFactory = sp.GetRequiredService<IActorFactory>();
+            this.Messager = this.actorFactory.CreateMessager(Context);
+
             this.version = "1.0.0";
 
             Ready();

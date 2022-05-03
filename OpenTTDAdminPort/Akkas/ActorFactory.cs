@@ -1,5 +1,6 @@
 ﻿using Akka.Actor;
 
+using OpenTTDAdminPort.MainActor;
 using OpenTTDAdminPort.Networking;
 using OpenTTDAdminPort.Networking.Watchdog;
 
@@ -23,10 +24,17 @@ namespace OpenTTDAdminPort.Akkas
             return context.ActorOf(props);
         }
 
-        public IActorRef CreateMainActor(ActorSystem actorSystem, Func<IServiceProvider, Props> propsCreator)
+        public virtual IActorRef CreateActor(IActorContext context, Func<Props> propsCreator)
         {
-            return actorSystem.ActorOf(propsCreator(serviceProvider));
+            Props props = propsCreator();
+            return context.ActorOf(props);
         }
+
+        public IActorRef CreateMainActor(ActorSystem actorSystem)
+            => actorSystem.ActorOf(AdminPortClientActor.Create(this.serviceProvider));
+
+        public IActorRef CreateMessager(IActorContext context)
+            => CreateActor(context, AdminPortClientMessager.Create);
 
         public virtual IActorRef CreateReceiver(IActorContext context, Stream stream)
             => CreateActor(context, sp => AdminPortTcpClientReceiver.Create(sp, stream));

@@ -3,6 +3,7 @@
 using Microsoft.Extensions.Logging;
 
 using OpenTTDAdminPort.Akkas;
+using OpenTTDAdminPort.Events;
 using OpenTTDAdminPort.Game;
 using OpenTTDAdminPort.MainActor.Messages;
 using OpenTTDAdminPort.MainActor.StateData;
@@ -68,6 +69,13 @@ namespace OpenTTDAdminPort.MainActor
                 else if(state.FsmEvent is AdminPortQueryState queryState)
                 {
                     return Stay().Replying(new AdminPortReponseState(queryState, new MainActorState(data)));
+                }
+                else if(state.FsmEvent is IAdminMessage message)
+                {
+                    IAdminEvent ev = null;
+
+                    this.Messager.Tell(ev);
+                    return Stay();
                 }
 
                 return null;

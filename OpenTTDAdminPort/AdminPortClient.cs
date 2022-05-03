@@ -37,15 +37,12 @@ namespace OpenTTDAdminPort
 
         private IActorRef mainActor;
 
-        public event EventHandler<IAdminEvent>? EventReceived;
+        //public event EventHandler<IAdminEvent>? EventReceived;
 
         public AdminPortClient(AdminPortClientSettings settings, ServerInfo serverInfo)
         {
             this.ServerInfo = serverInfo;
             this.actorSystem = ActorSystem.Create("AdminPortClient");
-
-            Inbox a;
-
 
             IServiceCollection services = new ServiceCollection();
             services.AddSingleton<IActorFactory, ActorFactory>();
@@ -56,7 +53,7 @@ namespace OpenTTDAdminPort
 
 
             IActorFactory actorFactory = serviceProvider.GetRequiredService<IActorFactory>();
-            mainActor = actorFactory.CreateMainActor(actorSystem, AdminPortClientActor.Create);
+            mainActor = actorFactory.CreateMainActor(actorSystem);
         }
 
         public async Task Connect()
@@ -74,5 +71,9 @@ namespace OpenTTDAdminPort
             mainActor.Ask(new SendMessage(message));
         }
 
+        public void SetAdminEventHandler(Action<IAdminEvent> action)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
