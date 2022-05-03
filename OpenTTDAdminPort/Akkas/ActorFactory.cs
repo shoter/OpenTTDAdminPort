@@ -18,10 +18,10 @@ namespace OpenTTDAdminPort.Akkas
             this.serviceProvider = serviceProvider;
         }
 
-        public virtual IActorRef CreateActor(IActorContext context, Func<IServiceProvider, Props> propsCreator)
+        public virtual IActorRef CreateActor(IActorContext context, Func<IServiceProvider, Props> propsCreator, string? name = null)
         {
             Props props = propsCreator.Invoke(serviceProvider);
-            return context.ActorOf(props);
+            return context.ActorOf(props, name);
         }
 
         public virtual IActorRef CreateActor(IActorContext context, Func<Props> propsCreator)
@@ -31,19 +31,19 @@ namespace OpenTTDAdminPort.Akkas
         }
 
         public IActorRef CreateMainActor(ActorSystem actorSystem)
-            => actorSystem.ActorOf(AdminPortClientActor.Create(this.serviceProvider));
+            => actorSystem.ActorOf(AdminPortClientActor.Create(this.serviceProvider), "Main");
 
         public IActorRef CreateMessager(IActorContext context)
             => CreateActor(context, AdminPortClientMessager.Create);
 
         public virtual IActorRef CreateReceiver(IActorContext context, Stream stream)
-            => CreateActor(context, sp => AdminPortTcpClientReceiver.Create(sp, stream));
+            => CreateActor(context, sp => AdminPortTcpClientReceiver.Create(sp, stream), "Receiver");
 
         public virtual IActorRef CreateTcpClient(IActorContext context, string ip, int port)
-            => CreateActor(context, sp => AdminPortTcpClient.Create(sp, ip, port));
+            => CreateActor(context, sp => AdminPortTcpClient.Create(sp, ip, port), "tcp");
 
         public virtual IActorRef CreateWatchdog(IActorContext context, IActorRef tcpClient, TimeSpan maximumPingTime)
-            => CreateActor(context, sp => ConnectionWatchdog.Create(sp, tcpClient, maximumPingTime));
+            => CreateActor(context, sp => ConnectionWatchdog.Create(sp, tcpClient, maximumPingTime), "watchdog");
 
     }
 }

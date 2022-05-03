@@ -100,6 +100,7 @@ namespace OpenTTDAdminPort.Networking
                     switch (ex)
                     {
                         case ReceiveLoopException e:
+                            // Will cause restart of tcp client through supervisor of main actor.
                             throw new AdminPortTcpClientConnectionLostException(e.Message, e);
                         default:
                             return Directive.Restart;

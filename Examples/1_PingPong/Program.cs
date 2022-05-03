@@ -11,7 +11,7 @@ namespace _1_PingPong
         static async Task Main(string[] args)
         {
             var client = new AdminPortClient(AdminPortClientSettings.Default, new ServerInfo(
-                "127.0.0.1", 3982, "admin_pass"));
+                "127.0.0.1", 3977, "admin_pass"));
             AdminPongEvent pongEvent = null;
             client.SetAdminEventHandler(ev =>
             {

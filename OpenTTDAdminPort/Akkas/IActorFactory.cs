@@ -7,7 +7,7 @@ namespace OpenTTDAdminPort.Akkas
 {
     public interface IActorFactory
     {
-        IActorRef CreateActor(IActorContext context, Func<IServiceProvider, Props> propsCreator);
+        IActorRef CreateActor(IActorContext context, Func<IServiceProvider, Props> propsCreator, string? name);
 
         IActorRef CreateMainActor(ActorSystem actorSystem);
 

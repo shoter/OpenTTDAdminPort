@@ -32,7 +32,10 @@ namespace OpenTTDAdminPort.Networking
             this.logger = serviceProvider.GetRequiredService<ILogger<AdminPortTcpClientReceiver>>();
             this.stream = stream;
 
-            ReceiveAsync<ReceiveLoopException>(e => throw e);
+            var myself = Self;
+            ThreadPool.QueueUserWorkItem(new WaitCallback((_) => ReceiveLoop(receiveLoopCTS.Token, myself)), null);
+            Receive<ReceiveLoopException>(e => throw e);
+            Receive<IAdminMessage>(m => Context.Parent.Tell(m));
         }
 
         protected override void PreRestart(Exception reason, object message)
@@ -46,12 +49,6 @@ namespace OpenTTDAdminPort.Networking
         }
 
         public static Props Create(IServiceProvider serviceProvider, Stream stream) => Props.Create(() => new AdminPortTcpClientReceiver(serviceProvider, stream));
-
-        protected override void PreStart()
-        {
-            ThreadPool.QueueUserWorkItem(new WaitCallback((_) => ReceiveLoop(receiveLoopCTS.Token, Self)), null);
-            base.PreStart();
-        }
 
         protected override void PostStop()
         {
@@ -75,7 +72,7 @@ namespace OpenTTDAdminPort.Networking
 
                         if (!token.IsCancellationRequested)
                         {
-                            Context.Parent.Tell(message);
+                            self.Tell(message);
                         }
                     }
                     catch (Exception e) when (!(e is TaskCanceledException))
