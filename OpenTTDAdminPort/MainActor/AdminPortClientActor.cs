@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 using OpenTTDAdminPort.Akkas;
+using OpenTTDAdminPort.Events;
 using OpenTTDAdminPort.MainActor.Messages;
 using OpenTTDAdminPort.MainActor.StateData;
 
@@ -63,6 +64,10 @@ namespace OpenTTDAdminPort.MainActor
                 else if (state.FsmEvent is MainActorDesubscribe)
                 {
                     Subscribers.Remove(Sender);
+                }
+                else if(state.FsmEvent is Action<IAdminEvent> action)
+                {
+                    Messager.Forward(action);
                 }
                 return Stay();
             });

@@ -73,7 +73,7 @@ namespace OpenTTDAdminPort
 
         public void SetAdminEventHandler(Action<IAdminEvent> action)
         {
-            throw new NotImplementedException();
+            mainActor.Ask(action);
         }
     }
 }
