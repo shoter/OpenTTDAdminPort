@@ -13,11 +13,13 @@ namespace _1_PingPong
             var client = new AdminPortClient(AdminPortClientSettings.Default, new ServerInfo(
                 "127.0.0.1", 3982, "admin_pass"));
             AdminPongEvent pongEvent = null;
-            client.EventReceived += (_, e) =>
+            client.SetAdminEventHandler(ev =>
             {
-                if (e is AdminPongEvent pe)
+                if (ev is AdminPongEvent pe)
+                {
                     pongEvent = pe;
-            };
+                }
+            });
 
             Console.WriteLine("Connecting ...");
             await client.Connect();

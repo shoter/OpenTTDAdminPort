@@ -1,11 +1,11 @@
 ﻿using Akka.Actor;
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 using OpenTTDAdminPort.Akkas;
 using OpenTTDAdminPort.Events;
 using OpenTTDAdminPort.Game;
-using OpenTTDAdminPort.MainActor;
 using OpenTTDAdminPort.MainActor.Messages;
 using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Networking;
@@ -13,9 +13,6 @@ using OpenTTDAdminPort.Packets;
 
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace OpenTTDAdminPort
@@ -39,15 +36,17 @@ namespace OpenTTDAdminPort
 
         //public event EventHandler<IAdminEvent>? EventReceived;
 
-        public AdminPortClient(AdminPortClientSettings settings, ServerInfo serverInfo)
+        public AdminPortClient(AdminPortClientSettings settings, ServerInfo serverInfo, Action<ILoggingBuilder>? configureLogging = null)
         {
             this.ServerInfo = serverInfo;
             this.actorSystem = ActorSystem.Create("AdminPortClient");
 
             IServiceCollection services = new ServiceCollection();
             services.AddSingleton<IActorFactory, ActorFactory>();
+            services.AddTransient<ITcpClient, MyTcpClient>();
             services.AddSingleton<IAdminPacketService>(new AdminPacketServiceFactory().Create());
             services.AddSingleton(settings);
+            services.AddLogging(configureLogging ?? delegate { });
 
             serviceProvider = services.BuildServiceProvider();
 
