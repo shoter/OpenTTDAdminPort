@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using OpenTTDAdminPort.Akkas;
 using OpenTTDAdminPort.Common;
 using OpenTTDAdminPort.Messages;
+using OpenTTDAdminPort.Networking.Exceptions;
 using OpenTTDAdminPort.Packets;
 
 using System;
@@ -37,7 +38,16 @@ namespace OpenTTDAdminPort.Networking
             this.actorFactory = serviceProvider.GetRequiredService<IActorFactory>();
             this.logger = serviceProvider.GetRequiredService<ILogger<AdminPortTcpClient>>();
 
-            tcpClient.ConnectAsync(ip, port).Wait();
+
+            try
+            {
+                tcpClient.ConnectAsync(ip, port).Wait();
+            }
+            catch (Exception ex)
+            {
+                throw new InitialConnectionException("Connection failed", ex);
+
+            }
             this.stream = tcpClient.GetStream();
             this.receiver = actorFactory.CreateReceiver(Context, stream);
 

@@ -65,7 +65,7 @@ namespace OpenTTDAdminPort.MainActor
                 {
                     Subscribers.Remove(Sender);
                 }
-                else if(state.FsmEvent is Action<IAdminEvent> action)
+                else if (state.FsmEvent is Action<IAdminEvent> action)
                 {
                     Messager.Forward(action);
                 }
@@ -80,17 +80,6 @@ namespace OpenTTDAdminPort.MainActor
         }
 
         protected override SupervisorStrategy SupervisorStrategy()
-        {
-            switch (StateName)
-            {
-                case MainState.Connected:
-                    return ConnectedSupervisorStrategy();
-                default:
-                    return base.SupervisorStrategy();
-
-            }
-        }
-
+            => new OneForOneStrategy(ex => Directive.Restart);
     }
-
 }

@@ -9,6 +9,7 @@ using OpenTTDAdminPort.MainActor.Messages;
 using OpenTTDAdminPort.MainActor.StateData;
 using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Networking;
+using OpenTTDAdminPort.Networking.Exceptions;
 using OpenTTDAdminPort.Networking.Watchdog;
 
 using System;
@@ -80,27 +81,6 @@ namespace OpenTTDAdminPort.MainActor
 
                 return null;
             });
-        }
-
-        protected SupervisorStrategy ConnectedSupervisorStrategy()
-        {
-            return new OneForOneStrategy(
-                maxNrOfRetries: 10,
-                withinTimeRange: TimeSpan.FromMinutes(1),
-                localOnlyDecider: ex =>
-                {
-                    switch (ex)
-                    {
-                        case ArithmeticException ae:
-                            return Directive.Resume;
-                        case NullReferenceException nre:
-                            return Directive.Restart;
-                        case ArgumentException are:
-                            return Directive.Stop;
-                        default:
-                            return Directive.Escalate;
-                    }
-                });
         }
 
         private void ProcessAdminMessage(ConnectedData data, IAdminMessage message)
