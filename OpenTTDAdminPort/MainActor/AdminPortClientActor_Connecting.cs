@@ -3,6 +3,7 @@
 using Microsoft.Extensions.Logging;
 
 using OpenTTDAdminPort.Akkas;
+using OpenTTDAdminPort.Events;
 using OpenTTDAdminPort.MainActor.Messages;
 using OpenTTDAdminPort.MainActor.StateData;
 using OpenTTDAdminPort.Messages;
@@ -82,6 +83,7 @@ namespace OpenTTDAdminPort.MainActor
                 {
                     data.TcpClient.GracefulStop(3.Seconds()).Wait();
                     IActorRef tcpClient = actorFactory.CreateTcpClient(Context, data.ServerInfo.ServerIp, data.ServerInfo.ServerPort);
+                    this.Messager.Tell(new AdminServerRestarted());
                     return GoTo(MainState.Connecting).Using(new ConnectingData(tcpClient, Self, data.ServerInfo, data.ClientName));
                 }
                 else if(state.FsmEvent is SendMessage m)

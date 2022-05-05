@@ -66,6 +66,7 @@ namespace OpenTTDAdminPort.Tests.Dockerized
             await client.Disconnect();
         }
 
+        // This needs to be rewritten :(
         //[Fact]
         //public async Task AfterServerRestart_AdminPortClientShouldAutomaticallyReconnect()
         //{
@@ -76,7 +77,25 @@ namespace OpenTTDAdminPort.Tests.Dockerized
         //    logger.LogInformation("Starting Openttd server");
         //    await server.Start(nameof(PingPongTest));
         //    logger.LogInformation("Openttd Server started");
-        //    AdminPortClient client = new AdminPortClient(settings, server.ServerInfo, new ContextLogger<AdminPortClient>(loggerFactory.CreateLogger<AdminPortClient>(), "Main Test Client"));
+        //    AdminPortClient client = new AdminPortClient(settings, server.ServerInfo, builder =>
+        //    {
+        //        builder.AddProvider(new XUnitLoggerProvider(output));
+        //    });
+
+        //    AdminPongEvent pongEvent = null;
+        //    AdminServerRestarted restartEvent = null;
+
+        //    client.SetAdminEventHandler(ev =>
+        //    {
+        //        if (ev is AdminPongEvent pe)
+        //        {
+        //            pongEvent = pe;
+        //        }
+        //        if(ev is AdminServerRestarted pr)
+        //        {
+        //            restartEvent = pr;
+        //        }
+        //    });
 
 
         //    logger.LogInformation("Starting client connection");
@@ -84,32 +103,39 @@ namespace OpenTTDAdminPort.Tests.Dockerized
         //    logger.LogInformation("Client connected");
 
         //    logger.LogInformation("Starting openttd server stop");
-        //    bool erroredOut = false;
-        //    client.StateChanged += (_, arg) => erroredOut = erroredOut | arg.New == AdminConnectionState.Errored;
         //    await server.Stop();
         //    logger.LogInformation("openttd stopped");
 
-        //    logger.LogInformation("Waiting for errored state");
-
-
-        //    if (!(await TaskHelper.WaitUntil(() => erroredOut, delayBetweenChecks: TimeSpan.FromSeconds(0.5), duration: 4 * settings.WatchdogInterval)))
-        //    {
-        //        throw new AdminPortException("Wrong State!");
-        //    }
-        //    logger.LogInformation("Errored state established");
-
         //    await server.Start(nameof(PingPongTest));
 
-        //    logger.LogInformation("Openttd server started (again)");
+        //    logger.LogInformation("Server started again");
 
+        //    logger.LogInformation("Waiting to receive message about restart");
+        //    var timeout = Task.Delay(3.Seconds());
 
-        //    if (!(await TaskHelper.WaitUntil(() => client.ConnectionState == AdminConnectionState.Connected, delayBetweenChecks: TimeSpan.FromSeconds(0.5), duration: TimeSpan.FromSeconds(20))))
+        //    while (restartEvent == null)
         //    {
-        //        throw new AdminPortException("Wrong State!");
+        //        await Task.Delay(1);
+
+        //        if (timeout.IsCompleted)
+        //            throw new Exception();
+        //    }
+        //    logger.LogInformation("Restart ocurred");
+
+        //    logger.LogInformation("Sending ping");
+        //    client.SendMessage(new AdminPingMessage(22u));
+
+        //    timeout = Task.Delay(3.Seconds());
+
+        //    while (pongEvent == null)
+        //    {
+        //        await Task.Delay(1);
+
+        //        if (timeout.IsCompleted)
+        //            throw new Exception();
         //    }
 
-        //    logger.LogInformation("Connected state established");
-
+        //    Assert.Equal(22u, pongEvent.PongValue);
         //}
 
         protected virtual void Dispose(bool disposing)
