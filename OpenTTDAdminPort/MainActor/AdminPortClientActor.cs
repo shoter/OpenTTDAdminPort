@@ -45,6 +45,16 @@ namespace OpenTTDAdminPort.MainActor
             Ready();
         }
 
+        public override void AroundPreRestart(Exception cause, object message)
+        {
+            if(cause != null && Sender != null)
+            {
+                Sender.Tell(cause);
+            }
+
+            base.AroundPreRestart(cause, message);
+        }
+
         public static Props Create(IServiceProvider sp)
             => Props.Create(() => new AdminPortClientActor(sp));
 

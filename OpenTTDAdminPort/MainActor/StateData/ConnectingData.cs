@@ -12,6 +12,11 @@ namespace OpenTTDAdminPort.MainActor.StateData
     {
         public IActorRef TcpClient { get; }
 
+        /// <summary>
+        /// Initiator of connect process to which we will send a message informing about successfull connect
+        /// </summary>
+        public IActorRef Initiator { get; }
+
         public ServerInfo ServerInfo { get; }
 
         public string ClientName { get; }
@@ -20,9 +25,10 @@ namespace OpenTTDAdminPort.MainActor.StateData
 
         public AdminServerInfo? AdminServerInfo { get; set; }
 
-        public ConnectingData(IActorRef tcpClient,ServerInfo serverInfo, string clientName)
+        public ConnectingData(IActorRef tcpClient, IActorRef initiator, ServerInfo serverInfo, string clientName)
         {
             this.TcpClient = tcpClient;
+            this.Initiator = initiator;
             this.ServerInfo = serverInfo;
             this.ClientName = clientName;
         }

@@ -21,7 +21,7 @@ namespace OpenTTDAdminPort.MainActor
                     logger.LogTrace($"Received connect message to {connect.ServerInfo}");
 
                     IActorRef tcpClient = actorFactory.CreateTcpClient(Context, connect.ServerInfo.ServerIp, connect.ServerInfo.ServerPort);
-                    var stateData = new ConnectingData(tcpClient, connect.ServerInfo, connect.ClientName);
+                    var stateData = new ConnectingData(tcpClient, Sender, connect.ServerInfo, connect.ClientName);
 
                     logger.LogTrace("Moving to Connecting state");
                     return GoTo(MainState.Connecting).Using(stateData);
