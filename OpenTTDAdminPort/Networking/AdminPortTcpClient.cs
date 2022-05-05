@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 
 using OpenTTDAdminPort.Akkas;
 using OpenTTDAdminPort.Common;
+using OpenTTDAdminPort.Events;
 using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Networking.Exceptions;
 using OpenTTDAdminPort.Packets;
@@ -101,7 +102,8 @@ namespace OpenTTDAdminPort.Networking
                     {
                         case ReceiveLoopException e:
                             // Will cause restart of tcp client through supervisor of main actor.
-                            throw new AdminPortTcpClientConnectionLostException(e.Message, e);
+                            Context.Parent.Tell(new AdminPortTcpClientConnectionLostException(e.Message, e));
+                            return Directive.Stop;
                         default:
                             return Directive.Restart;
                     }

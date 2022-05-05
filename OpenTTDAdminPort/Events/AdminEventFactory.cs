@@ -32,7 +32,7 @@ namespace OpenTTDAdminPort.Events
 
             for (int i = 0; i < creators.Length; ++i)
             {
-                creators[i] = (IEventCreator)Activator.CreateInstance(creatorTypes.ElementAt(i));
+                creators[i] = (IEventCreator)Activator.CreateInstance(creatorTypes.ElementAt(i))!;
             }
 
             this.creators = creators.ToDictionary(x => x.SupportedMessageType);

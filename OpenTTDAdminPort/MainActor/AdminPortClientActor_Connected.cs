@@ -46,12 +46,12 @@ namespace OpenTTDAdminPort.MainActor
                     logger.LogTrace($"Received {receive.Message} - sending to Parent");
                     ProcessAdminMessage(data, receive.Message);
 
-                    foreach(var s in Subscribers)
-                    {
-                        s.Tell(receive);
-                    }
+                    IAdminEvent? ev = this.adminEventFactory.Create(receive.Message, data);
 
-                    Context.Parent.Tell(receive);
+                    if (ev != null)
+                    {
+                        this.Messager.Tell(ev);
+                    }
 
                     return Stay();
                 }
@@ -61,7 +61,7 @@ namespace OpenTTDAdminPort.MainActor
 
                     return GoTo(MainState.Idle).Using(new IdleData()).Replying(EmptyResponse.Instance);
                 }
-                else if (state.FsmEvent is WatchdogConnectionLost)
+                else if (state.FsmEvent is WatchdogConnectionLost || state.FsmEvent is AdminPortTcpClientConnectionLostException)
                 {
                     killChildren(data);
                     IActorRef tcpClient = actorFactory.CreateTcpClient(Context, data.ServerInfo.ServerIp, data.ServerInfo.ServerPort);
@@ -70,13 +70,6 @@ namespace OpenTTDAdminPort.MainActor
                 else if(state.FsmEvent is AdminPortQueryState queryState)
                 {
                     return Stay().Replying(new AdminPortReponseState(queryState, new MainActorState(data)));
-                }
-                else if(state.FsmEvent is IAdminMessage message)
-                {
-                    IAdminEvent ev = null;
-
-                    this.Messager.Tell(ev);
-                    return Stay();
                 }
 
                 return null;

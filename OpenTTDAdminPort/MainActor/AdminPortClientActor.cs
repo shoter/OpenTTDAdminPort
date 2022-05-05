@@ -27,9 +27,9 @@ namespace OpenTTDAdminPort.MainActor
         // Initialized by Akka.net
         public IStash Stash { get; set; } = default!;
 
-        public HashSet<IActorRef> Subscribers { get; } = new();
-
         private IActorRef Messager { get; }
+
+        private readonly IAdminEventFactory adminEventFactory;
 
         public AdminPortClientActor(IServiceProvider sp)
         {
@@ -38,7 +38,10 @@ namespace OpenTTDAdminPort.MainActor
 
             this.logger = sp.GetRequiredService<ILogger<AdminPortClientActor>>();
             this.actorFactory = sp.GetRequiredService<IActorFactory>();
+            this.adminEventFactory = sp.GetRequiredService<IAdminEventFactory>();
+
             this.Messager = this.actorFactory.CreateMessager(Context);
+
 
             this.version = "1.0.0";
 
@@ -67,17 +70,9 @@ namespace OpenTTDAdminPort.MainActor
 
             WhenUnhandled(state =>
             {
-                if (state.FsmEvent is MainActorSubscribe)
+                if(state.FsmEvent is Action<IAdminEvent> action)
                 {
-                    this.Subscribers.Add(Sender);
-                }
-                else if (state.FsmEvent is MainActorDesubscribe)
-                {
-                    Subscribers.Remove(Sender);
-                }
-                else if (state.FsmEvent is Action<IAdminEvent> action)
-                {
-                    Messager.Forward(action);
+                    this.Messager.Tell(action);
                 }
                 return Stay();
             });

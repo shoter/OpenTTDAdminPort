@@ -1,5 +1,8 @@
 ﻿using Akka.Actor;
 
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+
 using OpenTTDAdminPort.Akkas;
 using OpenTTDAdminPort.Events;
 
@@ -10,18 +13,33 @@ namespace OpenTTDAdminPort
     public class AdminPortClientMessager : ReceiveActor
     {
         private Action<IAdminEvent>? adminEventOnReceive;
-        public AdminPortClientMessager()
+        private ILogger logger;
+
+        private IServiceScope scope;
+        private IServiceProvider sp => scope.ServiceProvider;
+
+        public AdminPortClientMessager(IServiceProvider serviceProvider)
         {
+            this.scope = serviceProvider.CreateScope();
+            this.logger = sp.GetRequiredService<ILogger<AdminPortClientMessager>>();
             Ready();
         }
 
-        public static Props Create()
-            => Props.Create(() => new AdminPortClientMessager());
+        protected override void PostStop()
+        {
+            scope.Dispose();
+            base.PostStop();
+        }
+
+        public static Props Create(IServiceProvider sp)
+            => Props.Create(() => new AdminPortClientMessager(sp));
 
         public void Ready()
         {
             Receive<Action<IAdminEvent>>(SetNewAction);
-            Receive<IAdminEvent>(e => adminEventOnReceive?.Invoke(e));
+            Receive<IAdminEvent>(e => {
+                adminEventOnReceive?.Invoke(e);
+                });
         }
 
         public void SetNewAction(Action<IAdminEvent> ev)

@@ -25,7 +25,7 @@ namespace _1_PingPong
             {
                 if (ev is AdminPongEvent pe)
                 {
-                    pongEvent = pe;
+                    //pongEvent = pe;
                 }
             });
 

@@ -34,7 +34,11 @@ namespace OpenTTDAdminPort.Networking
 
             var myself = Self;
             ThreadPool.QueueUserWorkItem(new WaitCallback((_) => ReceiveLoop(receiveLoopCTS.Token, myself)), null);
-            Receive<ReceiveLoopException>(e => throw e);
+            Receive<ReceiveLoopException>(e =>
+            {
+                logger.LogError("I received receive loop exception. I am killing myself");
+                throw e;
+            });
             Receive<IAdminMessage>(m => Context.Parent.Tell(new ReceiveMessage(m)));
         }
 

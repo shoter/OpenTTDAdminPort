@@ -13,6 +13,8 @@ namespace OpenTTDAdminPort.Akkas
     {
         protected readonly IServiceProvider serviceProvider;
 
+        private int n = 0;
+
         public ActorFactory(IServiceProvider serviceProvider)
         {
             this.serviceProvider = serviceProvider;
@@ -37,13 +39,13 @@ namespace OpenTTDAdminPort.Akkas
             => CreateActor(context, AdminPortClientMessager.Create);
 
         public virtual IActorRef CreateReceiver(IActorContext context, Stream stream)
-            => CreateActor(context, sp => AdminPortTcpClientReceiver.Create(sp, stream), "Receiver");
+            => CreateActor(context, sp => AdminPortTcpClientReceiver.Create(sp, stream), $"Receiver{n++}");
 
         public virtual IActorRef CreateTcpClient(IActorContext context, string ip, int port)
-            => CreateActor(context, sp => AdminPortTcpClient.Create(sp, ip, port), "tcp");
+            => CreateActor(context, sp => AdminPortTcpClient.Create(sp, ip, port), $"tcp{n++}");
 
         public virtual IActorRef CreateWatchdog(IActorContext context, IActorRef tcpClient, TimeSpan maximumPingTime)
-            => CreateActor(context, sp => ConnectionWatchdog.Create(sp, tcpClient, maximumPingTime), "watchdog");
+            => CreateActor(context, sp => ConnectionWatchdog.Create(sp, tcpClient, maximumPingTime), $"watchdog{n++}");
 
     }
 }

@@ -77,7 +77,14 @@ namespace OpenTTDAdminPort.MainActor
                             }
                     }
 
-                } else if(state.FsmEvent is SendMessage m)
+                }
+                else if (state.FsmEvent is AdminPortTcpClientConnectionLostException)
+                {
+                    data.TcpClient.GracefulStop(3.Seconds()).Wait();
+                    IActorRef tcpClient = actorFactory.CreateTcpClient(Context, data.ServerInfo.ServerIp, data.ServerInfo.ServerPort);
+                    return GoTo(MainState.Connecting).Using(new ConnectingData(tcpClient, Self, data.ServerInfo, data.ClientName));
+                }
+                else if(state.FsmEvent is SendMessage m)
                 {
                     // Let's handle it later when we connect to the server.
                     Stash.Stash();
