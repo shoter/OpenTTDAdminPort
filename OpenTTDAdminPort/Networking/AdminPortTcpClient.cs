@@ -38,13 +38,13 @@ namespace OpenTTDAdminPort.Networking
             this.actorFactory = serviceProvider.GetRequiredService<IActorFactory>();
             this.logger = serviceProvider.GetRequiredService<ILogger<AdminPortTcpClient>>();
 
-
             try
             {
                 tcpClient.ConnectAsync(ip, port).Wait();
             }
             catch (Exception ex)
             {
+                this.logger.LogError(ex, "Connection failed");
                 throw new InitialConnectionException("Connection failed", ex);
 
             }
