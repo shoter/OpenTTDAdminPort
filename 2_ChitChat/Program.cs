@@ -1,4 +1,6 @@
-﻿using OpenTTDAdminPort;
+﻿using Microsoft.Extensions.Logging;
+
+using OpenTTDAdminPort;
 using OpenTTDAdminPort.Events;
 using OpenTTDAdminPort.Game;
 using OpenTTDAdminPort.Messages;
@@ -15,10 +17,18 @@ namespace _2_ChitChat
         static async Task Main(string[] args)
         {
             var client = new AdminPortClient(AdminPortClientSettings.Default, new ServerInfo(
-            "127.0.0.1", 3982, "admin_pass"));
+                "127.0.0.1", 3977, "admin_pass"), builder => {
+                    builder.ClearProviders();
+                    builder.AddConsole();
+                    builder.SetMinimumLevel(LogLevel.Trace);
+                });
 
             // This will be running on different thread - it is important to use multi-thread safe constructs that will enable sharing data between client and our thread.
-            client.EventReceived += (_, ev) => EventQueue.Enqueue(ev);
+            client.SetAdminEventHandler(ev =>
+            {
+                EventQueue.Enqueue(ev);
+            });
+
             await client.Connect();
 
             while(true)

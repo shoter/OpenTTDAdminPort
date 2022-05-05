@@ -18,7 +18,6 @@ namespace _1_PingPong
                     builder.ClearProviders();
                     builder.AddConsole();
                     builder.SetMinimumLevel(LogLevel.Trace);
-
                 });
             AdminPongEvent pongEvent = null;
             client.SetAdminEventHandler(ev =>
