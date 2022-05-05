@@ -2,6 +2,7 @@
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 using OpenTTDAdminPort.Messages;
 
@@ -41,7 +42,7 @@ namespace OpenTTDAdminPort.Networking.Watchdog
 
             sp = scope.ServiceProvider;
             logger = sp.GetRequiredService<ILogger<ConnectionWatchdog>>();
-            Settings = sp.GetRequiredService<AdminPortClientSettings>();
+            Settings = sp.GetRequiredService<IOptions<AdminPortClientSettings>>().Value;
             this.maximumPingTime = Settings.WatchdogInterval;
 
             tcpClient.Tell(new TcpClientSubscribe());

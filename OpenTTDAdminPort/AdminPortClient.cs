@@ -46,7 +46,10 @@ namespace OpenTTDAdminPort
             services.AddTransient<ITcpClient, MyTcpClient>();
             services.AddSingleton<IAdminPacketService>(new AdminPacketServiceFactory().Create());
             services.AddSingleton<IAdminEventFactory, AdminEventFactory>();
-            services.AddSingleton(settings);
+            services.Configure<AdminPortClientSettings>(s =>
+            {
+                s.WatchdogInterval = settings.WatchdogInterval;
+            });
             services.AddLogging(configureLogging ?? delegate { });
 
 

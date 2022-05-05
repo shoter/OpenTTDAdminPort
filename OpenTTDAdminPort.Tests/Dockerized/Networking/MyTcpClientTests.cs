@@ -14,16 +14,12 @@ namespace OpenTTDAdminPort.Tests.Dockerized.Networking
         MockServerContainer serverContainer = new MockServerContainer(DockerClientProvider.Instance);
 
         [Fact]
-        public async Task ConnectToMockServerMultipleTimes_WithoutProblems()
+        public async Task ConnectToMockServer()
         {
-            await serverContainer.Start(nameof(ConnectToMockServerMultipleTimes_WithoutProblems));
+            await serverContainer.Start(nameof(ConnectToMockServer));
             using MyTcpClient client = new MyTcpClient();
-
-            for(int i = 0;i < 50; ++i)
-            {
-                await client.ConnectAsync("127.0.0.1", serverContainer.Port);
-                client.Close();
-            }
+            await client.ConnectAsync("127.0.0.1", serverContainer.Port);
+            client.Close();
         }
     }
 }
