@@ -57,9 +57,16 @@ namespace OpenTTDAdminPort.Tests.Dockerized
             await client.Connect();
             client.SendMessage(new AdminPingMessage(55u));
 
+            var timeout = Task.Delay(15.Seconds());
+
             while (pongEvent == null)
             {
                 await Task.Delay(1);
+
+                if(timeout.IsCompleted)
+                {
+                    throw new Exception();
+                }
             }
 
             Assert.Equal(55u, pongEvent.PongValue);
