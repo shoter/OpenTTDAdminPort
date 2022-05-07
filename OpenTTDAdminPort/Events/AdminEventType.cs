@@ -10,7 +10,8 @@
         ClientUpdate = 6,
 
         // Not connected with in-game packets
-        ServerRestarted = 1000
+        ServerConnectionLost = 1000,
+        ServerConnected = 1001,
 
     }
 }

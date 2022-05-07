@@ -41,8 +41,8 @@ namespace OpenTTDAdminPort.Tests.Dockerized
             AdminPongEvent pongEvent = null;
             AdminPortClient client = new AdminPortClient(AdminPortClientSettings.Default, server.ServerInfo, builder =>
             {
-                builder.AddProvider(new DebugLoggerProvider());
                 builder.AddProvider(new XUnitLoggerProvider(output));
+                builder.SetMinimumLevel(LogLevel.Trace);
             });
 
             client.SetAdminEventHandler(ev =>
@@ -66,77 +66,79 @@ namespace OpenTTDAdminPort.Tests.Dockerized
             await client.Disconnect();
         }
 
-        // This needs to be rewritten :(
-        //[Fact]
-        //public async Task AfterServerRestart_AdminPortClientShouldAutomaticallyReconnect()
-        //{
-        //    var settings = new AdminPortClientSettings()
-        //    {
-        //        WatchdogInterval = TimeSpan.FromSeconds(5),
-        //    };
-        //    logger.LogInformation("Starting Openttd server");
-        //    await server.Start(nameof(PingPongTest));
-        //    logger.LogInformation("Openttd Server started");
-        //    AdminPortClient client = new AdminPortClient(settings, server.ServerInfo, builder =>
-        //    {
-        //        builder.AddProvider(new XUnitLoggerProvider(output));
-        //    });
 
-        //    AdminPongEvent pongEvent = null;
-        //    AdminServerRestarted restartEvent = null;
+       [Fact]
+        public async Task AfterServerRestart_AdminPortClientShouldAutomaticallyReconnect()
+        {
+            var settings = new AdminPortClientSettings()
+            {
+                WatchdogInterval = 1.Seconds()
+            };
+            logger.LogInformation("Starting Openttd server");
+            await server.Start(nameof(AfterServerRestart_AdminPortClientShouldAutomaticallyReconnect));
+            logger.LogInformation($"Openttd Server started on port {server.Port}");
+            AdminPortClient client = new AdminPortClient(settings, server.ServerInfo, builder =>
+            {
+                builder.AddProvider(new XUnitLoggerProvider(output));
+                builder.SetMinimumLevel(LogLevel.Trace);
+            });
 
-        //    client.SetAdminEventHandler(ev =>
-        //    {
-        //        if (ev is AdminPongEvent pe)
-        //        {
-        //            pongEvent = pe;
-        //        }
-        //        if(ev is AdminServerRestarted pr)
-        //        {
-        //            restartEvent = pr;
-        //        }
-        //    });
+            AdminPongEvent pongEvent = null;
+            AdminServerConnected connectEvent = null;
+
+            client.SetAdminEventHandler(ev =>
+            {
+                if (ev is AdminPongEvent pe)
+                {
+                    pongEvent = pe;
+                }
+                if (ev is AdminServerConnected pr)
+                {
+                    connectEvent = pr;
+                }
+            });
 
 
-        //    logger.LogInformation("Starting client connection");
-        //    await client.Connect();
-        //    logger.LogInformation("Client connected");
+            logger.LogInformation("Starting client connection");
+            await client.Connect();
+            logger.LogInformation("Client connected");
 
-        //    logger.LogInformation("Starting openttd server stop");
-        //    await server.Stop();
-        //    logger.LogInformation("openttd stopped");
+            logger.LogInformation("Starting openttd server stop");
+            await server.Stop();
+            logger.LogInformation("openttd stopped");
 
-        //    await server.Start(nameof(PingPongTest));
+            await server.ResumeContainer();
 
-        //    logger.LogInformation("Server started again");
+            logger.LogInformation("Server started again");
 
-        //    logger.LogInformation("Waiting to receive message about restart");
-        //    var timeout = Task.Delay(3.Seconds());
+            logger.LogInformation("Waiting to receive message about restart");
+            var timeout = Task.Delay(settings.WatchdogInterval * 3 + 30.Seconds());
+            connectEvent = null;
 
-        //    while (restartEvent == null)
-        //    {
-        //        await Task.Delay(1);
+            while (connectEvent == null)
+            {
+                await Task.Delay(1);
 
-        //        if (timeout.IsCompleted)
-        //            throw new Exception();
-        //    }
-        //    logger.LogInformation("Restart ocurred");
+                if (timeout.IsCompleted)
+                    throw new Exception();
+            }
+            logger.LogInformation("Restart ocurred");
 
-        //    logger.LogInformation("Sending ping");
-        //    client.SendMessage(new AdminPingMessage(22u));
+            logger.LogInformation("Sending ping");
+            client.SendMessage(new AdminPingMessage(22u));
 
-        //    timeout = Task.Delay(3.Seconds());
+            timeout = Task.Delay(3.Seconds());
 
-        //    while (pongEvent == null)
-        //    {
-        //        await Task.Delay(1);
+            while (pongEvent?.PongValue != 22u)
+            {
+                await Task.Delay(1);
 
-        //        if (timeout.IsCompleted)
-        //            throw new Exception();
-        //    }
+                if (timeout.IsCompleted)
+                    throw new Exception();
+            }
 
-        //    Assert.Equal(22u, pongEvent.PongValue);
-        //}
+            Assert.Equal(22u, pongEvent.PongValue);
+        }
 
         protected virtual void Dispose(bool disposing)
         {

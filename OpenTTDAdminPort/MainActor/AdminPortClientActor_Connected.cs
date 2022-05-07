@@ -65,7 +65,7 @@ namespace OpenTTDAdminPort.MainActor
                 {
                     killChildren(data);
                     IActorRef tcpClient = actorFactory.CreateTcpClient(Context, data.ServerInfo.ServerIp, data.ServerInfo.ServerPort);
-                    this.Messager.Tell(new AdminServerRestarted());
+                    this.Messager.Tell(new AdminServerConnectionLost());
                     return GoTo(MainState.Connecting).Using(new ConnectingData(tcpClient, Self, data.ServerInfo, data.ClientName));
                 }
                 else if(state.FsmEvent is AdminPortQueryState queryState)

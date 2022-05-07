@@ -74,6 +74,7 @@ namespace OpenTTDAdminPort.MainActor
 
                                 logger.LogTrace("Moving to Connected state");
                                 data.Initiator.Tell(SuccessResponse.Instance);
+                                this.Messager.Tell(new AdminServerConnected());
                                 return GoTo(MainState.Connected).Using(new ConnectedData(data, watchdog));
                             }
                     }
@@ -83,7 +84,7 @@ namespace OpenTTDAdminPort.MainActor
                 {
                     data.TcpClient.GracefulStop(3.Seconds()).Wait();
                     IActorRef tcpClient = actorFactory.CreateTcpClient(Context, data.ServerInfo.ServerIp, data.ServerInfo.ServerPort);
-                    this.Messager.Tell(new AdminServerRestarted());
+                    this.Messager.Tell(new AdminServerConnectionLost());
                     return GoTo(MainState.Connecting).Using(new ConnectingData(tcpClient, Self, data.ServerInfo, data.ClientName));
                 }
                 else if(state.FsmEvent is SendMessage m)
