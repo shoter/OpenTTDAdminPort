@@ -60,8 +60,27 @@ namespace OpenTTDAdminPort.Tests.Dockerized
         {
             if (State == ContainerApplicationState.Running)
             {
-                await client.StopRemoveContainer(containerName);
+                await client.StopContainer(containerName);
                 State = ContainerApplicationState.Stopped;
+            }
+        }
+
+        public async Task ResumeContainer()
+        {
+            if (State == ContainerApplicationState.Stopped)
+            {
+                await client.Containers.StartContainerAsync(containerName, new ContainerStartParameters());
+                State = ContainerApplicationState.Running;
+            }
+        }
+
+
+        public async Task StopRemove()
+        {
+            if (State == ContainerApplicationState.Running)
+            {
+                await client.StopRemoveContainer(containerName);
+                State = ContainerApplicationState.Killed;
             }
         }
 
@@ -74,7 +93,7 @@ namespace OpenTTDAdminPort.Tests.Dockerized
         {
             if (State == ContainerApplicationState.Running)
             {
-                Stop().Wait();
+                StopRemove().Wait();
             }
         }
 

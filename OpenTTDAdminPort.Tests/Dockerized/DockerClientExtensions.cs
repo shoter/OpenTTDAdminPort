@@ -41,6 +41,18 @@ namespace OpenTTDAdminPort.Tests.Dockerized
                 new ContainerRemoveParameters { Force = true, RemoveVolumes = true });
         }
 
+        public static async Task StopContainer(this DockerClient client, string containerName)
+        {
+            await client.Containers.StopContainerAsync(containerName, new ContainerStopParameters() {  });
+        }
+
+        public static async Task ResumeContainer(this DockerClient client, string containerName)
+        {
+            await client.Containers.UnpauseContainerAsync(containerName);
+        }
+
+
+
         public static async Task PullImage(this DockerClient client, string imageName, string tagName)
         {
             var pullParam = new ImagesCreateParameters()

@@ -1,87 +1,67 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Akka.Actor;
+
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+
 using OpenTTDAdminPort.Common;
 using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Packets;
+
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace OpenTTDAdminPort.Networking
 {
-    internal class AdminPortTcpClientReceiver : IAdminPortTcpClientReceiver
+    internal class AdminPortTcpClientReceiver : ReceiveActor
     {
-        private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        private CancellationTokenSource receiveLoopCTS = new();
 
-        public event EventHandler<Exception>? ErrorOcurred;
-        public event EventHandler<IAdminMessage>? MessageReceived;
-
-        private readonly ConcurrentQueue<IAdminMessage> receivedMessages = new ConcurrentQueue<IAdminMessage>();
         private readonly IAdminPacketService adminPacketService;
-        private readonly ILogger? logger;
+        private readonly ILogger logger;
+        private readonly IServiceScope scope;
 
-        private bool isStopped = false;
+        private Stream stream;
 
-        public WorkState State { get; private set; } = WorkState.NotStarted;
-
-        public AdminPortTcpClientReceiver(IAdminPacketService adminPacketService, ILogger? logger = null)
+        public AdminPortTcpClientReceiver(IServiceProvider serviceProvider, Stream stream)
         {
-            this.adminPacketService = adminPacketService;
-            this.logger = logger;
+            scope = serviceProvider.CreateScope();
+            serviceProvider = scope.ServiceProvider;
+            this.adminPacketService = serviceProvider.GetRequiredService<IAdminPacketService>();
+            this.logger = serviceProvider.GetRequiredService<ILogger<AdminPortTcpClientReceiver>>();
+            this.stream = stream;
+
+            var myself = Self;
+            ThreadPool.QueueUserWorkItem(new WaitCallback((_) => ReceiveLoop(receiveLoopCTS.Token, myself)), null);
+            Receive<ReceiveLoopException>(e =>
+            {
+                logger.LogError("I received receive loop exception. I am killing myself");
+                throw e;
+            });
+            Receive<IAdminMessage>(m => Context.Parent.Tell(new ReceiveMessage(m)));
         }
 
-        public Task Start(Stream stream)
+        protected override void PreRestart(Exception reason, object message)
         {
-            if (State != WorkState.NotStarted)
+            if(reason != null)
             {
-                State = WorkState.Errored;
-                cancellationTokenSource.Cancel();
-                throw new AdminPortException("This Receiver had been started before! You cannot start receiver more than 1 time");
+                Sender.Tell(reason);
             }
 
-            State = WorkState.Working;
-
-            this.cancellationTokenSource.Cancel();
-            this.cancellationTokenSource = new CancellationTokenSource();
-
-
-            logger?.LogTrace("Receiver Starting!");
-
-            ThreadPool.QueueUserWorkItem(new WaitCallback((_) => MainLoop(stream, cancellationTokenSource.Token)), null);
-            ThreadPool.QueueUserWorkItem(new WaitCallback((_) => EventLoop(cancellationTokenSource.Token)), null);
-
-            isStopped = false;
-
-            logger?.LogTrace("Receiver Started!");
-
-
-            return Task.CompletedTask;
+            base.PreRestart(reason, message);
         }
 
-        public async Task Stop()
+        public static Props Create(IServiceProvider serviceProvider, Stream stream) => Props.Create(() => new AdminPortTcpClientReceiver(serviceProvider, stream));
+
+        protected override void PostStop()
         {
-            if (State == WorkState.Working)
-            {
-                logger?.LogTrace("Receiver Stopping!");
-
-                cancellationTokenSource.Cancel();
-
-                if (!await TaskHelper.WaitUntil(() => isStopped, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(100)))
-                {
-                    throw new AdminPortException("Receiver waiting for Main Loop stop timed out");
-                }
-
-                State = WorkState.Stopped;
-                logger?.LogTrace("Receiver Stopped!");
-            }
+            scope.Dispose();
+            receiveLoopCTS.Cancel();
+            base.PostStop();
         }
 
-        private async void MainLoop(Stream stream, CancellationToken token)
+        private async void ReceiveLoop(CancellationToken token, IActorRef self)
         {
             try
             {
@@ -90,31 +70,31 @@ namespace OpenTTDAdminPort.Networking
                     try
                     {
                         Packet packet = await WaitForPacket(stream, token);
-                        logger?.LogTrace($"Receiver receiving new message!");
+                        logger.LogTrace($"Receiver receiving new message!");
                         IAdminMessage message = adminPacketService.ReadPacket(packet);
-                        logger?.LogTrace($"Receiver received message {message}!");
+                        logger.LogTrace($"Receiver received message {message}!");
 
                         if (!token.IsCancellationRequested)
-                            receivedMessages.Enqueue(message);
+                        {
+                            self.Tell(message);
+                        }
                     }
                     catch (Exception e) when (!(e is TaskCanceledException))
                     {
-                        logger?.LogError(e, e.ToString());
-                        cancellationTokenSource.Cancel();
-                        ErrorOcurred?.Invoke(this, e);
-                        State = WorkState.Errored;
+                        logger.LogError(e, e.ToString());
+                        self.Tell(new ReceiveLoopException("Something went wrong in receive loop", e));
                     }
-                    catch(Exception e) when (e is TaskCanceledException)
+                    catch (Exception e) when (e is TaskCanceledException)
                     {
-                        logger?.LogInformation("Receiver main loop receives TaskCancelled Exception");
-
+                        logger.LogInformation("Receiver loop receives TaskCancelled Exception");
                     }
                 }
                 logger?.LogTrace("Receiver Main Loop Stopped!");
             }
-            finally
+            catch (Exception e)
             {
-                isStopped = true;
+                logger.LogError(e, e.ToString());
+                self.Tell(new ReceiveLoopException("Something went wrong in receive loop", e));
             }
         }
 
@@ -131,7 +111,7 @@ namespace OpenTTDAdminPort.Networking
             ushort size = BitConverter.ToUInt16(sizeBuffer, 0);
             byte[] content = await Read(stream, size - 2, token).WaitMax(TimeSpan.FromSeconds(5));
 
-            if(token.IsCancellationRequested)
+            if (token.IsCancellationRequested)
             {
                 // Task read has been probably interrupted. In this situation it is highly likely that we have gibberish in the array. It is better to not read it.
                 throw new TaskCanceledException();
@@ -165,35 +145,11 @@ namespace OpenTTDAdminPort.Networking
                     .WaitWithToken(token);
                 await task;
                 currentSize += task.Result;
-                logger?.LogTrace($"Receiver trying to receive packet({token.IsCancellationRequested})");
+                logger?.LogTrace($"{DateTime.Now:hh mm ss} Receiver trying to receive packet({token.IsCancellationRequested})");
             } while (currentSize < dataSize && !token.IsCancellationRequested);
 
             return result;
         }
-
-        private async void EventLoop(CancellationToken token)
-        {
-            while (token.IsCancellationRequested == false)
-            {
-                if (receivedMessages.TryDequeue(out IAdminMessage msg))
-                {
-                    try
-                    {
-                        MessageReceived?.Invoke(this, msg);
-                    }
-                    catch (Exception e)
-                    {
-                        // TODO: log it?
-                    }
-                }
-
-                await Task.Delay(TimeSpan.FromMilliseconds(10));
-            }
-
-            logger?.LogTrace("Receiver Event Loop Stopped!");
-
-        }
-
 
     }
 }

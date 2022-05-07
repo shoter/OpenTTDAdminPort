@@ -2,8 +2,8 @@
 using OpenTTDAdminPort.Common.Assemblies;
 using OpenTTDAdminPort.Events.Creators;
 using OpenTTDAdminPort.Game;
+using OpenTTDAdminPort.MainActor.StateData;
 using OpenTTDAdminPort.Messages;
-using OpenTTDAdminPort.States;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,13 +32,13 @@ namespace OpenTTDAdminPort.Events
 
             for (int i = 0; i < creators.Length; ++i)
             {
-                creators[i] = (IEventCreator)Activator.CreateInstance(creatorTypes.ElementAt(i));
+                creators[i] = (IEventCreator)Activator.CreateInstance(creatorTypes.ElementAt(i))!;
             }
 
             this.creators = creators.ToDictionary(x => x.SupportedMessageType);
         }
 
-        public IAdminEvent? Create(in IAdminMessage adminMessage, in IAdminPortClientContext context)
+        public IAdminEvent? Create(in IAdminMessage adminMessage, in ConnectedData context)
         {
             if (!creators.ContainsKey(adminMessage.MessageType))
                 return null;

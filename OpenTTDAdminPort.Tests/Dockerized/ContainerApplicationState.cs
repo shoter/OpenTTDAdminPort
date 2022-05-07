@@ -11,5 +11,6 @@ namespace OpenTTDAdminPort.Tests.Dockerized
         Idle,
         Running,
         Stopped,
+        Killed
     }
 }

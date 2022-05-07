@@ -1,124 +1,175 @@
-﻿using Moq;
+﻿using Akka.Actor;
+using Akka.Configuration;
+using Akka.TestKit;
+using Akka.TestKit.Xunit2;
+
+using AutoFixture;
+
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+
+using Moq;
+
+using OpenTTDAdminPort.Akkas;
 using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Networking;
+using OpenTTDAdminPort.Packets;
+using OpenTTDAdminPort.Tests.Logging;
+
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reflection;
+
 using Xunit;
+using Xunit.Abstractions;
 
 namespace OpenTTDAdminPort.Tests.Networking
 {
-    public class AdminPortTcpClientShould
+    public class AdminPortTcpClientShould : TestKit
     {
-        IAdminPortTcpClient client;
-        Mock<IAdminPortTcpClientReceiver> receiverMock = new Mock<IAdminPortTcpClientReceiver>();
-        Mock<IAdminPortTcpClientSender> senderMock = new Mock<IAdminPortTcpClientSender>();
-        Mock<ITcpClient> tcpClientMock = new Mock<ITcpClient>();
+        private readonly TestProbe probe;
 
-        string ip = "127.0.0.1";
-        int port = 69;
+        private readonly DummyTcpClient tcpClient = new DummyTcpClient();
 
-        public  AdminPortTcpClientShould()
+        private readonly IServiceProvider defaultServiceProvider;
+
+        private readonly Mock<ActorFactory> actorFactory;
+
+        private readonly Fixture fix = new();
+
+
+
+        public AdminPortTcpClientShould(ITestOutputHelper testOutputHelper)
+            : base(
+                  ConfigurationFactory.ParseString("\r\n                akka.test.testkit.debug = true\r\n                akka.log-dead-letters-during-shutdown = true\r\n                akka.actor.debug.receive = true\r\n                akka.actor.debug.autoreceive = true\r\n                akka.actor.debug.lifecycle = true\r\n                akka.actor.debug.event-stream = true\r\n                akka.actor.debug.unhandled = true\r\n                akka.actor.debug.fsm = true\r\n                akka.actor.debug.router-misconfiguration = true\r\n                akka.log-dead-letters = true\r\n                akka.loglevel = DEBUG\r\n                akka.stdout-loglevel = DEBUG")
+                  , null, testOutputHelper)
         {
-            client = new AdminPortTcpClient(senderMock.Object, receiverMock.Object, tcpClientMock.Object);
+            probe = CreateTestProbe();
+
+
+            defaultServiceProvider = new ServiceCollection()
+                .AddSingleton<ITcpClient>(tcpClient)
+                .AddSingleton<IAdminPacketService>(new AdminPacketServiceFactory().Create())
+                .AddSingleton<IActorFactory>(sp => actorFactory.Object)
+                .AddLogging(logging =>
+                {
+                    logging.AddProvider(new XUnitLoggerProvider(testOutputHelper));
+                })
+                .BuildServiceProvider();
+
+            actorFactory = new(defaultServiceProvider);
         }
 
         [Fact]
-        public async Task ConnectToCorrectServer_OnStart()
+        public void AutomaticallyConnectToServer()
         {
-            await client.Start(ip, port);
-            tcpClientMock.Verify(x => x.ConnectAsync(ip, port), Times.Once);
+            string ip = fix.Create<string>();
+            int port = Math.Abs(fix.Create<int>());
+            var actor = Sys.ActorOf(AdminPortTcpClient.Create(defaultServiceProvider, ip, port));
+
+            Within(1.Seconds(), () =>
+            {
+                return tcpClient.IsConnected;
+            });
+
+            Assert.Equal(ip, tcpClient.Ip);
+            Assert.Equal(port, tcpClient.Port);
         }
 
         [Fact]
-        public async Task StopReceiver_WhenSenderErrorsOut()
+        public void BeAbleToSendMessage()
         {
-            await client.Start(ip, port);
-            senderMock.Raise(x => x.ErrorOcurred += null, this, new Exception());
-            await Task.Delay(100);
-            senderMock.Verify(x => x.Stop(), Times.AtLeastOnce);
-            receiverMock.Verify(x => x.Stop(), Times.Once);
+            uint value = fix.Create<uint>();
+
+            var actor = Sys.ActorOf(AdminPortTcpClient.Create(defaultServiceProvider, "", 0));
+            var msg = new AdminPingMessage(value);
+            actor.Tell(new SendMessage(msg));
+
+            // TODO: Think of better way of testing that
+            // Something was written
+            Within(1.Seconds(), () => tcpClient.Stream.Length > 0);
         }
 
         [Fact]
-        public async Task StopSender_WhenReceiverErrorsOut()
+        public void SendReceivedMessageToParent()
         {
-            await client.Start(ip, port);
-            receiverMock.Raise(x => x.ErrorOcurred += null, this, new Exception());
-            await Task.Delay(100);
-            senderMock.Verify(x => x.Stop(), Times.Once);
-            receiverMock.Verify(x => x.Stop(), Times.AtLeastOnce);
+            IAdminMessage msg = Mock.Of<IAdminMessage>();
+
+
+            IActorRef actor = probe.ChildActorOf(AdminPortTcpClient.Create(defaultServiceProvider, "", 0));
+            // TODO: Think of better way of testing that
+            // Something was written
+            Within(3.Seconds(), () =>
+            {
+                actor.Tell(new ReceiveMessage(msg));
+
+                probe.ExpectMsg((ReceiveMessage rec) =>
+                    rec.Message == msg
+                    );
+            });
         }
 
         [Fact]
-        public async Task SendMessageEvent_WhenMessageIsReceived()
+        public void SendReceiveMessageToSubscriber()
         {
-            await client.Start(ip, port);
-            IAdminMessage msg = new AdminServerPongMessage(32u);
-            IAdminMessage received = null;
-            client.MessageReceived += (_, r) => received = r;
-            receiverMock.Raise(x => x.MessageReceived += null, this, msg);
-            Assert.Equal(msg, received);
+            IAdminMessage msg = Mock.Of<IAdminMessage>();
+            var someone = CreateTestProbe();
+
+
+            IActorRef actor = probe.ChildActorOf(AdminPortTcpClient.Create(defaultServiceProvider, "", 0));
+            actor.Tell(new TcpClientSubscribe(), someone);
+            // TODO: Think of better way of testing that
+            // Something was written
+            Within(3.Seconds(), () =>
+            {
+                actor.Tell(new ReceiveMessage(msg));
+
+                someone.ExpectMsg((ReceiveMessage rec) =>
+                    rec.Message == msg
+                    );
+            });
         }
 
         [Fact]
-        public async Task BeAbleToSendMessageToSender()
+        public void NotSendMessage_AfterUnsubscribe()
         {
-            await client.Start(ip, port);
-            IAdminMessage msg = new AdminPingMessage(33u);
-            client.SendMessage(msg);
-            senderMock.Verify(x => x.SendMessage(msg), Times.Once);
+            IAdminMessage msg = Mock.Of<IAdminMessage>();
+            var someone = CreateTestProbe();
+
+            IActorRef actor = probe.ChildActorOf(AdminPortTcpClient.Create(defaultServiceProvider, "", 0));
+            actor.Tell(new TcpClientSubscribe(), someone);
+
+            // TODO: Think of better way of testing that
+            // Something was written
+            someone.Within(2.Seconds(), () =>
+            {
+                actor.Tell(new TcpClientUnsubscribe(), someone);
+                actor.Tell(new ReceiveMessage(msg));
+
+                someone.ExpectNoMsg();
+            }, 1.Seconds());
+
         }
 
         [Fact]
-        public async Task ErrorOut_AfterSecondStart()
+        public void Unsubscribing_NonExistingClient_ShouldNotCauseAnyException()
         {
-            await client.Start(ip, port);
-            await Assert.ThrowsAsync<AdminPortException>(async () => await client.Start(ip, port));
-            Assert.Equal(WorkState.Errored, client.State);
-            senderMock.Verify(x => x.Stop(), Times.Once);
-            receiverMock.Verify(x => x.Stop(), Times.Once);
-        }
+            IAdminMessage msg = Mock.Of<IAdminMessage>();
+            var someone = CreateTestProbe();
 
+            IActorRef actor = probe.ActorOf(AdminPortTcpClient.Create(defaultServiceProvider, "", 0));
+            // TODO: Think of better way of testing that
+            // Something was written
+            someone.Within(3.Seconds(), () =>
+            {
+                actor.Tell(new TcpClientUnsubscribe(), someone);
+                actor.Tell(new TcpClientUnsubscribe(), someone);
+                actor.Tell(new ReceiveMessage(msg));
 
-        [Fact]
-        public async Task BeAbleToStop()
-        {
-            await client.Start(ip, port);
-            await client.Stop(Mock.Of<ITcpClient>());
-            Assert.Equal(WorkState.Stopped, client.State);
-            senderMock.Verify(x => x.Stop(), Times.Once);
-            receiverMock.Verify(x => x.Stop(), Times.Once);
-        }
+                someone.ExpectNoMsg();
 
-        [Fact]
-        public async Task StartAfterStop()
-        {
-            var tcpClientNewMock = new Mock<ITcpClient>();
-            await client.Start(ip, port);
-            await client.Stop(tcpClientNewMock.Object);
-            await client.Start(ip, port);
-            Assert.Equal(WorkState.Working, client.State);
-            tcpClientNewMock.Verify(x => x.ConnectAsync(ip, port), Times.Once);
-        }
+            }, 1.Seconds());
 
-        [Fact]
-        public async Task SttopAndStartSenderReceiver_AfterRestart()
-        {
-            var newTcpClientMock = new Mock<ITcpClient>();
-            Stream someStream = new MemoryStream();
-            newTcpClientMock.Setup(x => x.GetStream()).Returns(someStream);
-            await client.Start(ip, port);
-            await client.Restart(newTcpClientMock.Object);
-
-            senderMock.Verify(x => x.Stop(), Times.Once);
-            receiverMock.Verify(x => x.Stop(), Times.Once);
-
-            senderMock.Verify(x => x.Start(someStream), Times.Once);
-            receiverMock.Verify(x => x.Start(someStream), Times.Once);
         }
     }
 }

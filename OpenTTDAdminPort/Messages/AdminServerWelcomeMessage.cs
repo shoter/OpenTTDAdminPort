@@ -1,43 +1,27 @@
-﻿using OpenTTDAdminPort.Common;
-using OpenTTDAdminPort.Game;
-using RandomAnalyzers.RequiredMember;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using OpenTTDAdminPort.Game;
 
 namespace OpenTTDAdminPort.Messages
 {
-    internal class AdminServerWelcomeMessage : IAdminMessage
+    internal record AdminServerWelcomeMessage : IAdminMessage
     {
         public AdminMessageType MessageType => AdminMessageType.ADMIN_PACKET_SERVER_WELCOME;
 
-        [RequiredMember]
-        public string? ServerName { get; set; }
+        public string ServerName { get; init; } = default!;
 
-        [RequiredMember]
-        public string? NetworkRevision { get; set; }
+        public string NetworkRevision { get; init; } = default!;
 
-        [RequiredMember]
-        public bool IsDedicated { get; set; }
+        public bool IsDedicated { get; init; }
 
-        [RequiredMember]
-        public string? MapName { get; set; }
+        public string MapName { get; init; } = default!;
 
-        [RequiredMember]
-        public uint MapSeed { get; set; }
+        public uint MapSeed { get; init; }
 
-        [RequiredMember]
-        public Landscape Landscape { get; set; }
+        public Landscape Landscape { get; init; }
 
-        [RequiredMember]
-        public OttdDate? CurrentDate { get; set; }
+        public OttdDate CurrentDate { get; init; } = default!;
 
-        [RequiredMember]
-        public ushort MapWidth { get; set; }
+        public ushort MapWidth { get; init; }
 
-        [RequiredMember]
-        public ushort MapHeight { get; set; }
+        public ushort MapHeight { get; init; }
     }
 }

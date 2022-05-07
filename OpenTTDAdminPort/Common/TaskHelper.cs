@@ -10,7 +10,7 @@ namespace OpenTTDAdminPort.Common
         public static async Task<bool> WaitUntil(Func<bool> condition, TimeSpan delayBetweenChecks, TimeSpan duration)
         {
             var startTime = DateTime.Now;
-            while ((DateTime.Now - startTime) < duration)
+            while ((DateTime.Now - startTime).Duration() < duration)
             {
                 if (condition())
                     return true;

@@ -1,104 +1,120 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Akka.Actor;
+
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+
+using OpenTTDAdminPort.Akkas;
+using OpenTTDAdminPort.Common;
+using OpenTTDAdminPort.Events;
 using OpenTTDAdminPort.Messages;
+using OpenTTDAdminPort.Networking.Exceptions;
 using OpenTTDAdminPort.Packets;
+
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 
 namespace OpenTTDAdminPort.Networking
 {
-    internal class AdminPortTcpClient : IAdminPortTcpClient, IDisposable
+    internal partial class AdminPortTcpClient : ReceiveActor
     {
-        public event EventHandler<IAdminMessage>? MessageReceived;
-        public event EventHandler<Exception>? Errored;
-
         private ITcpClient tcpClient;
+        private readonly IAdminPacketService adminPacketService;
+        private readonly IActorFactory actorFactory;
+        private readonly IServiceScope scope;
+        private readonly HashSet<IActorRef> subscribers = new();
 
-        private IAdminPortTcpClientSender sender;
-        private IAdminPortTcpClientReceiver receiver;
-        private string? ip;
-        private int port;
+        // Obtained after connect
+        private Stream? stream;
+        private IActorRef? receiver;
 
-        private readonly ILogger? logger;
+        private readonly ILogger logger;
 
-
-        public WorkState State { get; set; } = WorkState.NotStarted;
-        public AdminPortTcpClient(IAdminPortTcpClientSender sender, IAdminPortTcpClientReceiver receiver, ITcpClient tcpClient, ILogger? logger = null)
-        { 
-            this.sender = sender;
-            this.receiver = receiver;
-            this.tcpClient = tcpClient;
-            this.logger = logger;
-
-            sender.ErrorOcurred += (e, arg) => OnError(e, arg);
-            receiver.ErrorOcurred += (e, arg) => OnError(e, arg);
-            receiver.MessageReceived += (e, arg) => MessageReceived?.Invoke(e, arg);
-        }
-
-        public void SendMessage(IAdminMessage message)
+        public AdminPortTcpClient(IServiceProvider serviceProvider, string ip, int port)
         {
-            sender.SendMessage(message);
-        }
+            this.scope = serviceProvider.CreateScope();
+            serviceProvider = this.scope.ServiceProvider;
+            this.tcpClient = serviceProvider.GetRequiredService<ITcpClient>();
+            this.adminPacketService = serviceProvider.GetRequiredService<IAdminPacketService>();
+            this.actorFactory = serviceProvider.GetRequiredService<IActorFactory>();
+            this.logger = serviceProvider.GetRequiredService<ILogger<AdminPortTcpClient>>();
 
-        public async Task Start(string ip, int port)
-        {
-            logger?.LogTrace($"Starting {nameof(AdminPortTcpClient)} on {ip}:{port}");
-            if (State != WorkState.NotStarted && State != WorkState.Stopped)
+            try
             {
-                State = WorkState.Errored;
-                await Task.WhenAll(receiver.Stop(), sender.Stop());
-                throw new AdminPortException("This Client is working atm. Please Stop it before starting it again.");
+                tcpClient.ConnectAsync(ip, port).Wait();
             }
-            this.ip = ip;
-            this.port = port;
-
-            await tcpClient.ConnectAsync(ip, port);
-            await Task.WhenAll(
-                sender.Start(tcpClient.GetStream()),
-                receiver.Start(tcpClient.GetStream()));
-
-            State = WorkState.Working;
-        }
-
-        public async Task Stop(ITcpClient tcpClient)
-        {
-            if (State == WorkState.Working)
+            catch (Exception ex)
             {
-                logger?.LogTrace($"Stopping {nameof(AdminPortTcpClient)} on {ip}:{port}");
+                this.logger.LogError(ex, "Connection failed");
+                throw new InitialConnectionException("Connection failed", ex);
 
-                await Task.WhenAll(receiver.Stop(), sender.Stop());
-                logger?.LogTrace($"Received and sender stopped for {ip}:{port}");
-                this.tcpClient.Close();
-                this.tcpClient.Dispose();
-                this.tcpClient = tcpClient;
-                this.State = WorkState.Stopped;
             }
+            this.stream = tcpClient.GetStream();
+            this.receiver = actorFactory.CreateReceiver(Context, stream);
+
+            Ready();
         }
 
-        public void OnError(object origin, Exception e)
+        public static Props Create(IServiceProvider sp, string ip, int port)
+            => Props.Create(() => new AdminPortTcpClient(sp, ip, port));
+
+        private void Ready()
         {
-            logger?.LogTrace($"{origin} errored. Stopping tcp client for {ip}:{port}");
-            State = WorkState.Errored;
-            receiver?.Stop().Wait();
-            sender?.Stop().Wait();
-            Errored?.Invoke(this, e);
+            ReceiveAsync<SendMessage>(async sendMessage =>
+            {
+                try
+                {
+                    IAdminMessage msg = sendMessage.Message;
+
+                    logger.LogTrace($"Sender sending {msg}!");
+                    Packet packet = this.adminPacketService.CreatePacket(msg);
+                    await stream!.WriteAsync(packet.Buffer, 0, packet.Size).WaitMax(TimeSpan.FromSeconds(2));
+                    logger.LogTrace($"Sender sent {msg}!");
+                }
+                catch (Exception e)
+                {
+                    logger.LogError(e, "Sender errored");
+                    throw new SendException("Message sending failed", e);
+                }
+            });
+
+            Receive<ReceiveMessage>(receiveMessage =>
+            {
+                Context.Parent.Tell(receiveMessage);
+                foreach(var s in subscribers)
+                {
+                    s.Tell(receiveMessage);
+                }
+            });
+
+            Receive<TcpClientSubscribe>(_ => subscribers.Add(Sender));
+            Receive<TcpClientUnsubscribe>(_ => subscribers.Remove(Sender));
         }
 
-        public async Task Restart(ITcpClient tcpClient)
+        protected override SupervisorStrategy SupervisorStrategy()
         {
-            Debug.Assert(this.ip != null);
-            await Stop(tcpClient);
-            await Start(this.ip, this.port);
+            return new OneForOneStrategy(
+                maxNrOfRetries: 10,
+                withinTimeRange: TimeSpan.FromMinutes(1),
+                localOnlyDecider: ex =>
+                {
+                    switch (ex)
+                    {
+                        case ReceiveLoopException e:
+                            // Will cause restart of tcp client through supervisor of main actor.
+                            Context.Parent.Tell(new AdminPortTcpClientConnectionLostException(e.Message, e));
+                            return Directive.Stop;
+                        default:
+                            return Directive.Restart;
+                    }
+                });
         }
 
-        public void Dispose()
+        protected override void PostStop()
         {
-            tcpClient.Close();
             tcpClient.Dispose();
+            scope.Dispose();
+            base.PostStop();
         }
     }
 }

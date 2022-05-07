@@ -1,10 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
 
     <IsPackable>false</IsPackable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="States\**" />
+    <EmbeddedResource Remove="States\**" />
+    <None Remove="States\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <Resource Include="Dockerized\openttd.cfg">
@@ -13,6 +19,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Akka.TestKit.Xunit2" Version="1.4.32" />
+    <PackageReference Include="AutoFixture" Version="4.17.0" />
     <PackageReference Include="Divergic.Logging.Xunit" Version="3.6.0" />
     <PackageReference Include="Docker.DotNet" Version="3.125.4" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="5.0.0" />
@@ -35,7 +43,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="States\" />
+    <Folder Include="Events\" />
   </ItemGroup>
 
   <ItemGroup>

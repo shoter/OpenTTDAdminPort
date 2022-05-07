@@ -13,18 +13,12 @@ namespace OpenTTDAdminPort
     public interface IAdminPortClient
     {
         AdminConnectionState ConnectionState { get; }
-
-        ConcurrentDictionary<AdminUpdateType, AdminUpdateSetting> AdminUpdateSettings { get; }
-
-        ConcurrentDictionary<uint, Player> Players { get; }
-
-        AdminServerInfo? AdminServerInfo { get; }
-
-        event EventHandler<IAdminEvent> EventReceived;
-
         ServerInfo ServerInfo { get; }
 
         void SendMessage(IAdminMessage message);
+
+        void SetAdminEventHandler(Action<IAdminEvent> action);
+
         Task Connect();
         Task Disconnect();
     }

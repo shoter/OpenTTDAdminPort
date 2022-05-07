@@ -9,36 +9,26 @@ namespace OpenTTDAdminPort.Networking
     public class MyTcpClient : ITcpClient, IDisposable
     {
         // The real implementation
-        private readonly TcpClient client;
-        public EndPoint RemoteEndPoint => client.Client.RemoteEndPoint;
-        public Stream GetStream() => client.GetStream();
+        private TcpClient Client { get; } = new();
 
-        public MyTcpClient()
-        {
-            client = new TcpClient();
-        }
-
-        public MyTcpClient(TcpClient client)
-        {
-            this.client = client;
-        }
+        public Stream GetStream() => Client.GetStream();
 
         public Task ConnectAsync(string ip, int port)
         {
-            return client.ConnectAsync(IPAddress.Parse(ip), port);
+            return Client.ConnectAsync(IPAddress.Parse(ip), port);
         }
 
         public void Dispose()
         {
-            client.Dispose();
+            Client.Dispose();
         }
 
         public void Close()
         {
-            if (_client.Connected)
+            if (Client.Connected)
             {
-                _client.GetStream().Close();
-                _client.Close();
+                Client.GetStream().Close();
+                Client.Close();
             }
         }
     }

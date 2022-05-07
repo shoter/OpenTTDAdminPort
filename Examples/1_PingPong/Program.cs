@@ -1,4 +1,7 @@
-﻿using OpenTTDAdminPort;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+
+using OpenTTDAdminPort;
 using OpenTTDAdminPort.Events;
 using OpenTTDAdminPort.Messages;
 using System;
@@ -10,14 +13,20 @@ namespace _1_PingPong
     {
         static async Task Main(string[] args)
         {
-            var client = new AdminPortClient(new ServerInfo(
-                "127.0.0.1", 3982, "admin_pass"));
+            var client = new AdminPortClient(AdminPortClientSettings.Default, new ServerInfo(
+                "127.0.0.1", 3977, "admin_pass"), builder => {
+                    builder.ClearProviders();
+                    builder.AddConsole();
+                    builder.SetMinimumLevel(LogLevel.Trace);
+                });
             AdminPongEvent pongEvent = null;
-            client.EventReceived += (_, e) =>
+            client.SetAdminEventHandler(ev =>
             {
-                if (e is AdminPongEvent pe)
-                    pongEvent = pe;
-            };
+                if (ev is AdminPongEvent pe)
+                {
+                    //pongEvent = pe;
+                }
+            });
 
             Console.WriteLine("Connecting ...");
             await client.Connect();

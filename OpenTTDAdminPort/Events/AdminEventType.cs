@@ -7,7 +7,11 @@
         AdminRcon = 3,
         Pong = 4,
         ClientInfo = 5,
-        ClientUpdate = 6
+        ClientUpdate = 6,
+
+        // Not connected with in-game packets
+        ServerConnectionLost = 1000,
+        ServerConnected = 1001,
 
     }
 }
