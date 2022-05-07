@@ -34,44 +34,44 @@ namespace OpenTTDAdminPort.Tests.Dockerized
             logger = loggerFactory.CreateLogger<AdminPortClientTests>();
         }
 
-        [Fact]
-        public async Task PingPongTest()
-        {
-            await server.Start(nameof(PingPongTest));
-            AdminPongEvent pongEvent = null;
-            AdminPortClient client = new AdminPortClient(AdminPortClientSettings.Default, server.ServerInfo, builder =>
-            {
-                builder.AddProvider(new XUnitLoggerProvider(output));
-                builder.SetMinimumLevel(LogLevel.Trace);
-            });
+        //[Fact]
+        //public async Task PingPongTest()
+        //{
+        //    await server.Start(nameof(PingPongTest));
+        //    AdminPongEvent pongEvent = null;
+        //    AdminPortClient client = new AdminPortClient(AdminPortClientSettings.Default, server.ServerInfo, builder =>
+        //    {
+        //        builder.AddProvider(new XUnitLoggerProvider(output));
+        //        builder.SetMinimumLevel(LogLevel.Trace);
+        //    });
 
-            client.SetAdminEventHandler(ev =>
-            {
-                if (ev is AdminPongEvent pe)
-                {
-                    pongEvent = pe;
-                }
-            });
+        //    client.SetAdminEventHandler(ev =>
+        //    {
+        //        if (ev is AdminPongEvent pe)
+        //        {
+        //            pongEvent = pe;
+        //        }
+        //    });
 
 
-            await client.Connect();
-            client.SendMessage(new AdminPingMessage(55u));
+        //    await client.Connect();
+        //    client.SendMessage(new AdminPingMessage(55u));
 
-            var timeout = Task.Delay(15.Seconds());
+        //    var timeout = Task.Delay(15.Seconds());
 
-            while (pongEvent == null)
-            {
-                await Task.Delay(1);
+        //    while (pongEvent == null)
+        //    {
+        //        await Task.Delay(1);
 
-                if (timeout.IsCompleted)
-                {
-                    throw new Exception();
-                }
-            }
+        //        if (timeout.IsCompleted)
+        //        {
+        //            throw new Exception();
+        //        }
+        //    }
 
-            Assert.Equal(55u, pongEvent.PongValue);
-            await client.Disconnect();
-        }
+        //    Assert.Equal(55u, pongEvent.PongValue);
+        //    await client.Disconnect();
+        //}
 
 
         //[Fact]
