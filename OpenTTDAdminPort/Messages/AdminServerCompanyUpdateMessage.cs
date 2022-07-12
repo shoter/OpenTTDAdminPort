@@ -1,6 +1,4 @@
-﻿using RandomAnalyzers.RequiredMember;
-
-namespace OpenTTDAdminPort.Messages
+﻿namespace OpenTTDAdminPort.Messages
 {
     internal class AdminServerCompanyUpdateMessage : IAdminMessage
     {
