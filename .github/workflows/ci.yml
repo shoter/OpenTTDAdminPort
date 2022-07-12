@@ -79,4 +79,4 @@ jobs:
       uses: codecov/codecov-action@v3
       with:
         flags: unittests
-        directory: /home/runner/work/OpenTTDAdminPort/OpenTTDAdminPort
+        root_dir: /home/runner/work/OpenTTDAdminPort/OpenTTDAdminPort
