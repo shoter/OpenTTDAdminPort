@@ -1,9 +1,8 @@
-﻿
+﻿using System;
+using System.Threading.Tasks;
+
 using OpenTTDAdminPort.Networking;
 using OpenTTDAdminPort.Tests.Dockerized.Containers;
-
-using System;
-using System.Threading.Tasks;
 
 using Xunit;
 
@@ -11,7 +10,7 @@ namespace OpenTTDAdminPort.Tests.Dockerized.Networking
 {
     public class MyTcpClientTests
     {
-        MockServerContainer serverContainer = new MockServerContainer(DockerClientProvider.Instance);
+        private MockServerContainer serverContainer = new MockServerContainer(DockerClientProvider.Instance);
 
         [Fact]
         public async Task ConnectToMockServer()

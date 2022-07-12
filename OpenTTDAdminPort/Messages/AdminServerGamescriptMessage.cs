@@ -10,7 +10,5 @@
         {
             this.Json = json;
         }
-
-
     }
 }

@@ -11,8 +11,9 @@ namespace OpenTTDAdminPort.Networking
     internal interface ITcpClient : IDisposable
     {
         Stream GetStream();
-        Task ConnectAsync(string ip, int port);
-        void Close();
 
+        Task ConnectAsync(string ip, int port);
+
+        void Close();
     }
 }

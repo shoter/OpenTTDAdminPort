@@ -4,6 +4,8 @@
     {
         public static SuccessResponse Instance { get; } = new SuccessResponse();
 
-        private SuccessResponse() { }
+        private SuccessResponse()
+        {
+        }
     }
 }

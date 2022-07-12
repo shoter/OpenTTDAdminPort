@@ -4,6 +4,5 @@ namespace OpenTTDAdminPort.MainActor.StateData
 {
     public class IdleData : IMainData
     {
-
     }
 }

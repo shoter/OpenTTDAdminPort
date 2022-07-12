@@ -1,12 +1,12 @@
-﻿using OpenTTDAdminPort.Assemblies;
-using OpenTTDAdminPort.Common.Assemblies;
-using OpenTTDAdminPort.Packets.MessageTransformers;
-using OpenTTDAdminPort.Packets.PacketTransformers;
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+
+using OpenTTDAdminPort.Assemblies;
+using OpenTTDAdminPort.Common.Assemblies;
+using OpenTTDAdminPort.Packets.MessageTransformers;
+using OpenTTDAdminPort.Packets.PacketTransformers;
 
 namespace OpenTTDAdminPort.Packets
 {
@@ -55,6 +55,5 @@ namespace OpenTTDAdminPort.Packets
 
             return new AdminPacketService(packetTransformers, messageTransformers);
         }
-
     }
 }

@@ -7,6 +7,7 @@ namespace OpenTTDAdminPort.Packets.PacketTransformers
     internal class AdminServerCompanyInfoPacketTransformer : IPacketTransformer<AdminServerCompanyInfoMessage>
     {
         public AdminMessageType SupportedMessageType => AdminMessageType.ADMIN_PACKET_SERVER_COMPANY_INFO;
+
         public IAdminMessage Transform(Packet packet)
         {
             var m = new AdminServerCompanyInfoMessage();
@@ -18,7 +19,10 @@ namespace OpenTTDAdminPort.Packets.PacketTransformers
             m.CreationDate = new OttdDate(packet.ReadU32());
             m.IsAi = packet.ReadBool();
             m.MonthsOfBankruptcy = packet.ReadByte();
-            for (int i = 0; i < m.ShareOwnersIds.Length; ++i) m.ShareOwnersIds[i] = packet.ReadByte();
+            for (int i = 0; i < m.ShareOwnersIds.Length; ++i)
+            {
+                m.ShareOwnersIds[i] = packet.ReadByte();
+            }
 
             return m;
         }

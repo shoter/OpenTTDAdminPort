@@ -8,6 +8,5 @@ namespace OpenTTDAdminPort.Tests.Assemblies.TestTypes
 {
     public class Chair : IFurniture
     {
-        
     }
 }

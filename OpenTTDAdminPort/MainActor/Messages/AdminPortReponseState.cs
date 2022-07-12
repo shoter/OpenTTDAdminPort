@@ -1,6 +1,6 @@
-﻿using OpenTTDAdminPort.MainActor.StateData;
+﻿using System;
 
-using System;
+using OpenTTDAdminPort.MainActor.StateData;
 
 namespace OpenTTDAdminPort.MainActor.Messages
 {

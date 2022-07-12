@@ -1,9 +1,10 @@
-﻿using OpenTTDAdminPort.Game;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+using OpenTTDAdminPort.Game;
 
 namespace OpenTTDAdminPort.Messages
 {
@@ -13,9 +14,9 @@ namespace OpenTTDAdminPort.Messages
 
         public byte CompanyId { get; internal set; }
 
-        public string CompanyName { get; internal set; }
+        public string CompanyName { get; internal set; } = default!;
 
-        public string ManagerName { get; internal set; }
+        public string ManagerName { get; internal set; } = default!;
 
         public byte Color { get; internal set; }
 
@@ -24,7 +25,7 @@ namespace OpenTTDAdminPort.Messages
         /// <summary>
         /// Defines when company was created.
         /// </summary>
-        public OttdDate CreationDate { get; internal set; }
+        public OttdDate CreationDate { get; internal set; } = default!;
 
         public bool IsAi { get; internal set; }
 

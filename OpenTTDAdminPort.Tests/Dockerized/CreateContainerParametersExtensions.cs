@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+
 using Docker.DotNet.Models;
 
 namespace OpenTTDAdminPort.Tests.Dockerized
@@ -14,12 +15,12 @@ namespace OpenTTDAdminPort.Tests.Dockerized
             {
                 new PortBinding
                 {
-                    HostPort = hostPort.ToString()
-                }
+                    HostPort = hostPort.ToString(),
+                },
             });
 
             parameters.ExposedPorts = parameters.ExposedPorts ?? new Dictionary<string, EmptyStruct>();
-            parameters.ExposedPorts.Add($"{containerPort}/tcp", new EmptyStruct());
+            parameters.ExposedPorts.Add($"{containerPort}/tcp", default(EmptyStruct));
         }
 
         public static void AddBind(this CreateContainerParameters parameters, string hostPath, string containerPath)
@@ -30,6 +31,5 @@ namespace OpenTTDAdminPort.Tests.Dockerized
             parameters.HostConfig.Binds = parameters.HostConfig.Binds ?? new List<string>();
             parameters.HostConfig.Binds.Add(bind);
         }
-        
     }
 }

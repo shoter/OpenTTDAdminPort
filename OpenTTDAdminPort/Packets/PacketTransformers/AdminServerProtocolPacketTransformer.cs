@@ -1,8 +1,9 @@
-﻿using OpenTTDAdminPort.Game;
+﻿using System;
+using System.Collections.Generic;
+
+using OpenTTDAdminPort.Game;
 using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Networking;
-using System;
-using System.Collections.Generic;
 
 namespace OpenTTDAdminPort.Packets.PacketTransformers
 {

@@ -1,4 +1,8 @@
-﻿using Divergic.Logging.Xunit;
+﻿#pragma warning disable // will be enabled later TODO
+using System;
+using System.Threading.Tasks;
+
+using Divergic.Logging.Xunit;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Debug;
@@ -9,9 +13,6 @@ using OpenTTDAdminPort.Logging;
 using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Tests.Dockerized.Containers;
 using OpenTTDAdminPort.Tests.Logging;
-
-using System;
-using System.Threading.Tasks;
 
 using Xunit;
 using Xunit.Abstractions;
@@ -53,7 +54,6 @@ namespace OpenTTDAdminPort.Tests.Dockerized
         //        }
         //    });
 
-
         //    await client.Connect();
         //    client.SendMessage(new AdminPingMessage(55u));
 
@@ -72,7 +72,6 @@ namespace OpenTTDAdminPort.Tests.Dockerized
         //    Assert.Equal(55u, pongEvent.PongValue);
         //    await client.Disconnect();
         //}
-
 
         //[Fact]
         //public async Task AfterServerRestart_AdminPortClientShouldAutomaticallyReconnect()
@@ -104,7 +103,6 @@ namespace OpenTTDAdminPort.Tests.Dockerized
         //            connectEvent = pr;
         //        }
         //    });
-
 
         //    logger.LogInformation("Starting client connection");
         //    await client.Connect();
@@ -156,6 +154,7 @@ namespace OpenTTDAdminPort.Tests.Dockerized
                 if (disposing)
                 {
                     server.Dispose();
+
                     // TODO: dispose managed state (managed objects)
                 }
 

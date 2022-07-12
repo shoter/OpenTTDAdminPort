@@ -1,12 +1,14 @@
-﻿using OpenTTDAdminPort.Game;
-using OpenTTDAdminPort.Messages;
-using OpenTTDAdminPort.Networking;
-using OpenTTDAdminPort.Packets.PacketTransformers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+using OpenTTDAdminPort.Game;
+using OpenTTDAdminPort.Messages;
+using OpenTTDAdminPort.Networking;
+using OpenTTDAdminPort.Packets.PacketTransformers;
+
 using Xunit;
 
 namespace OpenTTDAdminPort.Tests.Packets.PacketTransformers
@@ -30,7 +32,5 @@ namespace OpenTTDAdminPort.Tests.Packets.PacketTransformers
 
         [Fact]
         public void HaveCorrectMessageType() => Assert.Equal(AdminMessageType.ADMIN_PACKET_SERVER_CLIENT_ERROR, new AdminServerClientErrorPacketTransformer().SupportedMessageType);
-
-
     }
 }

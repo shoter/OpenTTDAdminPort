@@ -1,4 +1,6 @@
-﻿using Akka.Actor;
+﻿using System;
+
+using Akka.Actor;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -6,34 +8,29 @@ using Microsoft.Extensions.Options;
 
 using OpenTTDAdminPort.Messages;
 
-using System;
-
 namespace OpenTTDAdminPort.Networking.Watchdog
 {
     internal class ConnectionWatchdog : ReceiveActor, IWithTimers
     {
-        public event EventHandler<Exception>? Errored;
+        private readonly TimeSpan maximumPingTime;
+        private readonly IActorRef tcpClient;
+        private readonly ILogger logger;
+        private readonly IServiceScope scope;
+        private readonly Random rand = new Random();
 
         private uint lastSendPingArg = 0;
         private bool lastPingReceived = true;
         private DateTimeOffset lastPingSentTime = DateTimeOffset.MinValue;
-        private readonly TimeSpan maximumPingTime;
-
-        private readonly IActorRef tcpClient;
-        private readonly ILogger logger;
-        private readonly IServiceScope scope;
-
-        private readonly Random rand = new Random();
 
         // Initialized by Akka.NET
         public ITimerScheduler Timers { get; set; } = default!;
 
-        private AdminPortClientSettings Settings;
+        private AdminPortClientSettings settings;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConnectionWatchdog"/> class.
         /// </summary>
-        /// <param name="pingRespondTime">Specify how long will be time between pings to the server. 
+        /// <param name="pingRespondTime">Specify how long will be time between pings to the server.
         /// It is also specifying how long time does server have in order to respond to the message.</param>
         public ConnectionWatchdog(IServiceProvider sp, IActorRef tcpClient)
         {
@@ -42,8 +39,8 @@ namespace OpenTTDAdminPort.Networking.Watchdog
 
             sp = scope.ServiceProvider;
             logger = sp.GetRequiredService<ILogger<ConnectionWatchdog>>();
-            Settings = sp.GetRequiredService<IOptions<AdminPortClientSettings>>().Value;
-            this.maximumPingTime = Settings.WatchdogInterval;
+            settings = sp.GetRequiredService<IOptions<AdminPortClientSettings>>().Value;
+            this.maximumPingTime = settings.WatchdogInterval;
 
             tcpClient.Tell(new TcpClientSubscribe());
             Ready();

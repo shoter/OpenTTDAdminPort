@@ -1,10 +1,11 @@
-﻿using OpenTTDAdminPort.Assemblies;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+
+using OpenTTDAdminPort.Assemblies;
 
 namespace OpenTTDAdminPort.Common.Assemblies
 {
@@ -30,7 +31,7 @@ namespace OpenTTDAdminPort.Common.Assemblies
         public IEnumerable<Type> Find()
         {
             IEnumerable<Type> types = assembly.GetTypes()
-              .Where(t => String.Equals(t.Namespace, namespaceName, StringComparison.Ordinal));
+              .Where(t => string.Equals(t.Namespace, namespaceName, StringComparison.Ordinal));
 
             return types.Where(type => typeMatchers.All(tm => tm.IsMatching(type)));
         }

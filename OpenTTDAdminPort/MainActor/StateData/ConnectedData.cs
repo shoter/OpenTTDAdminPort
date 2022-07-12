@@ -1,10 +1,10 @@
-﻿using Akka.Actor;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
+
+using Akka.Actor;
 
 using OpenTTDAdminPort.Game;
 using OpenTTDAdminPort.MainActor.Messages;
-
-using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace OpenTTDAdminPort.MainActor.StateData
 {
@@ -18,7 +18,7 @@ namespace OpenTTDAdminPort.MainActor.StateData
 
         public IActorRef Watchdog { get; }
 
-        public Dictionary<AdminUpdateType, AdminUpdateSetting> AdminUpdateSettings { get; } 
+        public Dictionary<AdminUpdateType, AdminUpdateSetting> AdminUpdateSettings { get; }
 
         public AdminServerInfo AdminServerInfo { get; set; }
 

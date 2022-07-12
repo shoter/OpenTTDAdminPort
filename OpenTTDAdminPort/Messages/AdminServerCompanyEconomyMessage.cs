@@ -11,7 +11,9 @@ namespace OpenTTDAdminPort.Messages
         public class QuarterData
         {
             public ulong CompanyValue { get; }
+
             public ushort PerformanceHistory { get; }
+
             public ushort DeliveredCargo { get; }
 
             public QuarterData(ulong companyValue, ushort perfHistory, ushort deliveredCargo)
@@ -21,6 +23,7 @@ namespace OpenTTDAdminPort.Messages
                 DeliveredCargo = deliveredCargo;
             }
         }
+
         public AdminMessageType MessageType => AdminMessageType.ADMIN_PACKET_SERVER_COMPANY_ECONOMY;
 
         public byte CompanyId { get; internal set; }
@@ -33,6 +36,6 @@ namespace OpenTTDAdminPort.Messages
 
         public ushort DeliveredCargo { get; internal set; }
 
-        public QuarterData[] Quarters { get; internal set; }
+        public QuarterData[] Quarters { get; internal set; } = default!;
     }
 }

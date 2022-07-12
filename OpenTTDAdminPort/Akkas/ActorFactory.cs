@@ -1,11 +1,11 @@
-﻿using Akka.Actor;
+﻿using System;
+using System.IO;
+
+using Akka.Actor;
 
 using OpenTTDAdminPort.MainActor;
 using OpenTTDAdminPort.Networking;
 using OpenTTDAdminPort.Networking.Watchdog;
-
-using System;
-using System.IO;
 
 namespace OpenTTDAdminPort.Akkas
 {
@@ -46,6 +46,5 @@ namespace OpenTTDAdminPort.Akkas
 
         public virtual IActorRef CreateWatchdog(IActorContext context, IActorRef tcpClient, TimeSpan maximumPingTime)
             => CreateActor(context, sp => ConnectionWatchdog.Create(sp, tcpClient, maximumPingTime), $"watchdog{n++}");
-
     }
 }

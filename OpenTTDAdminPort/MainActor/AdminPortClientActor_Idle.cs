@@ -11,7 +11,6 @@ namespace OpenTTDAdminPort.MainActor
 {
     public partial class AdminPortClientActor : FSM<MainState, IMainData>, IWithUnboundedStash
     {
-
         public void IdleState()
         {
             When(MainState.Idle, state =>
@@ -30,6 +29,5 @@ namespace OpenTTDAdminPort.MainActor
                 return null;
             });
         }
-
     }
 }

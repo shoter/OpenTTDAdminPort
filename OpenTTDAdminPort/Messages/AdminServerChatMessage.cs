@@ -1,9 +1,10 @@
-﻿using OpenTTDAdminPort.Game;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+using OpenTTDAdminPort.Game;
 
 namespace OpenTTDAdminPort.Messages
 {
@@ -17,9 +18,8 @@ namespace OpenTTDAdminPort.Messages
 
         public uint ClientId { get; internal set; }
 
-        public string Message { get; internal set; }
+        public string Message { get; internal set; } = default!;
 
         public long Data { get; internal set; }
-
     }
 }

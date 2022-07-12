@@ -11,7 +11,6 @@ namespace OpenTTDAdminPort.MainActor
         Idle,
         Connecting,
         Connected,
-        Errored
-
+        Errored,
     }
 }

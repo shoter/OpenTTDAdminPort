@@ -1,30 +1,33 @@
-﻿using OpenTTDAdminPort.Messages;
+﻿using System.Collections.Generic;
+using System.Linq;
+
+using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Networking;
 using OpenTTDAdminPort.Packets.MessageTransformers;
 using OpenTTDAdminPort.Packets.PacketTransformers;
-
-using System.Collections.Generic;
-using System.Linq;
 
 namespace OpenTTDAdminPort.Packets
 {
     internal class AdminPacketService : IAdminPacketService
     {
-        private Dictionary<AdminMessageType, IPacketTransformer> packetReaders { get; } 
-        private Dictionary<AdminMessageType, IMessageTransformer> packetCreators { get; }
+        private Dictionary<AdminMessageType, IPacketTransformer> PacketReaders { get; }
+
+        private Dictionary<AdminMessageType, IMessageTransformer> PacketCreators { get; }
 
         public AdminPacketService(IEnumerable<IPacketTransformer> packetTransformers, IEnumerable<IMessageTransformer> messageTransformers)
         {
-            packetReaders = packetTransformers.ToDictionary(pt => pt.SupportedMessageType);
-            packetCreators = messageTransformers.ToDictionary(mt => mt.SupportedMessageType);
+            PacketReaders = packetTransformers.ToDictionary(pt => pt.SupportedMessageType);
+            PacketCreators = messageTransformers.ToDictionary(mt => mt.SupportedMessageType);
         }
 
         public Packet CreatePacket(in IAdminMessage message)
         {
-            if (!packetCreators.ContainsKey(message.MessageType))
+            if (!PacketCreators.ContainsKey(message.MessageType))
+            {
                 throw new AdminPortException($"Reading message {message.MessageType} is currently not handled by Admin Port Client");
+            }
 
-            Packet packet = packetCreators[message.MessageType].Transform(message);
+            Packet packet = PacketCreators[message.MessageType].Transform(message);
             packet.PrepareToSend();
             return packet;
         }
@@ -33,10 +36,12 @@ namespace OpenTTDAdminPort.Packets
         {
             var type = (AdminMessageType)packet.ReadByte();
 
-            if (!packetReaders.ContainsKey(type))
+            if (!PacketReaders.ContainsKey(type))
+            {
                 throw new AdminPortException($"Creating message {type} is currently not handled by Admin Port Client");
+            }
 
-            return this.packetReaders[type].Transform(packet);
+            return this.PacketReaders[type].Transform(packet);
         }
     }
 }

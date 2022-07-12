@@ -1,16 +1,16 @@
-﻿using Docker.DotNet;
+﻿using System.Threading.Tasks;
+
+using Docker.DotNet;
 using Docker.DotNet.Models;
 
 using OpenTTDAdminPort.Networking;
-
-using System.Threading.Tasks;
 
 namespace OpenTTDAdminPort.Tests.Dockerized.Containers
 {
     public class MockServerContainer : ContainerApplication
     {
-
-        public MockServerContainer(DockerClient client) : base(client)
+        public MockServerContainer(DockerClient client)
+            : base(client)
         {
         }
 
@@ -35,7 +35,9 @@ namespace OpenTTDAdminPort.Tests.Dockerized.Containers
                     await client.ConnectAsync("127.0.0.1", Port);
                     break;
                 }
-                catch { }
+                catch
+                {
+                }
             }
         }
     }

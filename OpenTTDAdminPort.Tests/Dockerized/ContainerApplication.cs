@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+
 using Docker.DotNet;
 using Docker.DotNet.Models;
 
@@ -20,7 +21,6 @@ namespace OpenTTDAdminPort.Tests.Dockerized
 
         private readonly DockerClient client = DockerClientProvider.Instance;
 
-
         public ContainerApplication(DockerClient client)
         {
             this.client = client;
@@ -31,6 +31,7 @@ namespace OpenTTDAdminPort.Tests.Dockerized
             this.containerName = containerName;
 
             await client.RemoveContainerIfExists(containerName);
+
             // Image might not exist on local pc. We need to download it.
             await client.PullImage(ImageName, TagName);
 
@@ -40,7 +41,6 @@ namespace OpenTTDAdminPort.Tests.Dockerized
                 Name = containerName,
                 Image = $"{ImageName}:{TagName}",
             }, Port);
-
 
             var response = await client.Containers.CreateContainerAsync(parameters);
 
@@ -74,7 +74,6 @@ namespace OpenTTDAdminPort.Tests.Dockerized
             }
         }
 
-
         public async Task StopRemove()
         {
             if (State == ContainerApplicationState.Running)
@@ -87,7 +86,6 @@ namespace OpenTTDAdminPort.Tests.Dockerized
         protected virtual CreateContainerParameters OverrideContainerParameters(CreateContainerParameters options, int assignedPort) => options;
 
         protected abstract Task WaitForContainerStart();
-
 
         public void Dispose()
         {
@@ -105,7 +103,5 @@ namespace OpenTTDAdminPort.Tests.Dockerized
             l.Stop();
             return port;
         }
-
-
     }
 }

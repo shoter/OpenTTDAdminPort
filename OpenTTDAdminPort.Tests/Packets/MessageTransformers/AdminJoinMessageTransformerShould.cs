@@ -1,6 +1,7 @@
 ﻿using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Networking;
 using OpenTTDAdminPort.Packets.MessageTransformers;
+
 using Xunit;
 
 namespace OpenTTDAdminPort.Tests.Packets.MessageTransformers

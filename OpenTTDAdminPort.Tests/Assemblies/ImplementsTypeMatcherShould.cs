@@ -1,17 +1,27 @@
-﻿using OpenTTDAdminPort.Assemblies;
-using OpenTTDAdminPort.Tests.Assemblies.TestTypes;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
+using OpenTTDAdminPort.Assemblies;
+using OpenTTDAdminPort.Tests.Assemblies.TestTypes;
+
 using Xunit;
 
 namespace OpenTTDAdminPort.Tests.Assemblies
 {
     public class ImplementsTypeMatcherShould
     {
-        List<Type> inputTypes = new List<Type>{ typeof(Cat), typeof(Dog), typeof(IAlienAnimal), typeof(IFurniture), typeof(Table), typeof(Chair), typeof(IAnimal), typeof(IFurnitureBox<>) };
+        private readonly List<Type> inputTypes = new()
+        {
+            typeof(Cat),
+            typeof(Dog),
+            typeof(IAlienAnimal),
+            typeof(IFurniture),
+            typeof(Table),
+            typeof(Chair),
+            typeof(IAnimal),
+            typeof(IFurnitureBox<>),
+        };
 
         [Fact]
         public void FindOnlyTypesThatAreImplementingGivenInterface()
@@ -21,7 +31,6 @@ namespace OpenTTDAdminPort.Tests.Assemblies
             Type[] expectedTypes = new Type[] { typeof(Cat), typeof(Dog), typeof(IAlienAnimal) };
 
             AssertTest(matcher, expectedTypes);
-
         }
 
         [Fact]
@@ -33,7 +42,6 @@ namespace OpenTTDAdminPort.Tests.Assemblies
             inputTypes.Add(typeof(GenericFurnitureBox<>));
 
             AssertTest(matcher, expectedTypes);
-
         }
 
         [Fact]
@@ -63,10 +71,13 @@ namespace OpenTTDAdminPort.Tests.Assemblies
             foreach (var it in inputTypes)
             {
                 if (matcher.IsMatching(it) && !expectedTypes.Contains(it))
+                {
                     throw new Exception($"Matcher is matching {it} when it is not on the expected types list");
-
+                }
                 else if (!matcher.IsMatching(it) && expectedTypes.Contains(it))
+                {
                     throw new Exception($"Matcher is NOT matching {it} when it is on the expected types list");
+                }
             }
         }
     }

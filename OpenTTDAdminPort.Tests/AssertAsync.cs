@@ -24,7 +24,6 @@ namespace OpenTTDAdminPort.Tests
 
                 throw task.Exception;
             }
-
         }
     }
 }

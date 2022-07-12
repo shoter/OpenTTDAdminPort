@@ -5,7 +5,8 @@ namespace OpenTTDAdminPort.Packets.MessageTransformers
 {
     internal class AdminGamescriptMessageTransformer : IMessageTransformer<AdminGamescriptMessage>
     {
-        public const int MaximumJsonLength = 1457;  
+        public const int MaximumJsonLength = 1457;
+
         /// <summary>
         /// Gets the type of the supported message.
         /// </summary>

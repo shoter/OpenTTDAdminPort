@@ -7,11 +7,14 @@ namespace OpenTTDAdminPort.Networking
     internal class Packet
     {
         public ushort Size { get; private set; } = 2; // first 2 bytes are for size.
+
         public ushort Position { get; private set; } = 0;
 
         public byte[] Buffer { get; } = new byte[1460];
 
-        public Packet() { }
+        public Packet()
+        {
+        }
 
         public Packet(byte[] buffer)
         {
@@ -41,6 +44,7 @@ namespace OpenTTDAdminPort.Networking
 
             this.Size += 2;
         }
+
         public void SendU32(uint value)
         {
             byte[] bytes = BitConverter.GetBytes(value);
@@ -82,12 +86,13 @@ namespace OpenTTDAdminPort.Networking
             this.Size += 8;
         }
 
-
         public void SendString(string str)
         {
             var bytes = Encoding.Default.GetBytes(str);
             foreach (byte b in bytes)
+            {
                 SendByte(b);
+            }
 
             SendByte(0);
         }

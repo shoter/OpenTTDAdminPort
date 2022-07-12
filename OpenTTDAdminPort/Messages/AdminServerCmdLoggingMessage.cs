@@ -4,7 +4,7 @@ namespace OpenTTDAdminPort.Messages
 {
     public class AdminServerCmdLoggingMessage : IAdminMessage
     {
-       [RequiredMember]
+        [RequiredMember]
         public uint ClientId { get; set; }
 
         [RequiredMember]

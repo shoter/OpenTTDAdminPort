@@ -1,12 +1,14 @@
-﻿using OpenTTDAdminPort.Assemblies;
-using OpenTTDAdminPort.Common.Assemblies;
-using OpenTTDAdminPort.Tests.Assemblies.TestTypes;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+
+using OpenTTDAdminPort.Assemblies;
+using OpenTTDAdminPort.Common.Assemblies;
+using OpenTTDAdminPort.Tests.Assemblies.TestTypes;
+
 using Xunit;
 
 namespace OpenTTDAdminPort.Tests.Assemblies
@@ -26,6 +28,5 @@ namespace OpenTTDAdminPort.Tests.Assemblies
             Assert.Contains(typeof(Cat).GUID, foundTypes);
             Assert.Contains(typeof(Dog).GUID, foundTypes);
         }
-
     }
 }

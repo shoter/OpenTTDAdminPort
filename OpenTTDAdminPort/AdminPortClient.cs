@@ -1,4 +1,8 @@
-﻿using Akka.Actor;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Threading.Tasks;
+
+using Akka.Actor;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -10,10 +14,6 @@ using OpenTTDAdminPort.MainActor.Messages;
 using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Networking;
 using OpenTTDAdminPort.Packets;
-
-using System;
-using System.Collections.Concurrent;
-using System.Threading.Tasks;
 
 namespace OpenTTDAdminPort
 {
@@ -34,8 +34,7 @@ namespace OpenTTDAdminPort
 
         private IActorRef mainActor;
 
-        //public event EventHandler<IAdminEvent>? EventReceived;
-
+        // public event EventHandler<IAdminEvent>? EventReceived;
         public AdminPortClient(AdminPortClientSettings settings, ServerInfo serverInfo, Action<ILoggingBuilder>? configureLogging = null)
         {
             this.ServerInfo = serverInfo;
@@ -50,11 +49,9 @@ namespace OpenTTDAdminPort
             {
                 s.WatchdogInterval = settings.WatchdogInterval;
             });
-            services.AddLogging(configureLogging ?? delegate { });
-
+            services.AddLogging(configureLogging ?? ((_) => { }));
 
             serviceProvider = services.BuildServiceProvider();
-
 
             IActorFactory actorFactory = serviceProvider.GetRequiredService<IActorFactory>();
             mainActor = actorFactory.CreateMainActor(actorSystem);

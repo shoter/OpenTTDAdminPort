@@ -10,11 +10,13 @@ namespace OpenTTDAdminPort.Networking.Exceptions
         {
         }
 
-        public InitialConnectionException(string? message) : base(message)
+        public InitialConnectionException(string? message)
+            : base(message)
         {
         }
 
-        public InitialConnectionException(string? message, Exception? innerException) : base(message, innerException)
+        public InitialConnectionException(string? message, Exception? innerException)
+            : base(message, innerException)
         {
         }
 

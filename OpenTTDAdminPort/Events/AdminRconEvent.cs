@@ -4,7 +4,6 @@
     {
         public AdminEventType EventType => AdminEventType.AdminRcon;
 
-
         public string Message { get; }
 
         public AdminRconEvent(string msg)

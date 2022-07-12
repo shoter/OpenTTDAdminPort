@@ -1,5 +1,6 @@
-﻿using OpenTTDAdminPort.Game;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+
+using OpenTTDAdminPort.Game;
 
 namespace OpenTTDAdminPort.Messages
 {
@@ -10,6 +11,7 @@ namespace OpenTTDAdminPort.Messages
         public byte NetworkVersion { get; }
 
         public Dictionary<AdminUpdateType, UpdateFrequency> AdminUpdateSettings;
+
         public AdminServerProtocolMessage(byte networkVersion, Dictionary<AdminUpdateType, UpdateFrequency> adminUpdateSettings)
         {
             this.NetworkVersion = networkVersion;

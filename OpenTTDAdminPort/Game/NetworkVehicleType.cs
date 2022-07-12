@@ -8,8 +8,6 @@
         NETWORK_VEH_PLANE,
         NETWORK_VEH_SHIP,
 
-        NETWORK_VEH_END
-
-
+        NETWORK_VEH_END,
     }
 }

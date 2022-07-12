@@ -1,4 +1,6 @@
-﻿using Akka.Actor;
+﻿using System;
+
+using Akka.Actor;
 using Akka.TestKit;
 
 using Moq;
@@ -7,8 +9,6 @@ using OpenTTDAdminPort.MainActor;
 using OpenTTDAdminPort.MainActor.Messages;
 using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Networking;
-
-using System;
 
 using Xunit;
 using Xunit.Abstractions;
@@ -21,7 +21,8 @@ namespace OpenTTDAdminPort.Tests.MainActor
 
         private readonly TestProbe watchdog;
 
-        public AdminPortClientActorShould(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+        public AdminPortClientActorShould(ITestOutputHelper testOutputHelper)
+            : base(testOutputHelper)
         {
             tcpClient = CreateTestProbe();
             watchdog = CreateTestProbe();
@@ -76,7 +77,6 @@ namespace OpenTTDAdminPort.Tests.MainActor
             int port = 12345;
 
             var actor = Sys.ActorOf(AdminPortClientActor.Create(defaultServiceProvider));
-
 
             Within(10.Seconds(), () =>
             {

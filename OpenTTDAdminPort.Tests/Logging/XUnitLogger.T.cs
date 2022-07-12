@@ -10,6 +10,5 @@ namespace OpenTTDAdminPort.Tests.Logging
         : base(testOutputHelper, scopeProvider, typeof(T).FullName!)
         {
         }
-
     }
 }

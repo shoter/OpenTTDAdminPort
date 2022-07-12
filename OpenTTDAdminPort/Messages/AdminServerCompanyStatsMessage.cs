@@ -8,7 +8,6 @@ namespace OpenTTDAdminPort.Messages
 {
     public class AdminServerCompanyStatsMessage : IAdminMessage
     {
-
         public struct AdminServerCompanyStats
         {
             public ushort[] VehicleCount { get; }
@@ -20,7 +19,7 @@ namespace OpenTTDAdminPort.Messages
                 this.VehicleCount = vehCount;
                 this.StationCount = stationCount;
             }
-        };
+        }
 
         public AdminMessageType MessageType => AdminMessageType.ADMIN_PACKET_SERVER_COMPANY_STATS;
 
@@ -30,7 +29,5 @@ namespace OpenTTDAdminPort.Messages
         {
             this.CompanyStats = companyStats;
         }
-
-
     }
 }

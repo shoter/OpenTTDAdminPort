@@ -86,6 +86,9 @@ dotnet_diagnostic.SA1623.severity = none
 # SA1405: Debug.Assert should provide message text
 dotnet_diagnostic.SA1405.severity = none
 
+# SA1402: File may only contain a single type
+dotnet_diagnostic.SA1402.severity = none
+
 # SA1401: Fields should be private
 dotnet_diagnostic.SA1401.severity = none
 

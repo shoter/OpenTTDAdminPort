@@ -8,6 +8,5 @@ namespace OpenTTDAdminPort.Networking
 {
     public interface IAdminPortTcpClientMessage
     {
-
     }
 }

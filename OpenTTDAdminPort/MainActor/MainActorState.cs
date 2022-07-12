@@ -1,7 +1,7 @@
-﻿using OpenTTDAdminPort.Game;
-using OpenTTDAdminPort.MainActor.StateData;
+﻿using System.Collections.Generic;
 
-using System.Collections.Generic;
+using OpenTTDAdminPort.Game;
+using OpenTTDAdminPort.MainActor.StateData;
 
 namespace OpenTTDAdminPort.MainActor
 {
@@ -11,7 +11,7 @@ namespace OpenTTDAdminPort.MainActor
 
         public MainActorState(ConnectedData data)
         {
-            foreach(var player in data.Players.Values)
+            foreach (var player in data.Players.Values)
             {
                 Players.Add(player.ClientId, player.Copy());
             }

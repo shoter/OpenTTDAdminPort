@@ -1,4 +1,9 @@
-﻿using Akka.Actor;
+﻿using System;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+
+using Akka.Actor;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -7,21 +12,15 @@ using OpenTTDAdminPort.Common;
 using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Packets;
 
-using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-
 namespace OpenTTDAdminPort.Networking
 {
     internal class AdminPortTcpClientReceiver : ReceiveActor
     {
-        private CancellationTokenSource receiveLoopCTS = new();
-
         private readonly IAdminPacketService adminPacketService;
         private readonly ILogger logger;
         private readonly IServiceScope scope;
 
+        private CancellationTokenSource receiveLoopCTS = new();
         private Stream stream;
 
         public AdminPortTcpClientReceiver(IServiceProvider serviceProvider, Stream stream)
@@ -44,7 +43,7 @@ namespace OpenTTDAdminPort.Networking
 
         protected override void PreRestart(Exception reason, object message)
         {
-            if(reason != null)
+            if (reason != null)
             {
                 Sender.Tell(reason);
             }
@@ -89,6 +88,7 @@ namespace OpenTTDAdminPort.Networking
                         logger.LogInformation("Receiver loop receives TaskCancelled Exception");
                     }
                 }
+
                 logger?.LogTrace("Receiver Main Loop Stopped!");
             }
             catch (Exception e)
@@ -116,6 +116,7 @@ namespace OpenTTDAdminPort.Networking
                 // Task read has been probably interrupted. In this situation it is highly likely that we have gibberish in the array. It is better to not read it.
                 throw new TaskCanceledException();
             }
+
             Packet packet = CreatePacket(sizeBuffer, content);
             return packet;
         }
@@ -126,7 +127,9 @@ namespace OpenTTDAdminPort.Networking
             packetData[0] = sizeBuffer[0];
             packetData[1] = sizeBuffer[1];
             for (int i = 0; i < content.Length; ++i)
+            {
                 packetData[2 + i] = content[i];
+            }
 
             Packet packet = new Packet(packetData);
             return packet;
@@ -146,10 +149,10 @@ namespace OpenTTDAdminPort.Networking
                 await task;
                 currentSize += task.Result;
                 logger?.LogTrace($"{DateTime.Now:hh mm ss} Receiver trying to receive packet({token.IsCancellationRequested})");
-            } while (currentSize < dataSize && !token.IsCancellationRequested);
+            }
+            while (currentSize < dataSize && !token.IsCancellationRequested);
 
             return result;
         }
-
     }
 }

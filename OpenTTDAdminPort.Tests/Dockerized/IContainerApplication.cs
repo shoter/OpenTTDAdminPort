@@ -19,6 +19,5 @@ namespace OpenTTDAdminPort.Tests.Dockerized
         Task Start(string containerName);
 
         Task Stop();
-        
     }
 }

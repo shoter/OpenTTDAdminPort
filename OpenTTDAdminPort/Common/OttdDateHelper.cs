@@ -2,19 +2,20 @@
 
 namespace OpenTTDAdminPort.Common
 {
-    internal class OttdDateHelper
+    internal static class OttdDateHelper
     {
-        internal static readonly List<ushort> monthDateFromYear = new List<ushort>();
+        internal const uint DaysInYear = 365; // days per year
+        internal const uint DaysInLeapYear = 366; // sometimes, you need one day more...
 
-        internal static readonly ushort[] daysTillMonth = new ushort[12];
+        internal static readonly List<ushort> MonthDateFromYear = new List<ushort>();
 
-        internal const uint daysInYear = 365; // days per year
-        internal const uint daysInLeapYear = 366; // sometimes, you need one day more...
+        internal static readonly ushort[] DaysTillMonth = new ushort[12];
 
         static OttdDateHelper()
         {
             static int M(int a, int b) => (a << 5) | b;
 
+#pragma warning disable SA1008 // Opening parenthesis should be spaced correctly - this helps with readability here.
             int[] array = new int[]
             {
                 M( 0, 1), M( 0, 2), M( 0, 3), M( 0, 4), M( 0, 5), M( 0, 6), M( 0, 7), M( 0, 8), M( 0, 9), M( 0, 10), M( 0, 11), M( 0, 12), M( 0, 13), M( 0, 14), M( 0, 15), M( 0, 16), M( 0, 17), M( 0, 18), M( 0, 19), M( 0, 20), M( 0, 21), M( 0, 22), M( 0, 23), M( 0, 24), M( 0, 25), M( 0, 26), M( 0, 27), M( 0, 28), M( 0, 29), M( 0, 30), M( 0, 31),
@@ -30,26 +31,29 @@ namespace OpenTTDAdminPort.Common
                 M(10, 1), M(10, 2), M(10, 3), M(10, 4), M(10, 5), M(10, 6), M(10, 7), M(10, 8), M(10, 9), M(10, 10), M(10, 11), M(10, 12), M(10, 13), M(10, 14), M(10, 15), M(10, 16), M(10, 17), M(10, 18), M(10, 19), M(10, 20), M(10, 21), M(10, 22), M(10, 23), M(10, 24), M(10, 25), M(10, 26), M(10, 27), M(10, 28), M(10, 29), M(10, 30),
                 M(11, 1), M(11, 2), M(11, 3), M(11, 4), M(11, 5), M(11, 6), M(11, 7), M(11, 8), M(11, 9), M(11, 10), M(11, 11), M(11, 12), M(11, 13), M(11, 14), M(11, 15), M(11, 16), M(11, 17), M(11, 18), M(11, 19), M(11, 20), M(11, 21), M(11, 22), M(11, 23), M(11, 24), M(11, 25), M(11, 26), M(11, 27), M(11, 28), M(11, 29), M(11, 30), M(11, 31),
             };
+#pragma warning restore SA1008 // Opening parenthesis should be spaced correctly
 
             foreach (int x in array)
-                monthDateFromYear.Add((ushort)x);
+            {
+                MonthDateFromYear.Add((ushort)x);
+            }
 
-            daysTillMonth[0] = 0;
-            daysTillMonth[1] = 31;
-            daysTillMonth[2] = (ushort)(daysTillMonth[1] + 29);
-            daysTillMonth[3] = (ushort)(daysTillMonth[2] + 31);
-            daysTillMonth[4] = (ushort)(daysTillMonth[3] + 30);
-            daysTillMonth[5] = (ushort)(daysTillMonth[4] + 31);
-            daysTillMonth[6] = (ushort)(daysTillMonth[5] + 30);
-            daysTillMonth[7] = (ushort)(daysTillMonth[6] + 31);
-            daysTillMonth[8] = (ushort)(daysTillMonth[7] + 31);
-            daysTillMonth[9] = (ushort)(daysTillMonth[8] + 30);
-            daysTillMonth[10] = (ushort)(daysTillMonth[9] + 31);
-            daysTillMonth[11] = (ushort)(daysTillMonth[10] + 30);
+            DaysTillMonth[0] = 0;
+            DaysTillMonth[1] = 31;
+            DaysTillMonth[2] = (ushort)(DaysTillMonth[1] + 29);
+            DaysTillMonth[3] = (ushort)(DaysTillMonth[2] + 31);
+            DaysTillMonth[4] = (ushort)(DaysTillMonth[3] + 30);
+            DaysTillMonth[5] = (ushort)(DaysTillMonth[4] + 31);
+            DaysTillMonth[6] = (ushort)(DaysTillMonth[5] + 30);
+            DaysTillMonth[7] = (ushort)(DaysTillMonth[6] + 31);
+            DaysTillMonth[8] = (ushort)(DaysTillMonth[7] + 31);
+            DaysTillMonth[9] = (ushort)(DaysTillMonth[8] + 30);
+            DaysTillMonth[10] = (ushort)(DaysTillMonth[9] + 31);
+            DaysTillMonth[11] = (ushort)(DaysTillMonth[10] + 30);
         }
 
-        static internal bool IsLeapYear(uint year) => year % 4 == 0 && (year % 100 != 0 || year % 400 == 0);
+        internal static bool IsLeapYear(uint year) => year % 4 == 0 && (year % 100 != 0 || year % 400 == 0);
 
-        static internal uint DaysInYear(uint year) => IsLeapYear(year) ? daysInLeapYear : daysInYear;
+        internal static uint GetDaysInYear(uint year) => IsLeapYear(year) ? DaysInLeapYear : DaysInYear;
     }
 }

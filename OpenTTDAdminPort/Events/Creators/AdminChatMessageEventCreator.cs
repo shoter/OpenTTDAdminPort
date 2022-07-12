@@ -1,7 +1,7 @@
-﻿using OpenTTDAdminPort.MainActor.StateData;
-using OpenTTDAdminPort.Messages;
+﻿using System;
 
-using System;
+using OpenTTDAdminPort.MainActor.StateData;
+using OpenTTDAdminPort.Messages;
 
 namespace OpenTTDAdminPort.Events.Creators
 {

@@ -9,6 +9,5 @@ namespace OpenTTDAdminPort.Tests.Assemblies.TestTypes
     public interface IFurnitureBox<TFurniture>
         where TFurniture : IFurniture
     {
-        
     }
 }

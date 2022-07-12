@@ -12,6 +12,5 @@
         // Not connected with in-game packets
         ServerConnectionLost = 1000,
         ServerConnected = 1001,
-
     }
 }

@@ -1,11 +1,13 @@
-﻿using OpenTTDAdminPort.Messages;
-using OpenTTDAdminPort.Networking;
-using OpenTTDAdminPort.Packets.PacketTransformers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+using OpenTTDAdminPort.Messages;
+using OpenTTDAdminPort.Networking;
+using OpenTTDAdminPort.Packets.PacketTransformers;
+
 using Xunit;
 
 namespace OpenTTDAdminPort.Tests.Packets.PacketTransformers

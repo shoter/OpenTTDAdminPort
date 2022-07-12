@@ -7,7 +7,8 @@
     {
         public static EmptyResponse Instance { get; } = new EmptyResponse();
 
-        private EmptyResponse() { }
-
+        private EmptyResponse()
+        {
+        }
     }
 }

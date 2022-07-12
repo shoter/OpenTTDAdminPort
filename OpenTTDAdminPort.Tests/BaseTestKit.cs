@@ -1,4 +1,10 @@
-﻿using Akka.Actor;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+using Akka.Actor;
 using Akka.Configuration;
 using Akka.TestKit;
 using Akka.TestKit.Xunit2;
@@ -16,12 +22,6 @@ using OpenTTDAdminPort.Networking;
 using OpenTTDAdminPort.Packets;
 using OpenTTDAdminPort.Tests.Logging;
 using OpenTTDAdminPort.Tests.Networking;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using Xunit.Abstractions;
 
@@ -43,9 +43,10 @@ namespace OpenTTDAdminPort.Tests
 
         public BaseTestKit(ITestOutputHelper testOutputHelper)
             : base((ActorSystem)null, testOutputHelper)
-          //: base(
-          //      ConfigurationFactory.ParseString("\r\n                akka.test.testkit.debug = true\r\n                akka.log-dead-letters-during-shutdown = true\r\n                akka.actor.debug.receive = true\r\n                akka.actor.debug.autoreceive = true\r\n                akka.actor.debug.lifecycle = true\r\n                akka.actor.debug.event-stream = true\r\n                akka.actor.debug.unhandled = true\r\n                akka.actor.debug.fsm = true\r\n                akka.actor.debug.router-misconfiguration = true\r\n                akka.log-dead-letters = true\r\n                akka.loglevel = DEBUG\r\n                akka.stdout-loglevel = DEBUG")
-          //      , null, testOutputHelper)
+
+        // : base(
+        //      ConfigurationFactory.ParseString("\r\n                akka.test.testkit.debug = true\r\n                akka.log-dead-letters-during-shutdown = true\r\n                akka.actor.debug.receive = true\r\n                akka.actor.debug.autoreceive = true\r\n                akka.actor.debug.lifecycle = true\r\n                akka.actor.debug.event-stream = true\r\n                akka.actor.debug.unhandled = true\r\n                akka.actor.debug.fsm = true\r\n                akka.actor.debug.router-misconfiguration = true\r\n                akka.log-dead-letters = true\r\n                akka.loglevel = DEBUG\r\n                akka.stdout-loglevel = DEBUG")
+        //      , null, testOutputHelper)
         {
             var serviceCollection = new ServiceCollection()
                 .AddSingleton<ITcpClient>(tcpClient)
@@ -69,7 +70,8 @@ namespace OpenTTDAdminPort.Tests
             probe = CreateTestProbe();
         }
 
-        protected virtual void ConfigureServiceCollection(IServiceCollection services) { }
-
+        protected virtual void ConfigureServiceCollection(IServiceCollection services)
+        {
+        }
     }
 }

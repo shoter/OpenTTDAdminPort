@@ -1,9 +1,11 @@
 ﻿using Moq;
+
 using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Networking;
 using OpenTTDAdminPort.Packets;
 using OpenTTDAdminPort.Packets.MessageTransformers;
 using OpenTTDAdminPort.Packets.PacketTransformers;
+
 using Xunit;
 
 namespace OpenTTDAdminPort.Tests.Packets
@@ -62,7 +64,6 @@ namespace OpenTTDAdminPort.Tests.Packets
             var adminPacketService = new AdminPacketService(new IPacketTransformer[0], new IMessageTransformer[] { messageTransformer.Object });
             var adminMessageMock = new Mock<IAdminMessage>();
             adminMessageMock.SetupGet(x => x.MessageType).Returns(AdminMessageType.ADMIN_PACKET_ADMIN_CHAT);
-
 
             Assert.Same(packet, adminPacketService.CreatePacket(adminMessageMock.Object));
         }

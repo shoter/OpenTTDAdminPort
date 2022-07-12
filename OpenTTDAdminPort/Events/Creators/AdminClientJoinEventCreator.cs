@@ -1,5 +1,4 @@
-﻿
-using OpenTTDAdminPort.MainActor.StateData;
+﻿using OpenTTDAdminPort.MainActor.StateData;
 using OpenTTDAdminPort.Messages;
 
 namespace OpenTTDAdminPort.Events.Creators

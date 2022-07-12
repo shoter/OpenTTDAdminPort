@@ -20,7 +20,6 @@ namespace OpenTTDAdminPort.Packets.PacketTransformers
         /// <param name="packet">The packet that can be transformed into <see cref="TAdminMessage"/></param>
         /// <returns>Transformed message</returns>
         IAdminMessage Transform(Packet packet);
-
     }
 
     /// <summary>

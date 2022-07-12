@@ -7,6 +7,7 @@ namespace OpenTTDAdminPort.Packets.PacketTransformers
     internal class AdminServerChatPacketTransformer : IPacketTransformer<AdminServerChatMessage>
     {
         public AdminMessageType SupportedMessageType => AdminMessageType.ADMIN_PACKET_SERVER_CHAT;
+
         public IAdminMessage Transform(Packet packet)
         {
             var m = new AdminServerChatMessage();

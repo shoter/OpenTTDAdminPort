@@ -1,4 +1,6 @@
-﻿//using Microsoft.Extensions.Logging;
+﻿#pragma warning disable // Remove file with no code.
+
+//using Microsoft.Extensions.Logging;
 //using OpenTTDAdminPort.Common;
 //using OpenTTDAdminPort.Events;
 //using OpenTTDAdminPort.Messages;
@@ -39,14 +41,11 @@
 //        private readonly string clientName;
 //        private readonly string clientVersion;
 
-
-
 //        private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
 //        public ServerInfo ServerInfo { get; }
 
 //        public ConcurrentDictionary<AdminUpdateType, AdminUpdateSetting> AdminUpdateSettings { get; } = new ConcurrentDictionary<AdminUpdateType, AdminUpdateSetting>();
-
 
 //        public AdminServerInfo AdminServerInfo { get; private set; } = new AdminServerInfo();
 //        internal oAdminPortClient(ServerInfo serverInfo, IAdminMessageProcessor messageProcessor, ILogger<IAdminPortClient>? logger)
@@ -172,7 +171,6 @@
 //                            }
 //                        } while (contentSize < size);
 
-
 //                        var packet = new Packet(content);
 //                        IAdminMessage message = this.adminPacketService.ReadPacket(packet);
 //                        if (message == null)
@@ -205,7 +203,6 @@
 //                                        RevisionName = msg.NetworkRevision,
 //                                        ServerName = msg.ServerName
 //                                    };
-
 
 //                                    this.SendMessage(new AdminUpdateFrequencyMessage(AdminUpdateType.ADMIN_UPDATE_CHAT, UpdateFrequency.ADMIN_FREQUENCY_AUTOMATIC));
 //                                    this.SendMessage(new AdminUpdateFrequencyMessage(AdminUpdateType.ADMIN_UPDATE_CONSOLE, UpdateFrequency.ADMIN_FREQUENCY_AUTOMATIC));
@@ -242,8 +239,6 @@
 //                        }
 
 //                    }
-
-
 
 //                    await Task.Delay(TimeSpan.FromSeconds(0.5));
 //                }
@@ -330,3 +325,5 @@
 //        }
 //    }
 //}
+#pragma warning restore // Remove file with no code.
+

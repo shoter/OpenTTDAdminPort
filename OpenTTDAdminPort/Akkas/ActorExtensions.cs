@@ -1,7 +1,7 @@
-﻿using Akka.Actor;
-
-using System;
+﻿using System;
 using System.Threading.Tasks;
+
+using Akka.Actor;
 
 namespace OpenTTDAdminPort.Akkas
 {
@@ -11,13 +11,12 @@ namespace OpenTTDAdminPort.Akkas
         {
             object response = await actor.Ask(message);
 
-            if(response is Exception ex)
+            if (response is Exception ex)
             {
                 throw ex;
             }
 
             return response;
         }
-
     }
 }

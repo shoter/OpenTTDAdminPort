@@ -16,6 +16,5 @@ namespace OpenTTDAdminPort.Messages
         {
             this.Command = command;
         }
-
     }
 }

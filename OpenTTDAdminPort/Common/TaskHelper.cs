@@ -13,7 +13,9 @@ namespace OpenTTDAdminPort.Common
             while ((DateTime.Now - startTime).Duration() < duration)
             {
                 if (condition())
+                {
                     return true;
+                }
 
                 await Task.Delay(delayBetweenChecks);
             }
@@ -22,6 +24,7 @@ namespace OpenTTDAdminPort.Common
         }
 
         public static Task WaitMax(this Task task, [CallerMemberName] string? callerName = null) => task.WaitMax(TimeSpan.FromSeconds(10), callerName);
+
         public static async Task WaitMax(this Task task, TimeSpan waitTime, [CallerMemberName] string? callerName = null)
         {
             Task delayTask = Task.Delay(waitTime);
@@ -35,7 +38,6 @@ namespace OpenTTDAdminPort.Common
         }
 
         public static Task<T> WaitMax<T>(this Task<T> task, [CallerMemberName] string? callerName = null) => task.WaitMax(TimeSpan.FromSeconds(10), callerName);
-
 
         public static async Task<T> WaitMax<T>(this Task<T> task, TimeSpan waitTime, [CallerMemberName] string? callerName = null)
         {
@@ -59,9 +61,14 @@ namespace OpenTTDAdminPort.Common
             {
                 await Task.Delay(refreshDelay);
                 if (token.IsCancellationRequested)
+                {
                     break;
+                }
+
                 if (task.IsCompleted)
+                {
                     break;
+                }
             }
         }
 
@@ -78,6 +85,7 @@ namespace OpenTTDAdminPort.Common
                     return default;
 #pragma warning restore CS8603 // Possible null reference return.
                 }
+
                 if (task.IsCompleted)
                 {
                     return task.Result;

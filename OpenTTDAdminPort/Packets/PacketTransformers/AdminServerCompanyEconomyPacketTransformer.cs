@@ -6,6 +6,7 @@ namespace OpenTTDAdminPort.Packets.PacketTransformers
     internal class AdminServerCompanyEconomyPacketTransformer : IPacketTransformer<AdminServerCompanyEconomyMessage>
     {
         public AdminMessageType SupportedMessageType => AdminMessageType.ADMIN_PACKET_SERVER_COMPANY_ECONOMY;
+
         public IAdminMessage Transform(Packet packet)
         {
             var m = new AdminServerCompanyEconomyMessage();
@@ -16,7 +17,7 @@ namespace OpenTTDAdminPort.Packets.PacketTransformers
             m.DeliveredCargo = packet.ReadU16();
             m.Quarters = new AdminServerCompanyEconomyMessage.QuarterData[2];
 
-            for(int i = 0;i < 2; ++i)
+            for (int i = 0; i < 2; ++i)
             {
                 m.Quarters[i] = new AdminServerCompanyEconomyMessage.QuarterData(
                     companyValue: packet.ReadU64(),
@@ -25,7 +26,6 @@ namespace OpenTTDAdminPort.Packets.PacketTransformers
             }
 
             return m;
-
         }
     }
 }

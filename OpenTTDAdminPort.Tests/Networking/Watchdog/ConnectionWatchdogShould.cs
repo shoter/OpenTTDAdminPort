@@ -1,4 +1,6 @@
-﻿using Akka.Actor;
+﻿using System;
+
+using Akka.Actor;
 using Akka.TestKit;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -8,8 +10,6 @@ using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Networking;
 using OpenTTDAdminPort.Networking.Watchdog;
 
-using System;
-
 using Xunit;
 using Xunit.Abstractions;
 
@@ -17,9 +17,10 @@ namespace OpenTTDAdminPort.Tests.Networking.Watchdog
 {
     public class ConnectionWatchdogShould : BaseTestKit
     {
-        TimeSpan pingTime = 1.Seconds();
+        private readonly TimeSpan pingTime = 1.Seconds();
 
-        public ConnectionWatchdogShould(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+        public ConnectionWatchdogShould(ITestOutputHelper testOutputHelper)
+            : base(testOutputHelper)
         {
         }
 
@@ -52,7 +53,6 @@ namespace OpenTTDAdminPort.Tests.Networking.Watchdog
             IActorRef dog = parent.ChildActorOf(ConnectionWatchdog.Create(defaultServiceProvider, tcpClient: probe.Ref, pingTime));
             probe.ExpectMsg<TcpClientSubscribe>();
 
-
             for (int i = 0; i < 5; ++i)
             {
                 probe.Within(pingTime * 3, () =>
@@ -83,7 +83,6 @@ namespace OpenTTDAdminPort.Tests.Networking.Watchdog
             TestProbe parent = CreateTestProbe();
             IActorRef dog = parent.ChildActorOf(ConnectionWatchdog.Create(defaultServiceProvider, tcpClient: probe.Ref, pingTime));
             probe.ExpectMsg<TcpClientSubscribe>();
-
 
             for (int i = 0; i < 5; ++i)
             {
@@ -123,7 +122,6 @@ namespace OpenTTDAdminPort.Tests.Networking.Watchdog
             IActorRef dog = parent.ChildActorOf(ConnectionWatchdog.Create(defaultServiceProvider, tcpClient: probe.Ref, pingTime));
             probe.ExpectMsg<TcpClientSubscribe>();
 
-
             for (int i = 0; i < 5; ++i)
             {
                 probe.Within(pingTime * 3, () =>
@@ -146,7 +144,6 @@ namespace OpenTTDAdminPort.Tests.Networking.Watchdog
 
             // Parent should receive nothing through whole test.
             parent.ExpectMsg<WatchdogConnectionLost>(pingTime * 3);
-
         }
 
         [Fact]
@@ -155,7 +152,6 @@ namespace OpenTTDAdminPort.Tests.Networking.Watchdog
             TestProbe parent = CreateTestProbe();
             IActorRef dog = parent.ChildActorOf(ConnectionWatchdog.Create(defaultServiceProvider, tcpClient: probe.Ref, pingTime));
             probe.ExpectMsg<TcpClientSubscribe>();
-
 
             Within(pingTime * 3, () =>
             {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 using Docker.DotNet;
 using Docker.DotNet.Models;
 
@@ -18,13 +19,18 @@ namespace OpenTTDAdminPort.Tests.Dockerized
             foreach (var c in containers)
             {
                 foreach (var name in c.Names)
+                {
                     if (name.TrimStart('/') == containerName)
                     {
                         containerId = c.ID;
                         break;
                     }
+                }
+
                 if (containerId != null)
+                {
                     break;
+                }
             }
 
             if (containerId != null)
@@ -43,15 +49,13 @@ namespace OpenTTDAdminPort.Tests.Dockerized
 
         public static async Task StopContainer(this DockerClient client, string containerName)
         {
-            await client.Containers.StopContainerAsync(containerName, new ContainerStopParameters() {  });
+            await client.Containers.StopContainerAsync(containerName, new ContainerStopParameters() { });
         }
 
         public static async Task ResumeContainer(this DockerClient client, string containerName)
         {
             await client.Containers.UnpauseContainerAsync(containerName);
         }
-
-
 
         public static async Task PullImage(this DockerClient client, string imageName, string tagName)
         {
@@ -63,6 +67,5 @@ namespace OpenTTDAdminPort.Tests.Dockerized
 
             await client.Images.CreateImageAsync(pullParam, new AuthConfig(), new DockerizePullProgress(imageName));
         }
-
     }
 }

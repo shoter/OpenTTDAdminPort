@@ -1,11 +1,13 @@
-﻿using OpenTTDAdminPort.Messages;
-using OpenTTDAdminPort.Networking;
-using OpenTTDAdminPort.Packets.MessageTransformers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+using OpenTTDAdminPort.Messages;
+using OpenTTDAdminPort.Networking;
+using OpenTTDAdminPort.Packets.MessageTransformers;
+
 using Xunit;
 
 namespace OpenTTDAdminPort.Tests.Packets.MessageTransformers
@@ -28,6 +30,5 @@ namespace OpenTTDAdminPort.Tests.Packets.MessageTransformers
         {
             Assert.Equal(AdminMessageType.ADMIN_PACKET_ADMIN_RCON, new AdminRconMessageTransformer().SupportedMessageType);
         }
-
     }
 }

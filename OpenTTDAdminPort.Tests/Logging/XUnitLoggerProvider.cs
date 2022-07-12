@@ -6,17 +6,17 @@ namespace OpenTTDAdminPort.Tests.Logging
 {
     internal class XUnitLoggerProvider : ILoggerProvider
     {
-        private readonly ITestOutputHelper _testOutputHelper;
-        private readonly LoggerExternalScopeProvider _scopeProvider = new LoggerExternalScopeProvider();
+        private readonly ITestOutputHelper testOutputHelper;
+        private readonly LoggerExternalScopeProvider scopeProvider = new LoggerExternalScopeProvider();
 
         public XUnitLoggerProvider(ITestOutputHelper testOutputHelper)
         {
-            _testOutputHelper = testOutputHelper;
+            this.testOutputHelper = testOutputHelper;
         }
 
         public ILogger CreateLogger(string categoryName)
         {
-            return new XUnitLogger(_testOutputHelper, _scopeProvider, categoryName);
+            return new XUnitLogger(testOutputHelper, scopeProvider, categoryName);
         }
 
         public void Dispose()

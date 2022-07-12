@@ -1,4 +1,6 @@
-﻿using Akka.Actor;
+﻿using System;
+
+using Akka.Actor;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -8,14 +10,10 @@ using OpenTTDAdminPort.Events;
 using OpenTTDAdminPort.MainActor.Messages;
 using OpenTTDAdminPort.MainActor.StateData;
 
-using System;
-using System.Collections.Generic;
-
 namespace OpenTTDAdminPort.MainActor
 {
     public partial class AdminPortClientActor : FSM<MainState, IMainData>, IWithUnboundedStash
     {
-
         private readonly IActorFactory actorFactory;
 
         private readonly string version;
@@ -42,7 +40,6 @@ namespace OpenTTDAdminPort.MainActor
 
             this.Messager = this.actorFactory.CreateMessager(Context);
 
-
             this.version = "1.0.0";
 
             Ready();
@@ -50,7 +47,7 @@ namespace OpenTTDAdminPort.MainActor
 
         public override void AroundPreRestart(Exception cause, object message)
         {
-            if(cause != null && Sender != null)
+            if (cause != null && Sender != null)
             {
                 Sender.Tell(cause);
             }
@@ -70,17 +67,17 @@ namespace OpenTTDAdminPort.MainActor
 
             WhenUnhandled(state =>
             {
-                if(state.FsmEvent is Action<IAdminEvent> action)
+                if (state.FsmEvent is Action<IAdminEvent> action)
                 {
                     this.Messager.Tell(action);
                 }
+
                 return Stay();
             });
         }
 
         protected override void PostStop()
         {
-
             base.PostStop();
         }
 

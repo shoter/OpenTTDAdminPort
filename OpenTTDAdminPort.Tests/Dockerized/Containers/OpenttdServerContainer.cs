@@ -16,9 +16,8 @@ namespace OpenTTDAdminPort.Tests.Dockerized.Containers
     {
         public ServerInfo ServerInfo => new ServerInfo("127.0.0.1", Port, "admin_pass");
 
-        private int createdAdminClientNumber = 0;
-
-        public OpenttdServerContainer(DockerClient client) : base(client)
+        public OpenttdServerContainer(DockerClient client)
+            : base(client)
         {
         }
 
@@ -26,6 +25,7 @@ namespace OpenTTDAdminPort.Tests.Dockerized.Containers
         {
             string configPath = Path.Combine(Directory.GetCurrentDirectory(), nameof(Dockerized), "openttd.cfg");
             options.AddPortBinding(Port, 3982);
+
             // For debugging purposes
             options.AddPortBinding(GetFreeTcpPort(), 3979);
             options.AddBind(configPath, "/config/openttd.cfg:ro");
@@ -38,12 +38,14 @@ namespace OpenTTDAdminPort.Tests.Dockerized.Containers
 
         protected override async Task WaitForContainerStart()
         {
-            //var logFactory = new LoggerFactory();
-            //logFactory.AddProvider(new DebugLoggerProvider());
+            await Task.CompletedTask;
 
-            //AdminPortClient client = null;
-            //while (client?.ConnectionState != AdminConnectionState.Connected)
-            //{
+            // var logFactory = new LoggerFactory();
+            // logFactory.AddProvider(new DebugLoggerProvider());
+
+            // AdminPortClient client = null;
+            // while (client?.ConnectionState != AdminConnectionState.Connected)
+            // {
             //    try
             //    {
             //        client = new AdminPortClient(AdminPortClientSettings.Default, ServerInfo, new ContextLogger<AdminPortClient>(logFactory.CreateLogger<AdminPortClient>(), $"TestClient{createdAdminClientNumber++}"));
@@ -56,8 +58,8 @@ namespace OpenTTDAdminPort.Tests.Dockerized.Containers
             //            await client.Disconnect();
             //        }
             //    }
-            //}
-            //await client?.Disconnect();
+            // }
+            // await client?.Disconnect();
         }
     }
 }

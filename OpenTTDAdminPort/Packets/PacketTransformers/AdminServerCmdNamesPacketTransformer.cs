@@ -1,6 +1,7 @@
-﻿using OpenTTDAdminPort.Messages;
+﻿using System.Collections.Generic;
+
+using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Networking;
-using System.Collections.Generic;
 
 namespace OpenTTDAdminPort.Packets.PacketTransformers
 {
@@ -11,7 +12,7 @@ namespace OpenTTDAdminPort.Packets.PacketTransformers
         public IAdminMessage Transform(Packet packet)
         {
             Dictionary<ushort, string> commands = new Dictionary<ushort, string>();
-            while(packet.ReadBool())
+            while (packet.ReadBool())
             {
                 commands.Add(packet.ReadU16(), packet.ReadString());
             }

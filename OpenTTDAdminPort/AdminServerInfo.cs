@@ -9,7 +9,6 @@
 
         public bool IsDedicated { get; internal set; }
 
-        public string MapName { get; internal init; } = default !;
-
+        public string MapName { get; internal init; } = default!;
     }
 }

@@ -1,7 +1,7 @@
-﻿using OpenTTDAdminPort.Networking;
-
-using System.IO;
+﻿using System.IO;
 using System.Threading.Tasks;
+
+using OpenTTDAdminPort.Networking;
 
 namespace OpenTTDAdminPort.Tests.Networking
 {
@@ -14,7 +14,7 @@ namespace OpenTTDAdminPort.Tests.Networking
         public string Ip { get; private set; }
 
         public int Port { get; private set; }
-        
+
         public void Close()
         {
             IsConnected = false;
@@ -34,6 +34,5 @@ namespace OpenTTDAdminPort.Tests.Networking
         }
 
         public Stream GetStream() => Stream;
-        
     }
 }

@@ -1,11 +1,13 @@
-﻿using OpenTTDAdminPort.Messages;
-using OpenTTDAdminPort.Networking;
-using OpenTTDAdminPort.Packets.PacketTransformers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+using OpenTTDAdminPort.Messages;
+using OpenTTDAdminPort.Networking;
+using OpenTTDAdminPort.Packets.PacketTransformers;
+
 using Xunit;
 
 namespace OpenTTDAdminPort.Tests.Packets.PacketTransformers
@@ -23,11 +25,12 @@ namespace OpenTTDAdminPort.Tests.Packets.PacketTransformers
             packet.SendU64(100); // income
             packet.SendU16(5); // delivered cargo
 
-            //1st quarter
+            // 1st quarter
             packet.SendU64(500);
             packet.SendU16(6);
             packet.SendU16(7);
-            //2nd quarter
+
+            // 2nd quarter
             packet.SendU64(600);
             packet.SendU16(16);
             packet.SendU16(17);

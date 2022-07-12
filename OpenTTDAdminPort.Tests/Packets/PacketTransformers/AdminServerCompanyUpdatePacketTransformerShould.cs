@@ -1,11 +1,13 @@
-﻿using OpenTTDAdminPort.Messages;
-using OpenTTDAdminPort.Networking;
-using OpenTTDAdminPort.Packets.PacketTransformers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+using OpenTTDAdminPort.Messages;
+using OpenTTDAdminPort.Networking;
+using OpenTTDAdminPort.Packets.PacketTransformers;
+
 using Xunit;
 
 namespace OpenTTDAdminPort.Tests.Packets.PacketTransformers
@@ -24,13 +26,14 @@ namespace OpenTTDAdminPort.Tests.Packets.PacketTransformers
             packet.SendByte(1); // has password
             packet.SendByte(3); // months of bankruptcy
 
-            //shares
+            // shares
             packet.SendByte(9);
             packet.SendByte(8);
             packet.SendByte(7);
             packet.SendByte(6);
 
-            packet.PrepareToSend();packet.ReadByte();
+            packet.PrepareToSend();
+            packet.ReadByte();
 
             var msg = new AdminServerCompanyUpdatePacketTransformer()
                 .Transform(packet)

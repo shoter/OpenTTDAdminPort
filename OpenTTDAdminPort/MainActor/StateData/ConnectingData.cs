@@ -1,10 +1,10 @@
-﻿using Akka.Actor;
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
+
+using Akka.Actor;
 
 using OpenTTDAdminPort.Game;
 using OpenTTDAdminPort.MainActor.Messages;
-
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 
 namespace OpenTTDAdminPort.MainActor.StateData
 {

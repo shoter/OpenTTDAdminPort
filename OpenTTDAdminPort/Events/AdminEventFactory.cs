@@ -1,21 +1,23 @@
-﻿using OpenTTDAdminPort.Assemblies;
-using OpenTTDAdminPort.Common.Assemblies;
-using OpenTTDAdminPort.Events.Creators;
-using OpenTTDAdminPort.Game;
-using OpenTTDAdminPort.MainActor.StateData;
-using OpenTTDAdminPort.Messages;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
+using OpenTTDAdminPort.Assemblies;
+using OpenTTDAdminPort.Common.Assemblies;
+using OpenTTDAdminPort.Events.Creators;
+using OpenTTDAdminPort.Game;
+using OpenTTDAdminPort.MainActor.StateData;
+using OpenTTDAdminPort.Messages;
+
 namespace OpenTTDAdminPort.Events
 {
     internal class AdminEventFactory : IAdminEventFactory
     {
         private readonly Dictionary<AdminMessageType, IEventCreator> creators = new Dictionary<AdminMessageType, IEventCreator>();
+
         public AdminEventFactory(params IEventCreator[] eventCreators)
         {
             creators = eventCreators.ToDictionary(x => x.SupportedMessageType);
@@ -41,7 +43,9 @@ namespace OpenTTDAdminPort.Events
         public IAdminEvent? Create(in IAdminMessage adminMessage, in ConnectedData context)
         {
             if (!creators.ContainsKey(adminMessage.MessageType))
+            {
                 return null;
+            }
 
             return creators[adminMessage.MessageType].Create(adminMessage, context);
         }

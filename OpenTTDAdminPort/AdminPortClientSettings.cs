@@ -10,7 +10,6 @@ namespace OpenTTDAdminPort
     {
         public TimeSpan WatchdogInterval { get; set; }
 
-
         public static AdminPortClientSettings Default = new AdminPortClientSettings()
         {
             WatchdogInterval = TimeSpan.FromSeconds(15),

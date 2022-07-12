@@ -1,10 +1,11 @@
-﻿using OpenTTDAdminPort.Game;
-using OpenTTDAdminPort.Messages;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+using OpenTTDAdminPort.Game;
+using OpenTTDAdminPort.Messages;
 
 namespace OpenTTDAdminPort.Tests.Messages
 {
@@ -22,9 +23,8 @@ namespace OpenTTDAdminPort.Tests.Messages
                 Landscape = Landscape.LT_ARCTIC,
                 MapHeight = 2,
                 MapSeed = 33,
-                MapWidth = 4
+                MapWidth = 4,
             };
         }
-        
     }
 }

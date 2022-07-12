@@ -8,9 +8,9 @@ namespace OpenTTDAdminPort.Messages
 
         public byte CompanyId { get; internal set; }
 
-        public string CompanyName { get; internal set; }
+        public string CompanyName { get; internal set; } = default!;
 
-        public string ManagerName { get; internal set; }
+        public string ManagerName { get; internal set; } = default!;
 
         public byte Color { get; internal set; }
 

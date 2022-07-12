@@ -1,4 +1,6 @@
-﻿using Akka.Actor;
+﻿using System;
+
+using Akka.Actor;
 
 using Microsoft.Extensions.Logging;
 
@@ -9,8 +11,6 @@ using OpenTTDAdminPort.MainActor.StateData;
 using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Networking;
 
-using System;
-
 namespace OpenTTDAdminPort.MainActor
 {
     public partial class AdminPortClientActor : FSM<MainState, IMainData>, IWithUnboundedStash
@@ -19,7 +19,7 @@ namespace OpenTTDAdminPort.MainActor
         {
             OnTransition((prevState, newState) =>
             {
-                if(newState == MainState.Connecting)
+                if (newState == MainState.Connecting)
                 {
                     Stash.ClearStash();
 
@@ -35,13 +35,13 @@ namespace OpenTTDAdminPort.MainActor
             {
                 ConnectingData data = (state.StateData as ConnectingData)!;
 
-                if(state.FsmEvent is AdminPortDisconnect)
+                if (state.FsmEvent is AdminPortDisconnect)
                 {
                     logger.LogTrace("Disconnecting admin port client");
                     data.TcpClient.GracefulStop(3.Seconds()).Wait();
                     return GoTo(MainState.Idle).Using(new IdleData()).Replying(AdminPortDisconnected.Instance);
                 }
-                else if(state.FsmEvent is ReceiveMessage rec)
+                else if (state.FsmEvent is ReceiveMessage rec)
                 {
                     var message = rec.Message;
                     logger.LogTrace($"Received message {message.MessageType}");
@@ -58,6 +58,7 @@ namespace OpenTTDAdminPort.MainActor
 
                                 return Stay();
                             }
+
                         case AdminMessageType.ADMIN_PACKET_SERVER_WELCOME:
                             {
                                 var msg = (AdminServerWelcomeMessage)message;
@@ -67,7 +68,7 @@ namespace OpenTTDAdminPort.MainActor
                                     IsDedicated = msg.IsDedicated,
                                     MapName = msg.MapName,
                                     RevisionName = msg.NetworkRevision,
-                                    ServerName = msg.ServerName
+                                    ServerName = msg.ServerName,
                                 };
 
                                 IActorRef watchdog = actorFactory.CreateWatchdog(Context, data.TcpClient, 5.Seconds());
@@ -78,7 +79,6 @@ namespace OpenTTDAdminPort.MainActor
                                 return GoTo(MainState.Connected).Using(new ConnectedData(data, watchdog));
                             }
                     }
-
                 }
                 else if (state.FsmEvent is AdminPortTcpClientConnectionLostException)
                 {
@@ -87,7 +87,7 @@ namespace OpenTTDAdminPort.MainActor
                     this.Messager.Tell(new AdminServerConnectionLost());
                     return GoTo(MainState.Connecting).Using(new ConnectingData(tcpClient, Self, data.ServerInfo, data.ClientName));
                 }
-                else if(state.FsmEvent is SendMessage m)
+                else if (state.FsmEvent is SendMessage m)
                 {
                     // Let's handle it later when we connect to the server.
                     Stash.Stash();
@@ -95,8 +95,6 @@ namespace OpenTTDAdminPort.MainActor
 
                 return null;
             });
-
         }
-
     }
 }

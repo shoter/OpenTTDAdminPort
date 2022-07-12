@@ -1,4 +1,8 @@
-﻿using Akka.Actor;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+
+using Akka.Actor;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -10,25 +14,20 @@ using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Networking.Exceptions;
 using OpenTTDAdminPort.Packets;
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-
 namespace OpenTTDAdminPort.Networking
 {
-    internal partial class AdminPortTcpClient : ReceiveActor
+    internal class AdminPortTcpClient : ReceiveActor
     {
-        private ITcpClient tcpClient;
         private readonly IAdminPacketService adminPacketService;
         private readonly IActorFactory actorFactory;
         private readonly IServiceScope scope;
         private readonly HashSet<IActorRef> subscribers = new();
+        private readonly ILogger logger;
 
         // Obtained after connect
+        private ITcpClient tcpClient;
         private Stream? stream;
         private IActorRef? receiver;
-
-        private readonly ILogger logger;
 
         public AdminPortTcpClient(IServiceProvider serviceProvider, string ip, int port)
         {
@@ -47,8 +46,8 @@ namespace OpenTTDAdminPort.Networking
             {
                 this.logger.LogError(ex, "Connection failed");
                 throw new InitialConnectionException("Connection failed", ex);
-
             }
+
             this.stream = tcpClient.GetStream();
             this.receiver = actorFactory.CreateReceiver(Context, stream);
 
@@ -81,7 +80,7 @@ namespace OpenTTDAdminPort.Networking
             Receive<ReceiveMessage>(receiveMessage =>
             {
                 Context.Parent.Tell(receiveMessage);
-                foreach(var s in subscribers)
+                foreach (var s in subscribers)
                 {
                     s.Tell(receiveMessage);
                 }

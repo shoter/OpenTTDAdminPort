@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+
 using Docker.DotNet;
 
 namespace OpenTTDAdminPort.Tests.Dockerized
 {
-    public class DockerClientProvider
+    public static class DockerClientProvider
     {
         public static DockerClient Instance { get; }
 
@@ -15,7 +16,6 @@ namespace OpenTTDAdminPort.Tests.Dockerized
                 Instance = new DockerClientConfiguration(
                 new Uri("unix:/var/run/docker.sock"))
                 .CreateClient();
-
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {

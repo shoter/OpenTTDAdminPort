@@ -21,10 +21,9 @@ namespace OpenTTDAdminPort.Logging
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
-            logger.Log(logLevel, eventId, state, exception, (TState s, Exception e) => $"{context}:{formatter(s,e)}");
+            logger.Log(logLevel, eventId, state, exception, (TState s, Exception e) => $"{context}:{formatter(s, e)}");
         }
     }
-
 
     public class ContextLogger<T> : ILogger<T>
     {
@@ -36,6 +35,7 @@ namespace OpenTTDAdminPort.Logging
             this.logger = logger;
             this.context = context;
         }
+
         public IDisposable BeginScope<TState>(TState state) => logger.BeginScope(state);
 
         public bool IsEnabled(LogLevel logLevel) => logger.IsEnabled(logLevel);

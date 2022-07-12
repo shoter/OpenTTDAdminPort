@@ -1,4 +1,7 @@
-﻿using Akka.Actor;
+﻿using System;
+using System.Threading.Tasks;
+
+using Akka.Actor;
 
 using Microsoft.Extensions.Logging;
 
@@ -12,9 +15,6 @@ using OpenTTDAdminPort.Networking;
 using OpenTTDAdminPort.Networking.Exceptions;
 using OpenTTDAdminPort.Networking.Watchdog;
 
-using System;
-using System.Threading.Tasks;
-
 namespace OpenTTDAdminPort.MainActor
 {
     public partial class AdminPortClientActor : FSM<MainState, IMainData>, IWithUnboundedStash
@@ -25,8 +25,6 @@ namespace OpenTTDAdminPort.MainActor
             {
                 if (newState == MainState.Connected)
                 {
-
-
                     logger.LogTrace("Connected state initialized. Unstashing all messages.");
                     Stash.UnstashAll();
                 }
@@ -57,18 +55,18 @@ namespace OpenTTDAdminPort.MainActor
                 }
                 else if (state.FsmEvent is AdminPortDisconnect)
                 {
-                    killChildren(data);
+                    KillChildren(data);
 
                     return GoTo(MainState.Idle).Using(new IdleData()).Replying(EmptyResponse.Instance);
                 }
                 else if (state.FsmEvent is WatchdogConnectionLost || state.FsmEvent is AdminPortTcpClientConnectionLostException)
                 {
-                    killChildren(data);
+                    KillChildren(data);
                     IActorRef tcpClient = actorFactory.CreateTcpClient(Context, data.ServerInfo.ServerIp, data.ServerInfo.ServerPort);
                     this.Messager.Tell(new AdminServerConnectionLost());
                     return GoTo(MainState.Connecting).Using(new ConnectingData(tcpClient, Self, data.ServerInfo, data.ClientName));
                 }
-                else if(state.FsmEvent is AdminPortQueryState queryState)
+                else if (state.FsmEvent is AdminPortQueryState queryState)
                 {
                     return Stay().Replying(new AdminPortReponseState(queryState, new MainActorState(data)));
                 }
@@ -86,6 +84,7 @@ namespace OpenTTDAdminPort.MainActor
                         data.Players.Add(ci.ClientId, new Player(ci.ClientId, ci.ClientName, DateTimeOffset.Now, ci.Hostname, ci.PlayingAs));
                         break;
                     }
+
                 case AdminServerClientUpdateMessage cu:
                     {
                         var player = data.Players[cu.ClientId];
@@ -93,26 +92,27 @@ namespace OpenTTDAdminPort.MainActor
                         player.PlayingAs = cu.PlayingAs;
                         break;
                     }
+
                 case AdminServerClientQuitMessage cq:
                     {
                         data.Players.Remove(cq.ClientId);
                         break;
                     }
+
                 default:
                     {
                         // Other messages are not relevant to update server state
                         break;
                     }
             }
-
         }
 
-        private static void killChildren(ConnectedData data)
+        private static void KillChildren(ConnectedData data)
         {
             Task[] killTasks = new Task[]
             {
                 data.TcpClient.GracefulStop(3.Seconds()),
-                data.Watchdog.GracefulStop(3.Seconds())
+                data.Watchdog.GracefulStop(3.Seconds()),
             };
             Task.WaitAll(killTasks);
         }
