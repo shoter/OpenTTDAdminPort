@@ -74,6 +74,7 @@ jobs:
           CI: true
 
     - name: Upload unit Test result
-      uses: codecov/codecov-action@v1.0.7
+    - uses: actions/checkout@master
+    - uses: codecov/codecov-action@v3
       with:
           flags: unittests
