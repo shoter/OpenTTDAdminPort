@@ -79,3 +79,4 @@ jobs:
       uses: codecov/codecov-action@v3
       with:
         flags: unittests
+        files: /home/runner/work/OpenTTDAdminPort/OpenTTDAdminPort/OpenTTDAdminPort.Tests/TestResults/64aa2e37-26c8-47c2-b872-06a0da17a104/coverage.cobertura.xml
