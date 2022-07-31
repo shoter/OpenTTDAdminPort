@@ -1,8 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
+using Docker.DotNet;
+
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+
+using OpenTTDAdminPort.Tests.Dockerized.Containers;
+using OpenTTDAdminPort.Tests.Dockerized.Images;
+using OpenTTDAdminPort.Tests.Dockerized.Progress;
+using OpenTTDAdminPort.Tests.Logging;
 
 using Xunit.Abstractions;
 
@@ -17,19 +23,9 @@ namespace OpenTTDAdminPort.Tests.Dockerized
         protected readonly IServiceProvider serviceProvider;
 
         public DockerizedTest(ITestOutputHelper testOutput)
-            : base(testOutput)
         {
             this.serviceProvider = CreateServiceProvider(testOutput);
-            this.application = serviceProvider.GetService<AlarmsDatabase>();
-
-            dbOptions.Value.Returns(_ =>
-            {
-                return new DatabaseOptions()
-                {
-                    Name = "AlarmDb",
-                    ConnectionString = application.ConnectionString,
-                };
-            });
+            this.application = serviceProvider.GetService<TApp>();
         }
 
         private IServiceProvider CreateServiceProvider(ITestOutputHelper testOutput)
@@ -41,11 +37,6 @@ namespace OpenTTDAdminPort.Tests.Dockerized
             services.AddSingleton<IDockerContainerService, DockerContainerService>();
             services.AddSingleton<IDockerProgressFactory, DockerProgressFactory>();
             services.AddSingleton<IDockerClient>(DockerClientProvider.Instance);
-            services.AddSingleton<IAlarmRepository, AlarmRepository>();
-            services.AddSingleton<ILastReceiveTimeRepository, LastReceiveTimeRepository>();
-            services.AddSingleton<ISubscriptionRepository, SubscriptionRepository>();
-            services.AddTransient<AlarmsDatabase>();
-            services.AddSingleton(dbOptions);
 
             services.AddLogging(builder =>
             {
