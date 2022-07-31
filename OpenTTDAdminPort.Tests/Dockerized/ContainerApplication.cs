@@ -1,9 +1,19 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 using Docker.DotNet;
 using Docker.DotNet.Models;
+
+using DotNet.Testcontainers.Builders;
+
+using Microsoft.Extensions.Logging;
+
+using OpenTTDAdminPort.Tests.Dockerized.Containers;
+
+using Polly;
 
 namespace OpenTTDAdminPort.Tests.Dockerized
 {
@@ -17,81 +27,85 @@ namespace OpenTTDAdminPort.Tests.Dockerized
 
         private string containerName;
 
-        public ContainerApplicationState State { private get; set; } = ContainerApplicationState.Idle;
+        public ContainerApplicationState State { get; private set; } = ContainerApplicationState.Idle;
 
-        private readonly DockerClient client = DockerClientProvider.Instance;
+        protected readonly ILogger logger;
 
-        public ContainerApplication(DockerClient client)
+        protected readonly IDockerService docker;
+
+        protected AsyncPolicy<bool> containerStartPolicy;
+
+        public ContainerApplication(IDockerService dockerService, ILogger logger)
         {
-            this.client = client;
+            this.logger = logger;
+            this.docker = dockerService;
+            containerStartPolicy = Policy
+                .HandleResult<bool>(x => x == false)
+                .Or<Exception>()
+                .WaitAndRetryAsync(60, retryAttempt => TimeSpan.FromSeconds(1));
         }
 
-        public async Task Start(string containerName)
+        public async virtual Task Start([CallerMemberName] string containerName = null)
         {
+            if (containerName == null)
+            {
+                throw new ArgumentNullException(containerName);
+            }
+
             this.containerName = containerName;
 
-            await client.RemoveContainerIfExists(containerName);
+            await docker.Containers.StopAndRemoveContainer(containerName);
 
             // Image might not exist on local pc. We need to download it.
-            await client.PullImage(ImageName, TagName);
+            await docker.Images.PullImage(ImageName, TagName);
 
             Port = GetFreeTcpPort();
-            var parameters = OverrideContainerParameters(new CreateContainerParameters()
+            var parameters = OverrideContainerParameters(new CreateContainerParametersExt()
             {
                 Name = containerName,
                 Image = $"{ImageName}:{TagName}",
-            }, Port);
+            });
 
-            var response = await client.Containers.CreateContainerAsync(parameters);
+            var response = await docker.Client.Containers.CreateContainerAsync(parameters);
 
-            await client.Networks.ConnectNetworkAsync("bridge", new NetworkConnectParameters
+            await docker.Client.Networks.ConnectNetworkAsync("bridge", new NetworkConnectParameters
             {
                 Container = response.ID,
             });
 
-            await client.Containers.StartContainerAsync(response.ID, new ContainerStartParameters() { });
+            await docker.Client.Containers.StartContainerAsync(response.ID, new ContainerStartParameters() { });
 
-            await WaitForContainerStart();
-
+            await containerStartPolicy.ExecuteAndCaptureAsync(CheckIfContainerIsRunning);
             State = ContainerApplicationState.Running;
         }
 
         public async Task Stop()
         {
-            if (State == ContainerApplicationState.Running)
+            try
             {
-                await client.StopContainer(containerName);
-                State = ContainerApplicationState.Stopped;
+                if (State == ContainerApplicationState.Running)
+                {
+                    await docker.Containers.StopAndRemoveContainer(containerName);
+                    State = ContainerApplicationState.Stopped;
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error ocurred while stopping container");
+                State = ContainerApplicationState.Errored;
+                throw;
             }
         }
 
-        public async Task ResumeContainer()
-        {
-            if (State == ContainerApplicationState.Stopped)
-            {
-                await client.Containers.StartContainerAsync(containerName, new ContainerStartParameters());
-                State = ContainerApplicationState.Running;
-            }
-        }
+        protected virtual CreateContainerParameters OverrideContainerParameters(CreateContainerParametersExt options) => options;
 
-        public async Task StopRemove()
-        {
-            if (State == ContainerApplicationState.Running)
-            {
-                await client.StopRemoveContainer(containerName);
-                State = ContainerApplicationState.Killed;
-            }
-        }
-
-        protected virtual CreateContainerParameters OverrideContainerParameters(CreateContainerParameters options, int assignedPort) => options;
-
-        protected abstract Task WaitForContainerStart();
+        protected abstract Task<bool> CheckIfContainerIsRunning();
 
         public void Dispose()
         {
             if (State == ContainerApplicationState.Running)
             {
-                StopRemove().Wait();
+                Stop().Wait();
             }
         }
 

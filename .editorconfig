@@ -111,6 +111,9 @@ dotnet_diagnostic.IDE0022.severity = none
 # SA1615: Element return value should be documented
 dotnet_diagnostic.SA1615.severity = none
 
+# SA1611: Element parameters should be documented
+dotnet_diagnostic.SA1611.severity = none
+
 # SA1614: Element parameter documentation should have text
 dotnet_diagnostic.SA1614.severity = none
 

@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 
 using OpenTTDAdminPort.Networking;
+using OpenTTDAdminPort.Tests.Dockerized.Applications;
 using OpenTTDAdminPort.Tests.Dockerized.Containers;
 
 using Xunit;
