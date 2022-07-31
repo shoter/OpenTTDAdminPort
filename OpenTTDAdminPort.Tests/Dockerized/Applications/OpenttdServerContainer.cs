@@ -15,8 +15,6 @@ namespace OpenTTDAdminPort.Tests.Dockerized.Applications
 {
     public class OpenttdServerContainer : ContainerApplication
     {
-        private static int createdAdminClientNumber = 0;
-
         public ServerInfo ServerInfo => new ServerInfo("127.0.0.1", Port, "admin_pass");
 
         protected override string ImageName => "redditopenttd/openttd";

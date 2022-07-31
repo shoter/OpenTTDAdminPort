@@ -37,6 +37,7 @@ namespace OpenTTDAdminPort.Tests.Dockerized
             services.AddSingleton<IDockerContainerService, DockerContainerService>();
             services.AddSingleton<IDockerProgressFactory, DockerProgressFactory>();
             services.AddSingleton<IDockerClient>(DockerClientProvider.Instance);
+            services.AddTransient<TApp>();
 
             services.AddLogging(builder =>
             {
