@@ -55,22 +55,24 @@ namespace OpenTTDAdminPort.Networking.Watchdog
 
         protected override void PreStart()
         {
-            Context.System.Scheduler.ScheduleTellOnce(this.maximumPingTime, Self, new SendPingMessage(lastSendPingArg), Self);
+            Context.System.Scheduler.ScheduleTellOnce(this.maximumPingTime, Self, new WatchdogHeartBeat(lastSendPingArg), Self);
             base.PreStart();
         }
 
         private void Ready()
         {
-            Receive<SendPingMessage>(msg =>
+            Receive<WatchdogHeartBeat>(msg =>
             {
-                logger.LogTrace($"Received {nameof(SendPingMessage)} with {msg.Argument}");
+                logger.LogTrace($"Received {nameof(WatchdogHeartBeat)} with {msg.Argument}");
                 if (msg.Argument != lastSendPingArg)
                 {
                     logger.LogTrace($"Return because {msg.Argument} != {lastSendPingArg}");
                     return;
                 }
 
-                if (lastPingReceived == false && (lastPingSentTime - DateTimeOffset.Now).Duration() > maximumPingTime)
+                if (
+                    !lastPingReceived &&
+                    (lastPingSentTime - DateTimeOffset.Now).Duration() > maximumPingTime)
                 {
                     logger.LogTrace($"Connection lost as last pong {lastSendPingArg} for this argument was not received in specified time window. {lastPingSentTime.DateTime.ToTime()} - {DateTimeOffset.Now.DateTime.ToTime()} = {(lastPingSentTime - DateTimeOffset.Now).Duration().TotalSeconds} s > {maximumPingTime.TotalSeconds} s");
                     Context.Parent.Tell(new WatchdogConnectionLost());
@@ -81,7 +83,7 @@ namespace OpenTTDAdminPort.Networking.Watchdog
                     lastPingSentTime = DateTimeOffset.Now;
                     lastSendPingArg = (uint)rand.Next(0, int.MaxValue);
                     tcpClient.Tell(new SendMessage(new AdminPingMessage(lastSendPingArg)));
-                    Context.System.Scheduler.ScheduleTellOnce(this.maximumPingTime, Self, new SendPingMessage(lastSendPingArg), Self);
+                    Context.System.Scheduler.ScheduleTellOnce(this.maximumPingTime, Self, new WatchdogHeartBeat(lastSendPingArg), Self);
                     logger.LogTrace($"sent ping message with {lastSendPingArg}");
                 }
             });
@@ -95,12 +97,12 @@ namespace OpenTTDAdminPort.Networking.Watchdog
                     if (pong.Argument == lastSendPingArg)
                     {
                         lastPingReceived = true;
-                        Context.System.Scheduler.ScheduleTellOnce(this.maximumPingTime, Self, new SendPingMessage(lastSendPingArg), Self);
+                        Context.System.Scheduler.ScheduleTellOnce(this.maximumPingTime, Self, new WatchdogHeartBeat(lastSendPingArg), Self);
                         logger.LogTrace("LastPingReceived = true");
                     }
                     else
                     {
-                        logger.LogTrace("Message did not match ping arg");
+                        logger.LogTrace("Message did not match ping arg. Ignoring");
                     }
                 }
             });

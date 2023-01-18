@@ -1,4 +1,4 @@
 ﻿namespace OpenTTDAdminPort.Networking.Watchdog
 {
-    public record SendPingMessage(uint Argument);
+    public record WatchdogHeartBeat(uint Argument);
 }
