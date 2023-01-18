@@ -7,6 +7,7 @@ namespace OpenTTDAdminPort.Akkas
     internal class ScopedReceiveActor : ReceiveActor
     {
         protected IServiceScope Scope { get; }
+
         protected IServiceProvider SP => Scope.ServiceProvider;
 
         public ScopedReceiveActor(IServiceProvider sp)
