@@ -15,6 +15,16 @@ namespace OpenTTDAdminPort.Akkas
             Scope = sp.CreateScope();
         }
 
+        public override void AroundPreRestart(Exception cause, object message)
+        {
+            if (cause != null && Sender != null)
+            {
+                Sender.Tell(cause);
+            }
+
+            base.AroundPreRestart(cause, message);
+        }
+
         protected override void PostStop()
         {
             Scope.Dispose();

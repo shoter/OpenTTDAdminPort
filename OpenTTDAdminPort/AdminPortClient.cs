@@ -34,7 +34,6 @@ namespace OpenTTDAdminPort
 
         private IActorRef mainActor;
 
-        // public event EventHandler<IAdminEvent>? EventReceived;
         public AdminPortClient(AdminPortClientSettings settings, ServerInfo serverInfo, Action<ILoggingBuilder>? configureLogging = null)
         {
             this.ServerInfo = serverInfo;

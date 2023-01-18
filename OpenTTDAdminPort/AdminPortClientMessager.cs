@@ -6,30 +6,19 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 using OpenTTDAdminPort.Akkas;
-using OpenTTDAdminPort.Events;
 
 namespace OpenTTDAdminPort
 {
-    public class AdminPortClientMessager : ReceiveActor
+    internal class AdminPortClientMessager : ScopedReceiveActor
     {
-        private Action<IAdminEvent>? adminEventOnReceive;
+        private Action<object>? adminMessageOnReceive;
         private ILogger logger;
 
-        private IServiceScope scope;
-
-        private IServiceProvider Sp => scope.ServiceProvider;
-
         public AdminPortClientMessager(IServiceProvider serviceProvider)
+            : base(serviceProvider)
         {
-            this.scope = serviceProvider.CreateScope();
-            this.logger = Sp.GetRequiredService<ILogger<AdminPortClientMessager>>();
+            this.logger = SP.GetRequiredService<ILogger<AdminPortClientMessager>>();
             Ready();
-        }
-
-        protected override void PostStop()
-        {
-            scope.Dispose();
-            base.PostStop();
         }
 
         public static Props Create(IServiceProvider sp)
@@ -37,16 +26,16 @@ namespace OpenTTDAdminPort
 
         public void Ready()
         {
-            Receive<Action<IAdminEvent>>(SetNewAction);
-            Receive<IAdminEvent>(e =>
+            Receive<Action<object>>(SetNewAction);
+            Receive<object>(e =>
             {
-                adminEventOnReceive?.Invoke(e);
+                adminMessageOnReceive?.Invoke(e);
             });
         }
 
-        public void SetNewAction(Action<IAdminEvent> ev)
+        public void SetNewAction(Action<object> action)
         {
-            adminEventOnReceive = ev;
+            adminMessageOnReceive = action;
             Sender.Tell(SuccessResponse.Instance);
         }
     }

@@ -78,6 +78,7 @@ namespace OpenTTDAdminPort.MainActor
 
         protected override void PostStop()
         {
+            scope.Dispose();
             base.PostStop();
         }
 
