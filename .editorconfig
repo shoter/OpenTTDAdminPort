@@ -136,7 +136,10 @@ dotnet_diagnostic.SA1118.severity = none
 dotnet_diagnostic.SA1111.severity = none
 
 # SA1313: Parameter names should begin with lower-case letter
-dotnet_diagnostic.SA1313.severity = none
+dotnet_diagnostic.SA1313.severity = non_field_members
+
+# SA1601: Partial elements should be documented
+dotnet_diagnostic.SA1601.severity = none
 
 [*.{cs,vb}]
 dotnet_style_operator_placement_when_wrapping = beginning_of_line

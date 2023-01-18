@@ -15,7 +15,7 @@ namespace OpenTTDAdminPort.Networking.Watchdog
         private readonly TimeSpan maximumPingTime;
         private readonly IActorRef tcpClient;
         private readonly ILogger logger;
-        private readonly Random rand = new Random();
+        private readonly Random rand = new();
 
         private uint lastSendPingArg = 0;
         private bool lastPingReceived = true;
