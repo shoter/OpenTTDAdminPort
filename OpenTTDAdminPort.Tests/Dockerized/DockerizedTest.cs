@@ -21,11 +21,15 @@ namespace OpenTTDAdminPort.Tests.Dockerized
 
         protected readonly TApp application;
         protected readonly IServiceProvider serviceProvider;
+        protected readonly ITestOutputHelper output;
+        protected readonly ILogger logger;
 
         public DockerizedTest(ITestOutputHelper testOutput)
         {
             this.serviceProvider = CreateServiceProvider(testOutput);
             this.application = serviceProvider.GetService<TApp>();
+            this.logger = serviceProvider.GetService<ILogger<TApp>>();
+            this.output = testOutput;
         }
 
         private IServiceProvider CreateServiceProvider(ITestOutputHelper testOutput)

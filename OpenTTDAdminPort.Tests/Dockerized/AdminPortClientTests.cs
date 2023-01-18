@@ -1,175 +1,150 @@
 ﻿#pragma warning disable // will be enabled later TODO
-//using System;
-//using System.Threading.Tasks;
+using System;
+using System.Threading.Tasks;
 
-//using Divergic.Logging.Xunit;
+using Divergic.Logging.Xunit;
 
-//using Microsoft.Extensions.Logging;
-//using Microsoft.Extensions.Logging.Debug;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Debug;
 
-//using OpenTTDAdminPort.Common;
-//using OpenTTDAdminPort.Events;
-//using OpenTTDAdminPort.Logging;
-//using OpenTTDAdminPort.Messages;
-//using OpenTTDAdminPort.Tests.Dockerized.Applications;
-//using OpenTTDAdminPort.Tests.Dockerized.Containers;
-//using OpenTTDAdminPort.Tests.Logging;
+using OpenTTDAdminPort.Common;
+using OpenTTDAdminPort.Events;
+using OpenTTDAdminPort.Logging;
+using OpenTTDAdminPort.Messages;
+using OpenTTDAdminPort.Tests.Dockerized.Applications;
+using OpenTTDAdminPort.Tests.Dockerized.Containers;
+using OpenTTDAdminPort.Tests.Logging;
 
-//using Xunit;
-//using Xunit.Abstractions;
+using Xunit;
+using Xunit.Abstractions;
 
-//namespace OpenTTDAdminPort.Tests.Dockerized
-//{
-//    public class AdminPortClientTests : IDisposable
-//    {
-//        private readonly ILoggerFactory loggerFactory;
-//        private readonly OpenttdServerContainer server = new OpenttdServerContainer(DockerClientProvider.Instance);
-//        private bool disposedValue;
-//        private ILogger logger;
-//        ITestOutputHelper output;
+namespace OpenTTDAdminPort.Tests.Dockerized
+{
+    public class AdminPortClientTests : DockerizedTest<OpenttdServerContainer>
+    {
+        private readonly ILoggerFactory loggerFactory;
 
-//        public AdminPortClientTests(ITestOutputHelper output)
-//        {
-//            this.output = output;
-//            loggerFactory = LogFactory.Create(output);
-//            loggerFactory.AddProvider(new DebugLoggerProvider());
-//            logger = loggerFactory.CreateLogger<AdminPortClientTests>();
-//        }
+        public AdminPortClientTests(ITestOutputHelper output)
+            : base(output)
+        {
+        }
 
-//        [Fact]
-//        public async Task PingPongTest()
-//        {
-//            await server.Start(nameof(PingPongTest));
-//            AdminPongEvent pongEvent = null;
-//            AdminPortClient client = new AdminPortClient(AdminPortClientSettings.Default, server.ServerInfo, builder =>
-//            {
-//                builder.AddProvider(new XUnitLoggerProvider(output));
-//                builder.SetMinimumLevel(LogLevel.Trace);
-//            });
+        protected override void SetupServiceProvider(IServiceCollection services)
+        {
+            base.SetupServiceProvider(services);
+        }
 
-//            client.SetAdminEventHandler(ev =>
-//            {
-//                if (ev is AdminPongEvent pe)
-//                {
-//                    pongEvent = pe;
-//                }
-//            });
+        [Fact]
+        public async Task PingPongTest()
+        {
+            await application.Start();
+            AdminPongEvent pongEvent = null;
+            AdminPortClient client = new AdminPortClient(AdminPortClientSettings.Default, application.ServerInfo, builder =>
+            {
+                builder.AddProvider(new XUnitLoggerProvider(output));
+                builder.SetMinimumLevel(LogLevel.Trace);
+            });
 
-//            await client.Connect();
-//            client.SendMessage(new AdminPingMessage(55u));
+            client.SetAdminEventHandler(ev =>
+            {
+                if (ev is AdminPongEvent pe)
+                {
+                    pongEvent = pe;
+                }
+            });
 
-//            var timeout = Task.Delay(15.Seconds());
+            await client.Connect();
+            client.SendMessage(new AdminPingMessage(55u));
 
-//            while (pongEvent == null)
-//            {
-//                await Task.Delay(1);
+            var timeout = Task.Delay(15.Seconds());
 
-//                if (timeout.IsCompleted)
-//                {
-//                    throw new Exception();
-//                }
-//            }
+            while (pongEvent == null)
+            {
+                await Task.Delay(1);
 
-//            Assert.Equal(55u, pongEvent.PongValue);
-//            await client.Disconnect();
-//        }
+                if (timeout.IsCompleted)
+                {
+                    throw new Exception();
+                }
+            }
 
-//        //[Fact]
-//        //public async Task AfterServerRestart_AdminPortClientShouldAutomaticallyReconnect()
-//        //{
-//        //    var settings = new AdminPortClientSettings()
-//        //    {
-//        //        WatchdogInterval = 1.Seconds()
-//        //    };
-//        //    logger.LogInformation("Starting Openttd server");
-//        //    await server.Start(nameof(AfterServerRestart_AdminPortClientShouldAutomaticallyReconnect));
-//        //    logger.LogInformation($"Openttd Server started on port {server.Port}");
-//        //    AdminPortClient client = new AdminPortClient(settings, server.ServerInfo, builder =>
-//        //    {
-//        //        builder.AddProvider(new XUnitLoggerProvider(output));
-//        //        builder.SetMinimumLevel(LogLevel.Trace);
-//        //    });
+            Assert.Equal(55u, pongEvent.PongValue);
+            await client.Disconnect();
+        }
 
-//        //    AdminPongEvent pongEvent = null;
-//        //    AdminServerConnected connectEvent = null;
+        [Fact]
+        public async Task AfterServerRestart_AdminPortClientShouldAutomaticallyReconnect()
+        {
+            var settings = new AdminPortClientSettings()
+            {
+                WatchdogInterval = 1.Seconds()
+            };
+            logger.LogInformation("Starting Openttd server");
+            await application.Start(nameof(AfterServerRestart_AdminPortClientShouldAutomaticallyReconnect));
+            logger.LogInformation($"Openttd Server started on port {application.Port}");
+            AdminPortClient client = new AdminPortClient(settings, application.ServerInfo, builder =>
+            {
+                builder.AddProvider(new XUnitLoggerProvider(output));
+                builder.SetMinimumLevel(LogLevel.Trace);
+            });
 
-//        //    client.SetAdminEventHandler(ev =>
-//        //    {
-//        //        if (ev is AdminPongEvent pe)
-//        //        {
-//        //            pongEvent = pe;
-//        //        }
-//        //        if (ev is AdminServerConnected pr)
-//        //        {
-//        //            connectEvent = pr;
-//        //        }
-//        //    });
+            AdminPongEvent pongEvent = null;
+            AdminServerConnected connectEvent = null;
 
-//        //    logger.LogInformation("Starting client connection");
-//        //    await client.Connect();
-//        //    logger.LogInformation("Client connected");
+            client.SetAdminEventHandler(ev =>
+            {
+                if (ev is AdminPongEvent pe)
+                {
+                    pongEvent = pe;
+                }
+                if (ev is AdminServerConnected pr)
+                {
+                    connectEvent = pr;
+                }
+            });
 
-//        //    logger.LogInformation("Starting openttd server stop");
-//        //    await server.Stop();
-//        //    logger.LogInformation("openttd stopped");
+            logger.LogInformation("Starting client connection");
+            await client.Connect();
+            logger.LogInformation("Client connected");
 
-//        //    await server.ResumeContainer();
+            logger.LogInformation("Starting openttd server stop");
+            await application.Stop();
+            logger.LogInformation("openttd stopped");
 
-//        //    logger.LogInformation("Server started again");
+            await application.Start();
 
-//        //    logger.LogInformation("Waiting to receive message about restart");
-//        //    var timeout = Task.Delay(settings.WatchdogInterval * 3 + 30.Seconds());
-//        //    connectEvent = null;
+            logger.LogInformation("Server started again");
 
-//        //    while (connectEvent == null)
-//        //    {
-//        //        await Task.Delay(1);
+            logger.LogInformation("Waiting to receive message about restart");
+            var timeout = Task.Delay(settings.WatchdogInterval * 3 + 30.Seconds());
+            connectEvent = null;
 
-//        //        if (timeout.IsCompleted)
-//        //            throw new Exception();
-//        //    }
-//        //    logger.LogInformation("Restart ocurred");
+            while (connectEvent == null)
+            {
+                await Task.Delay(1);
 
-//        //    logger.LogInformation("Sending ping");
-//        //    client.SendMessage(new AdminPingMessage(22u));
+                if (timeout.IsCompleted)
+                    throw new Exception();
+            }
+            logger.LogInformation("Restart ocurred");
 
-//        //    timeout = Task.Delay(3.Seconds());
+            logger.LogInformation("Sending ping");
+            client.SendMessage(new AdminPingMessage(22u));
 
-//        //    while (pongEvent?.PongValue != 22u)
-//        //    {
-//        //        await Task.Delay(1);
+            timeout = Task.Delay(3.Seconds());
 
-//        //        if (timeout.IsCompleted)
-//        //        {
-//        //            throw new Exception();
-//        //        }
-//        //    }
+            while (pongEvent?.PongValue != 22u)
+            {
+                await Task.Delay(1);
 
-//        //    Assert.Equal(22u, pongEvent.PongValue);
-//        //}
+                if (timeout.IsCompleted)
+                {
+                    throw new Exception();
+                }
+            }
 
-//        protected virtual void Dispose(bool disposing)
-//        {
-//            if (!disposedValue)
-//            {
-//                if (disposing)
-//                {
-//                    server.Dispose();
-
-//                    // TODO: dispose managed state (managed objects)
-//                }
-
-//                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-//                // TODO: set large fields to null
-//                disposedValue = true;
-//            }
-//        }
-
-//        public void Dispose()
-//        {
-//            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-//            Dispose(disposing: true);
-//            GC.SuppressFinalize(this);
-//        }
-//    }
-//}
+            Assert.Equal(22u, pongEvent.PongValue);
+        }
+    }
+}
