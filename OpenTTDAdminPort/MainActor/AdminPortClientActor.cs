@@ -67,7 +67,7 @@ namespace OpenTTDAdminPort.MainActor
 
             WhenUnhandled(state =>
             {
-                if (state.FsmEvent is Action<IAdminEvent> action)
+                if (state.FsmEvent is Action<object> action)
                 {
                     this.Messager.Tell(action);
                 }

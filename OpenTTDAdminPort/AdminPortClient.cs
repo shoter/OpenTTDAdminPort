@@ -26,13 +26,13 @@ namespace OpenTTDAdminPort
         /// </remarks>
         public ConcurrentDictionary<AdminUpdateType, AdminUpdateSetting>? AdminUpdateSettings { get; set; }
 
-        public ServerInfo ServerInfo { get; private set; }
-
-        private IServiceProvider serviceProvider;
+        public ServerInfo ServerInfo { get; }
 
         private ActorSystem actorSystem;
 
         private IActorRef mainActor;
+
+        private Action<IAdminEvent> onAdminEventReceive = _ => { };
 
         public AdminPortClient(AdminPortClientSettings settings, ServerInfo serverInfo, Action<ILoggingBuilder>? configureLogging = null)
         {
@@ -50,10 +50,11 @@ namespace OpenTTDAdminPort
             });
             services.AddLogging(configureLogging ?? ((_) => { }));
 
-            serviceProvider = services.BuildServiceProvider();
+            IServiceProvider serviceProvider = services.BuildServiceProvider();
 
             IActorFactory actorFactory = serviceProvider.GetRequiredService<IActorFactory>();
             mainActor = actorFactory.CreateMainActor(actorSystem);
+            mainActor.Ask((Action<object>)OnMainActorMessage);
         }
 
         public async Task Connect()
@@ -73,7 +74,19 @@ namespace OpenTTDAdminPort
 
         public void SetAdminEventHandler(Action<IAdminEvent> action)
         {
-            mainActor.Ask(action);
+            onAdminEventReceive = action;
+        }
+
+        public void OnMainActorMessage(object msg)
+        {
+            switch (msg)
+            {
+                case IAdminEvent ev:
+                    {
+                        onAdminEventReceive.Invoke(ev);
+                        break;
+                    }
+            }
         }
     }
 }
