@@ -21,7 +21,9 @@ namespace OpenTTDAdminPort.Networking.Watchdog
         private bool lastPingReceived = true;
         private DateTimeOffset lastPingSentTime = DateTimeOffset.MinValue;
 
-        // Initialized by Akka.NET
+        /// <remarks>
+        /// Initialized by Akka.NET
+        /// </remarks>
         public ITimerScheduler Timers { get; set; } = default!;
 
         private AdminPortClientSettings settings;
@@ -29,8 +31,6 @@ namespace OpenTTDAdminPort.Networking.Watchdog
         /// <summary>
         /// Initializes a new instance of the <see cref="ConnectionWatchdog"/> class.
         /// </summary>
-        /// <param name="pingRespondTime">Specify how long will be time between pings to the server.
-        /// It is also specifying how long time does server have in order to respond to the message.</param>
         public ConnectionWatchdog(IServiceProvider sp, IActorRef tcpClient)
             : base(sp)
         {
