@@ -5,17 +5,16 @@ using Akka.Actor;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-
+using OpenTTDAdminPort.Akkas;
 using OpenTTDAdminPort.Messages;
 
 namespace OpenTTDAdminPort.Networking.Watchdog
 {
-    internal class ConnectionWatchdog : ReceiveActor, IWithTimers
+    internal class ConnectionWatchdog : ScopedReceiveActor, IWithTimers
     {
         private readonly TimeSpan maximumPingTime;
         private readonly IActorRef tcpClient;
         private readonly ILogger logger;
-        private readonly IServiceScope scope;
         private readonly Random rand = new Random();
 
         private uint lastSendPingArg = 0;
@@ -33,13 +32,12 @@ namespace OpenTTDAdminPort.Networking.Watchdog
         /// <param name="pingRespondTime">Specify how long will be time between pings to the server.
         /// It is also specifying how long time does server have in order to respond to the message.</param>
         public ConnectionWatchdog(IServiceProvider sp, IActorRef tcpClient)
+            : base(sp)
         {
             this.tcpClient = tcpClient;
-            this.scope = sp.CreateScope();
 
-            sp = scope.ServiceProvider;
-            logger = sp.GetRequiredService<ILogger<ConnectionWatchdog>>();
-            settings = sp.GetRequiredService<IOptions<AdminPortClientSettings>>().Value;
+            logger = SP.GetRequiredService<ILogger<ConnectionWatchdog>>();
+            settings = SP.GetRequiredService<IOptions<AdminPortClientSettings>>().Value;
             this.maximumPingTime = settings.WatchdogInterval;
 
             tcpClient.Tell(new TcpClientSubscribe());
@@ -52,7 +50,6 @@ namespace OpenTTDAdminPort.Networking.Watchdog
         protected override void PostStop()
         {
             tcpClient.Tell(new TcpClientUnsubscribe());
-            scope.Dispose();
             base.PostStop();
         }
 
