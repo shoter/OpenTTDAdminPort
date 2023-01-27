@@ -36,6 +36,8 @@ namespace OpenTTDAdminPort
 
         private Action<AdminConnectionStateChange> onConnectionStateChange = _ => { };
 
+        private ILogger logger;
+
         public AdminPortClient(AdminPortClientSettings settings, ServerInfo serverInfo, Action<ILoggingBuilder>? configureLogging = null)
         {
             this.ServerInfo = serverInfo;
@@ -53,9 +55,13 @@ namespace OpenTTDAdminPort
             services.AddLogging(configureLogging ?? ((_) => { }));
 
             IServiceProvider serviceProvider = services.BuildServiceProvider();
+            this.logger = serviceProvider.GetRequiredService<ILogger<AdminPortClient>>();
 
+            this.logger.LogTrace("Created service provider");
             IActorFactory actorFactory = serviceProvider.GetRequiredService<IActorFactory>();
+            this.logger.LogTrace("Created actor factory");
             mainActor = actorFactory.CreateMainActor(actorSystem);
+            this.logger.LogTrace("Created main actor");
             mainActor.Ask((Action<object>)OnMainActorMessage);
         }
 
