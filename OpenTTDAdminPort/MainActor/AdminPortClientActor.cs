@@ -42,6 +42,8 @@ namespace OpenTTDAdminPort.MainActor
 
             this.version = "1.0.0";
 
+            this.logger.LogTrace($"AdminPortClientActor v {version} created");
+
             Ready();
         }
 
