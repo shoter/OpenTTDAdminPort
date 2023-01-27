@@ -14,6 +14,7 @@ using Xunit.Abstractions;
 
 namespace OpenTTDAdminPort.Tests.Dockerized
 {
+    [Collection("dockerTests")]
     public class DockerizedTest<TApp> : IDisposable
         where TApp : ContainerApplication
     {
