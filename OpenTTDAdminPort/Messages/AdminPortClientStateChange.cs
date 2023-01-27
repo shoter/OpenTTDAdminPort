@@ -2,4 +2,4 @@
 
 namespace OpenTTDAdminPort.Messages;
 
-internal record AdminPortClientStateChange(MainState PreviousState, MainState CurrentState);
+internal record AdminPortClientStateChange(MainState PreviousState, MainState NewState);

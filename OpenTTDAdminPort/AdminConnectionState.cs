@@ -31,7 +31,7 @@ namespace OpenTTDAdminPort
                 MainState.Idle => AdminConnectionState.Idle,
                 MainState.Connecting => AdminConnectionState.Connecting,
                 MainState.Errored => AdminConnectionState.Errored,
-                _ => throw new ArgumentOutOfRangeException($"{state}");
+                _ => throw new ArgumentOutOfRangeException($"{state}"),
             };
         }
     }

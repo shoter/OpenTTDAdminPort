@@ -45,7 +45,7 @@ namespace OpenTTDAdminPort.Tests.Dockerized
                 .WaitAndRetryAsync(60, retryAttempt => TimeSpan.FromSeconds(1));
         }
 
-        public async virtual Task Start([CallerMemberName] string containerName = null)
+        public async virtual Task Start([CallerMemberName] string containerName = null, int? port = null)
         {
             if (containerName == null)
             {
@@ -59,7 +59,10 @@ namespace OpenTTDAdminPort.Tests.Dockerized
             // Image might not exist on local pc. We need to download it.
             await docker.Images.PullImage(ImageName, TagName);
 
-            Port = GetFreeTcpPort();
+            Port = port ?? GetFreeTcpPort();
+
+            this.logger.LogInformation($"{containerName} is going to use {Port} port");
+
             var parameters = OverrideContainerParameters(new CreateContainerParametersExt()
             {
                 Name = containerName,

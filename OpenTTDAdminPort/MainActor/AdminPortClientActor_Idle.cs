@@ -17,13 +17,20 @@ namespace OpenTTDAdminPort.MainActor
             {
                 if (state.FsmEvent is AdminPortConnect connect)
                 {
-                    logger.LogTrace($"Received connect message to {connect.ServerInfo}");
+                    try
+                    {
+                        logger.LogTrace($"Received connect message to {connect.ServerInfo}");
 
-                    IActorRef tcpClient = actorFactory.CreateTcpClient(Context, connect.ServerInfo.ServerIp, connect.ServerInfo.ServerPort);
-                    var stateData = new ConnectingData(tcpClient, Sender, connect.ServerInfo, connect.ClientName);
+                        IActorRef tcpClient = actorFactory.CreateTcpClient(Context, connect.ServerInfo.ServerIp, connect.ServerInfo.ServerPort);
+                        var stateData = new ConnectingData(tcpClient, Sender, connect.ServerInfo, connect.ClientName);
 
-                    logger.LogTrace("Moving to Connecting state");
-                    return GoTo(MainState.Connecting).Using(stateData);
+                        logger.LogTrace("Moving to Connecting state");
+                        return GoTo(MainState.Connecting).Using(stateData);
+                    }
+                    catch
+                    {
+                        Self.Tell(connect);
+                    }
                 }
 
                 return null;

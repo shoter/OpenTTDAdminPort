@@ -21,6 +21,8 @@ namespace OpenTTDAdminPort.Tests.Dockerized.Applications
 
         protected override string TagName => "1.11.2";
 
+        internal Action<ILoggingBuilder> AdditionalBuilder { get; set; } = (_) => { };
+
         public OpenttdServerContainer(IDockerService dockerService, ILogger<MockServerContainer> logger)
          : base(dockerService, logger)
         {
@@ -38,12 +40,14 @@ namespace OpenTTDAdminPort.Tests.Dockerized.Applications
 
         protected override async Task<bool> CheckIfContainerIsRunning()
         {
-            var logFactory = new LoggerFactory();
-            logFactory.AddProvider(new DebugLoggerProvider());
-
             var client = new AdminPortClient(AdminPortClientSettings.Default, ServerInfo,
                 logs =>
-                logs.AddDebug());
+                {
+                    logs.AddDebug();
+                    AdditionalBuilder(logs);
+                });
+
+            logger.LogInformation("Just before connect");
 
             await client.Connect();
 

@@ -34,6 +34,8 @@ namespace OpenTTDAdminPort
 
         private Action<IAdminEvent> onAdminEventReceive = _ => { };
 
+        private Action<AdminConnectionStateChange> onConnectionStateChange = _ => { };
+
         public AdminPortClient(AdminPortClientSettings settings, ServerInfo serverInfo, Action<ILoggingBuilder>? configureLogging = null)
         {
             this.ServerInfo = serverInfo;
@@ -77,6 +79,11 @@ namespace OpenTTDAdminPort
             onAdminEventReceive = action;
         }
 
+        public void SetConnectionStateChangeHandler(Action<AdminConnectionStateChange> action)
+        {
+            onConnectionStateChange = action;
+        }
+
         public void OnMainActorMessage(object msg)
         {
             switch (msg)
@@ -84,6 +91,15 @@ namespace OpenTTDAdminPort
                 case IAdminEvent ev:
                     {
                         onAdminEventReceive.Invoke(ev);
+                        break;
+                    }
+
+                case AdminPortClientStateChange stateChange:
+                    {
+                        AdminConnectionState newState = stateChange.NewState.ToConnectionState();
+                        AdminConnectionState previousState = this.ConnectionState;
+                        this.ConnectionState = newState;
+                        onConnectionStateChange(new AdminConnectionStateChange(previousState, newState));
                         break;
                     }
             }
