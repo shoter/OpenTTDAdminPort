@@ -84,8 +84,9 @@ namespace OpenTTDAdminPort
 
                 Console.WriteLine(string.Join(",", fields.Select(x => x.Name)));
 
-                var myField = fields.Where(f => f.Name == "_filterOptions").First();
-                var value = myField.GetValue(f) as LoggerFilterOptions;
+                var myField = fields.Where(f => f.Name == "_filterOptions").FirstOrDefault();
+                Console.Write(myField?.ToString());
+                var value = myField?.GetValue(f) as LoggerFilterOptions;
 
                 Console.Write($"{value} = {value?.MinLevel}");
             }
