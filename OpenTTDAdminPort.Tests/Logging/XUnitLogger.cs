@@ -28,7 +28,7 @@ namespace OpenTTDAdminPort.Tests.Logging
             className = categoryName.Split(".").Last();
         }
 
-        public bool IsEnabled(LogLevel logLevel) => logLevel != LogLevel.None;
+        public bool IsEnabled(LogLevel logLevel) => true; // logLevel != LogLevel.None;
 
         public IDisposable BeginScope<TState>(TState state) => scopeProvider.Push(state);
 
@@ -60,7 +60,7 @@ namespace OpenTTDAdminPort.Tests.Logging
         {
             return logLevel switch
             {
-                LogLevel.Trace => "dpa",
+                LogLevel.Trace => "trce",
                 LogLevel.Debug => "dbug",
                 LogLevel.Information => "info",
                 LogLevel.Warning => "warn",
