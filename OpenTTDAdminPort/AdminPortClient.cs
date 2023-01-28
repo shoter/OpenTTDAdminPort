@@ -67,7 +67,7 @@ namespace OpenTTDAdminPort
 
         public async Task Connect(ILogger? test = null)
         {
-            test?.LogTrace($"TEST:Asking MainActor {mainActor} to connect to server");
+            test?.LogInformation($"TEST:Asking MainActor {mainActor} to connect to server");
             logger.LogTrace($"Asking MainActor {mainActor} to connect to server");
             await mainActor.TryAsk(new AdminPortConnect(ServerInfo, "AdminPortClient"));
         }
