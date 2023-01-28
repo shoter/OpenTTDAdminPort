@@ -28,7 +28,7 @@ namespace OpenTTDAdminPort.Tests.Logging
             className = categoryName.Split(".").Last();
         }
 
-        public bool IsEnabled(LogLevel logLevel) => true; // logLevel != LogLevel.None;
+        public bool IsEnabled(LogLevel logLevel) => logLevel != LogLevel.None;
 
         public IDisposable BeginScope<TState>(TState state) => scopeProvider.Push(state);
 
@@ -66,7 +66,7 @@ namespace OpenTTDAdminPort.Tests.Logging
                 LogLevel.Warning => "warn",
                 LogLevel.Error => "fail",
                 LogLevel.Critical => "crit",
-                _ => throw new ArgumentOutOfRangeException(nameof(logLevel)),
+                _ => "unkn",
             };
         }
     }
