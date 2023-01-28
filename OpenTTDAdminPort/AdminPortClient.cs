@@ -68,7 +68,7 @@ namespace OpenTTDAdminPort
             this.logger.LogTrace("Created main actor");
             mainActor.Ask((Action<object>)OnMainActorMessage);
 
-            f = serviceProvider.GetService<LoggerFactory>();
+            f = serviceProvider.GetService<ILoggerFactory>() as LoggerFactory;
         }
 
         public async Task Connect(ILogger? test = null)
