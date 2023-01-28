@@ -47,7 +47,7 @@ namespace OpenTTDAdminPort.Tests.Dockerized.Applications
                     AdditionalBuilder(logs);
                 });
 
-            logger.LogInformation("Just before connect");
+            logger.LogInformation($"Just before connect - ${client}");
             await client.Connect();
 
             return true;
