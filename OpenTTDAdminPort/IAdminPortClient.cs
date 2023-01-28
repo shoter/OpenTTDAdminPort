@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using Microsoft.Extensions.Logging;
 using OpenTTDAdminPort.Events;
 using OpenTTDAdminPort.Game;
 using OpenTTDAdminPort.Messages;
@@ -21,7 +21,7 @@ namespace OpenTTDAdminPort
 
         void SetAdminEventHandler(Action<IAdminEvent> action);
 
-        Task Connect();
+        Task Connect(ILogger? test = null);
 
         Task Disconnect();
     }
