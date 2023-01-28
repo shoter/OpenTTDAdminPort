@@ -60,7 +60,7 @@ namespace OpenTTDAdminPort.Tests.Logging
         {
             return logLevel switch
             {
-                LogLevel.Trace => "trce",
+                LogLevel.Trace => "dpa",
                 LogLevel.Debug => "dbug",
                 LogLevel.Information => "info",
                 LogLevel.Warning => "warn",
