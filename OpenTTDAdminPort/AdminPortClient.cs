@@ -67,6 +67,7 @@ namespace OpenTTDAdminPort
 
         public async Task Connect(ILogger? test = null)
         {
+            Console.WriteLine("DUPA");
             logger.LogTrace($"Asking MainActor {mainActor} to connect to server");
             await mainActor.TryAsk(new AdminPortConnect(ServerInfo, "AdminPortClient"));
         }
