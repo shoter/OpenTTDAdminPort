@@ -56,6 +56,7 @@ namespace OpenTTDAdminPort
             {
                 s.WatchdogInterval = settings.WatchdogInterval;
             });
+            Console.WriteLine($"CONFIGLOGGING = {configureLogging}");
             services.AddLogging(configureLogging ?? ((_) => { }));
 
             IServiceProvider serviceProvider = services.BuildServiceProvider();
