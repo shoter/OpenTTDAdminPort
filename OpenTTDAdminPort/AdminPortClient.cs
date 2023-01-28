@@ -78,17 +78,24 @@ namespace OpenTTDAdminPort
 
             if (f != null)
             {
-                FieldInfo[] fields = f.GetType().GetFields(
-                             BindingFlags.NonPublic |
-                             BindingFlags.Instance);
+                try
+                {
+                    FieldInfo[] fields = f.GetType().GetFields(
+                                 BindingFlags.NonPublic |
+                                 BindingFlags.Instance);
 
-                Console.WriteLine(string.Join(",", fields.Select(x => x.Name)));
+                    Console.WriteLine(string.Join(",", fields.Select(x => x.Name)));
 
-                var myField = fields.Where(f => f.Name == "_filterOptions").FirstOrDefault();
-                Console.Write(myField?.ToString());
-                var value = myField?.GetValue(f) as LoggerFilterOptions;
+                    var myField = fields.Where(f => f.Name == "_filterOptions").FirstOrDefault();
+                    Console.Write($"myField = {myField?.ToString()}");
+                    var value = myField?.GetValue(f) as LoggerFilterOptions;
 
-                Console.Write($"{value} = {value?.MinLevel}");
+                    Console.Write($"{value} = {value?.MinLevel}");
+                }
+                catch(Exception ex)
+                {
+                    Console.Write($"{ex}");
+                }
             }
 
             logger.LogTrace($"Asking MainActor {mainActor} to connect to server");
