@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 using Akka.Actor;
@@ -38,7 +40,7 @@ namespace OpenTTDAdminPort
 
         private ILogger logger;
 
-        private LoggerFilterOptions? x;
+        private LoggerFactory? f;
 
         public AdminPortClient(AdminPortClientSettings settings, ServerInfo serverInfo, Action<ILoggingBuilder>? configureLogging = null)
         {
@@ -66,13 +68,28 @@ namespace OpenTTDAdminPort
             this.logger.LogTrace("Created main actor");
             mainActor.Ask((Action<object>)OnMainActorMessage);
 
-            x = serviceProvider.GetService<LoggerFilterOptions>();
+            f = serviceProvider.GetService<LoggerFactory>();
         }
 
         public async Task Connect(ILogger? test = null)
         {
             Console.WriteLine($"Trace = {logger.IsEnabled(LogLevel.Trace)}");
-            Console.WriteLine($"MinLevel = {x?.MinLevel}");
+            Console.WriteLine($"f = {f}");
+
+            if (f != null)
+            {
+                FieldInfo[] fields = f.GetType().GetFields(
+                             BindingFlags.NonPublic |
+                             BindingFlags.Instance);
+
+                Console.WriteLine(string.Join(",", fields.Select(x => x.Name)));
+
+                var myField = fields.Where(f => f.Name == "_filterOptions").First();
+                var value = myField.GetValue(f) as LoggerFilterOptions;
+
+                Console.Write($"{value} = {value?.MinLevel}");
+            }
+
             logger.LogTrace($"Asking MainActor {mainActor} to connect to server");
             await mainActor.TryAsk(new AdminPortConnect(ServerInfo, "AdminPortClient"));
         }
