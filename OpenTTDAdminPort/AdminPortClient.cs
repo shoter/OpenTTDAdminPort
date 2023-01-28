@@ -38,7 +38,7 @@ namespace OpenTTDAdminPort
 
         private ILogger logger;
 
-        private LoggerFilterOptions x;
+        private LoggerFilterOptions? x;
 
         public AdminPortClient(AdminPortClientSettings settings, ServerInfo serverInfo, Action<ILoggingBuilder>? configureLogging = null)
         {
@@ -66,13 +66,13 @@ namespace OpenTTDAdminPort
             this.logger.LogTrace("Created main actor");
             mainActor.Ask((Action<object>)OnMainActorMessage);
 
-            x = serviceProvider.GetRequiredService<LoggerFilterOptions>();
+            x = serviceProvider.GetService<LoggerFilterOptions>();
         }
 
         public async Task Connect(ILogger? test = null)
         {
             Console.WriteLine($"Trace = {logger.IsEnabled(LogLevel.Trace)}");
-            Console.WriteLine($"MinLevel = {x.MinLevel}");
+            Console.WriteLine($"MinLevel = {x?.MinLevel}");
             logger.LogTrace($"Asking MainActor {mainActor} to connect to server");
             await mainActor.TryAsk(new AdminPortConnect(ServerInfo, "AdminPortClient"));
         }
