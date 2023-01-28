@@ -6,7 +6,7 @@ using Akka.Actor;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-
+using Microsoft.Extensions.Options;
 using OpenTTDAdminPort.Akkas;
 using OpenTTDAdminPort.Events;
 using OpenTTDAdminPort.Game;
@@ -38,6 +38,8 @@ namespace OpenTTDAdminPort
 
         private ILogger logger;
 
+        private LoggerFilterOptions x;
+
         public AdminPortClient(AdminPortClientSettings settings, ServerInfo serverInfo, Action<ILoggingBuilder>? configureLogging = null)
         {
             this.ServerInfo = serverInfo;
@@ -63,11 +65,14 @@ namespace OpenTTDAdminPort
             mainActor = actorFactory.CreateMainActor(actorSystem);
             this.logger.LogTrace("Created main actor");
             mainActor.Ask((Action<object>)OnMainActorMessage);
+
+            x = serviceProvider.GetRequiredService<LoggerFilterOptions>();
         }
 
         public async Task Connect(ILogger? test = null)
         {
             Console.WriteLine($"Trace = {logger.IsEnabled(LogLevel.Trace)}");
+            Console.WriteLine($"MinLevel = {x.MinLevel}");
             logger.LogTrace($"Asking MainActor {mainActor} to connect to server");
             await mainActor.TryAsk(new AdminPortConnect(ServerInfo, "AdminPortClient"));
         }
