@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
@@ -56,7 +57,6 @@ namespace OpenTTDAdminPort
             {
                 s.WatchdogInterval = settings.WatchdogInterval;
             });
-            Console.WriteLine($"CONFIGLOGGING = {configureLogging}");
             services.AddLogging(configureLogging ?? ((_) => { }));
 
             IServiceProvider serviceProvider = services.BuildServiceProvider();
@@ -76,6 +76,11 @@ namespace OpenTTDAdminPort
         {
             Console.WriteLine($"Trace = {logger.IsEnabled(LogLevel.Trace)}");
             Console.WriteLine($"f = {f}");
+
+            foreach(DictionaryEntry env in Environment.GetEnvironmentVariables())
+            {
+                Console.WriteLine($"{env.Key} = {env.Value}");
+            }
 
             if (f != null)
             {
