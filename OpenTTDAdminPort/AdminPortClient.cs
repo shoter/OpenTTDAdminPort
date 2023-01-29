@@ -77,11 +77,6 @@ namespace OpenTTDAdminPort
             Console.WriteLine($"Trace = {logger.IsEnabled(LogLevel.Trace)}");
             Console.WriteLine($"f = {f}");
 
-            foreach(DictionaryEntry env in Environment.GetEnvironmentVariables())
-            {
-                Console.WriteLine($"{env.Key} = {env.Value}");
-            }
-
             if (f != null)
             {
                 try

@@ -32,6 +32,7 @@ namespace OpenTTDAdminPort.Tests.Dockerized
             this.application.AdditionalBuilder = builder =>
             {
                 builder.AddProvider(new XUnitLoggerProvider(output));
+                builder.SetMinimumLevel(LogLevel.Trace);
             };
         }
 
