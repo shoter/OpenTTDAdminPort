@@ -17,7 +17,7 @@ using OpenTTDAdminPort.Networking.Watchdog;
 
 namespace OpenTTDAdminPort.MainActor
 {
-    public partial class AdminPortClientActor : FSM<MainState, IMainData>, IWithUnboundedStash
+    public partial class AdminPortClientActor : FSM<MainState, IMainData>, IWithUnboundedStash, IWithTimers
     {
         public void ConnectedState()
         {

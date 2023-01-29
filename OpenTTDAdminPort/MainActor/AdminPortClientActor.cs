@@ -12,7 +12,7 @@ using OpenTTDAdminPort.MainActor.StateData;
 
 namespace OpenTTDAdminPort.MainActor
 {
-    public partial class AdminPortClientActor : FSM<MainState, IMainData>, IWithUnboundedStash
+    public partial class AdminPortClientActor : FSM<MainState, IMainData>, IWithUnboundedStash, IWithTimers
     {
         private readonly IActorFactory actorFactory;
 
@@ -28,6 +28,8 @@ namespace OpenTTDAdminPort.MainActor
         private IActorRef Messager { get; }
 
         private readonly IAdminEventFactory adminEventFactory;
+
+        public ITimerScheduler Timers { get; set; }
 
         public AdminPortClientActor(IServiceProvider sp)
         {

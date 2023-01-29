@@ -13,7 +13,7 @@ using OpenTTDAdminPort.Networking;
 
 namespace OpenTTDAdminPort.MainActor
 {
-    public partial class AdminPortClientActor : FSM<MainState, IMainData>, IWithUnboundedStash
+    public partial class AdminPortClientActor : FSM<MainState, IMainData>, IWithUnboundedStash, IWithTimers
     {
         public void ConnectingState()
         {
@@ -28,6 +28,9 @@ namespace OpenTTDAdminPort.MainActor
                     ConnectingData data = (NextStateData as ConnectingData)!;
                     var msg = new AdminJoinMessage(data.ServerInfo.Password, data.ClientName, this.version);
                     data.TcpClient.Tell(new SendMessage(msg));
+
+                    var checkIfConnectedMsg = new AdminPortCheckIfConnected(data.UniqueConnectingIdentifier);
+                    Timers.StartSingleTimer(data.UniqueConnectingIdentifier, checkIfConnectedMsg, 1.Seconds());
                 }
             });
 
@@ -82,19 +85,31 @@ namespace OpenTTDAdminPort.MainActor
                 }
                 else if (state.FsmEvent is AdminPortTcpClientConnectionLostException)
                 {
-                    data.TcpClient.GracefulStop(3.Seconds()).Wait();
-                    IActorRef tcpClient = actorFactory.CreateTcpClient(Context, data.ServerInfo.ServerIp, data.ServerInfo.ServerPort);
-                    this.Messager.Tell(new AdminServerConnectionLost());
-                    return GoTo(MainState.Connecting).Using(new ConnectingData(tcpClient, Self, data.ServerInfo, data.ClientName));
+                    return RestartConnecting(data);
                 }
                 else if (state.FsmEvent is SendMessage m)
                 {
                     // Let's handle it later when we connect to the server.
                     Stash.Stash();
                 }
+                else if(state.FsmEvent is AdminPortCheckIfConnected checkIfConnected)
+                {
+                    if (checkIfConnected.ConnectingId == data.UniqueConnectingIdentifier)
+                    {
+                        return RestartConnecting(data);
+                    }
+                }
 
                 return null;
             });
+        }
+
+        private State<MainState, IMainData> RestartConnecting(ConnectingData data)
+        {
+            data.TcpClient.GracefulStop(3.Seconds()).Wait();
+            IActorRef tcpClient = actorFactory.CreateTcpClient(Context, data.ServerInfo.ServerIp, data.ServerInfo.ServerPort);
+            this.Messager.Tell(new AdminServerConnectionLost());
+            return GoTo(MainState.Connecting).Using(new ConnectingData(tcpClient, Self, data.ServerInfo, data.ClientName));
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 using Akka.Actor;
@@ -24,6 +25,8 @@ namespace OpenTTDAdminPort.MainActor.StateData
         public Dictionary<AdminUpdateType, AdminUpdateSetting> AdminUpdateSettings { get; } = new();
 
         public AdminServerInfo? AdminServerInfo { get; set; }
+
+        public Guid UniqueConnectingIdentifier { get; } = Guid.NewGuid();
 
         public ConnectingData(IActorRef tcpClient, IActorRef initiator, ServerInfo serverInfo, string clientName)
         {
