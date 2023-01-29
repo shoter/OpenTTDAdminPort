@@ -30,7 +30,7 @@ namespace OpenTTDAdminPort.MainActor
                     data.TcpClient.Tell(new SendMessage(msg));
 
                     var checkIfConnectedMsg = new AdminPortCheckIfConnected(data.UniqueConnectingIdentifier);
-                    Timers.StartSingleTimer(data.UniqueConnectingIdentifier, checkIfConnectedMsg, 1.Seconds());
+                    Timers.StartSingleTimer(data.UniqueConnectingIdentifier, checkIfConnectedMsg, 3.Seconds());
                 }
             });
 
@@ -96,6 +96,7 @@ namespace OpenTTDAdminPort.MainActor
                 {
                     if (checkIfConnected.ConnectingId == data.UniqueConnectingIdentifier)
                     {
+                        logger.LogTrace("Could not connect within 3 seconds. Restarting connection attempt");
                         return RestartConnecting(data);
                     }
                 }
