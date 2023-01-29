@@ -22,7 +22,7 @@ namespace OpenTTDAdminPort.Tests.Logging
 
         public static ILogger<T> CreateLogger<T>(ITestOutputHelper testOutputHelper) => new XUnitLogger<T>(testOutputHelper, new LoggerExternalScopeProvider());
 
-        public XUnitLogger(ITestOutputHelper testOutputHelper, LoggerExternalScopeProvider scopeProvider, string categoryName, string loggerName)
+        public XUnitLogger(ITestOutputHelper testOutputHelper, LoggerExternalScopeProvider scopeProvider, string categoryName, string loggerName = "")
         {
             this.testOutputHelper = testOutputHelper;
             this.scopeProvider = scopeProvider;
@@ -47,6 +47,7 @@ namespace OpenTTDAdminPort.Tests.Logging
                 sb.Append(loggerName);
                 sb.Append("} ");
             }
+
             sb.Append(formatter(state, exception));
 
             if (exception != null)
