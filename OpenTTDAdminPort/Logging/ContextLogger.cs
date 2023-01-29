@@ -15,13 +15,15 @@ namespace OpenTTDAdminPort.Logging
             this.context = context;
         }
 
-        public IDisposable BeginScope<TState>(TState state) => logger.BeginScope(state);
+        public IDisposable? BeginScope<TState>(TState state)
+            where TState : notnull
+            => logger.BeginScope(state);
 
         public bool IsEnabled(LogLevel logLevel) => logger.IsEnabled(logLevel);
 
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
         {
-            logger.Log(logLevel, eventId, state, exception, (TState s, Exception e) => $"{context}:{formatter(s, e)}");
+            logger.Log(logLevel, eventId, state, exception, (TState s, Exception? e) => $"{context}:{formatter(s, e)}");
         }
     }
 
@@ -36,13 +38,15 @@ namespace OpenTTDAdminPort.Logging
             this.context = context;
         }
 
-        public IDisposable BeginScope<TState>(TState state) => logger.BeginScope(state);
+        public IDisposable? BeginScope<TState>(TState state)
+            where TState : notnull
+            => logger.BeginScope(state);
 
         public bool IsEnabled(LogLevel logLevel) => logger.IsEnabled(logLevel);
 
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
         {
-            logger.Log(logLevel, eventId, state, exception, (TState s, Exception e) => $"{context}:{formatter(s, e)}");
+            logger.Log(logLevel, eventId, state, exception, (TState s, Exception? e) => $"{context}:{formatter(s, e)}");
         }
     }
 }
