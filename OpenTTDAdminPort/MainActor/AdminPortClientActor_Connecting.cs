@@ -76,7 +76,7 @@ namespace OpenTTDAdminPort.MainActor
 
                                 IActorRef watchdog = actorFactory.CreateWatchdog(Context, data.TcpClient, 5.Seconds());
 
-                                logger.LogTrace("Moving to Connected state");
+                                logger.LogTrace($"Moving {data.Initiator} to Connected state");
                                 data.Initiator.Tell(SuccessResponse.Instance);
                                 this.Messager.Tell(new AdminServerConnected());
                                 return GoTo(MainState.Connected).Using(new ConnectedData(data, watchdog));
