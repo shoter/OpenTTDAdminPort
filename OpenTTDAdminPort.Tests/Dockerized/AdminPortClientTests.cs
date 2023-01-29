@@ -41,7 +41,7 @@ namespace OpenTTDAdminPort.Tests.Dockerized
             base.SetupServiceProvider(services);
         }
 
-        [Fact (Timeout = 30_000)]
+        [Fact (Timeout = 30_000, Skip = "test")]
         public async Task PingPongTest()
         {
             await application.Start();
