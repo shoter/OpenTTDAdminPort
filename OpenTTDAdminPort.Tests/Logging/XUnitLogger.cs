@@ -15,17 +15,19 @@ namespace OpenTTDAdminPort.Tests.Logging
     {
         private readonly ITestOutputHelper testOutputHelper;
         private readonly string className;
+        private readonly string loggerName;
         private readonly LoggerExternalScopeProvider scopeProvider;
 
         public static ILogger CreateLogger(ITestOutputHelper testOutputHelper) => new XUnitLogger(testOutputHelper, new LoggerExternalScopeProvider(), string.Empty);
 
         public static ILogger<T> CreateLogger<T>(ITestOutputHelper testOutputHelper) => new XUnitLogger<T>(testOutputHelper, new LoggerExternalScopeProvider());
 
-        public XUnitLogger(ITestOutputHelper testOutputHelper, LoggerExternalScopeProvider scopeProvider, string categoryName)
+        public XUnitLogger(ITestOutputHelper testOutputHelper, LoggerExternalScopeProvider scopeProvider, string categoryName, string loggerName)
         {
             this.testOutputHelper = testOutputHelper;
             this.scopeProvider = scopeProvider;
-            className = categoryName.Split(".").Last();
+            this.className = categoryName.Split(".").Last();
+            this.loggerName = loggerName;
         }
 
         public bool IsEnabled(LogLevel logLevel) => logLevel != LogLevel.None;
@@ -38,8 +40,14 @@ namespace OpenTTDAdminPort.Tests.Logging
             sb
               .Append("[").Append(DateTime.Now.ToTime()).Append("]")
               .Append("[").Append(GetLogLevelString(logLevel).ToUpperInvariant()).Append("]")
-              .Append(" <").Append(className).Append("> ")
-              .Append(formatter(state, exception));
+              .Append(" <").Append(className).Append("> ");
+            if (loggerName != string.Empty)
+            {
+                sb.Append(" {");
+                sb.Append(loggerName);
+                sb.Append("} ");
+            }
+            sb.Append(formatter(state, exception));
 
             if (exception != null)
             {
