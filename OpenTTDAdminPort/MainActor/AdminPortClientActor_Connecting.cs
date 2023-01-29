@@ -110,7 +110,7 @@ namespace OpenTTDAdminPort.MainActor
             data.TcpClient.GracefulStop(3.Seconds()).Wait();
             IActorRef tcpClient = actorFactory.CreateTcpClient(Context, data.ServerInfo.ServerIp, data.ServerInfo.ServerPort);
             this.Messager.Tell(new AdminServerConnectionLost());
-            return GoTo(MainState.Connecting).Using(new ConnectingData(tcpClient, Self, data.ServerInfo, data.ClientName));
+            return GoTo(MainState.Connecting).Using(new ConnectingData(tcpClient, data.Initiator, data.ServerInfo, data.ClientName));
         }
     }
 }
