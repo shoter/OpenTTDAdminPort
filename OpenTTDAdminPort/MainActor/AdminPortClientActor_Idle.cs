@@ -19,7 +19,7 @@ namespace OpenTTDAdminPort.MainActor
                 {
                     try
                     {
-                        logger.LogTrace($"Received connect message to {connect.ServerInfo}");
+                        logger.LogTrace($"I {Self} Received connect message from {Sender} to {connect.ServerInfo}");
 
                         IActorRef tcpClient = actorFactory.CreateTcpClient(Context, connect.ServerInfo.ServerIp, connect.ServerInfo.ServerPort);
                         var stateData = new ConnectingData(tcpClient, Sender, connect.ServerInfo, connect.ClientName);
