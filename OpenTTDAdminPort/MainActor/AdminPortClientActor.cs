@@ -29,7 +29,8 @@ namespace OpenTTDAdminPort.MainActor
 
         private readonly IAdminEventFactory adminEventFactory;
 
-        public ITimerScheduler Timers { get; set; }
+        // initialized by Akka.Net
+        public ITimerScheduler Timers { get; set; } = default!;
 
         public AdminPortClientActor(IServiceProvider sp)
         {
