@@ -62,7 +62,9 @@ namespace OpenTTDAdminPort.Tests.Logging
                 state.Append(scope);
             }, sb);
 
-            testOutputHelper.WriteLine(sb.ToString());
+            string log = sb.ToString();
+            testOutputHelper.WriteLine(log);
+            Console.WriteLine(log);
         }
 
         private static string GetLogLevelString(LogLevel logLevel)
