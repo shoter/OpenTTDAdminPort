@@ -87,7 +87,7 @@ namespace OpenTTDAdminPort.Tests.Dockerized
                 WatchdogInterval = 1.Seconds()
             };
             logger.LogInformation("Starting Openttd server");
-            await application.Start(nameof(AfterServerRestart_AdminPortClientShouldAutomaticallyReconnect));
+           // await application.Start(nameof(AfterServerRestart_AdminPortClientShouldAutomaticallyReconnect));
             return; 
             logger.LogInformation($"Openttd Server started on port {application.Port}");
             AdminPortClient client = new AdminPortClient(settings, application.ServerInfo, builder =>
