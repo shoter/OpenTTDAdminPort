@@ -71,6 +71,14 @@ namespace OpenTTDAdminPort.MainActor
                 {
                     return Stay().Replying(new AdminPortReponseState(queryState, new MainActorState(data)));
                 }
+                else if(state.FsmEvent is FatalTcpClientException)
+                {
+                    KillChildren(data);
+
+                    IActorRef tcpClient = actorFactory.CreateTcpClient(Context, data.ServerInfo.ServerIp, data.ServerInfo.ServerPort);
+                    this.Messager.Tell(new AdminServerConnectionLost());
+                    return GoTo(MainState.Connecting).Using(new ConnectingData(tcpClient, Self, data.ServerInfo, data.ClientName)).Replying(EmptyResponse.Instance);
+                }
 
                 return null;
             });

@@ -9,6 +9,7 @@ using OpenTTDAdminPort.Akkas;
 using OpenTTDAdminPort.Events;
 using OpenTTDAdminPort.MainActor.Messages;
 using OpenTTDAdminPort.MainActor.StateData;
+using OpenTTDAdminPort.Networking.Exceptions;
 
 namespace OpenTTDAdminPort.MainActor
 {
@@ -88,6 +89,23 @@ namespace OpenTTDAdminPort.MainActor
         }
 
         protected override SupervisorStrategy SupervisorStrategy()
-            => new OneForOneStrategy(ex => Directive.Restart);
+            => new OneForOneStrategy(ex =>
+            {
+                switch (ex)
+                {
+                    case InitialConnectionException _:
+                        {
+                            Timers.StartSingleTimer("fataltcp", new FatalTcpClientException(), 3.Seconds());
+                            return Directive.Stop;
+                        }
+
+                    default:
+                        {
+                            return Directive.Restart;
+                        }
+                }
+            }
+
+            );
     }
 }

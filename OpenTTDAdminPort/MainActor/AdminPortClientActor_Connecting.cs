@@ -100,6 +100,10 @@ namespace OpenTTDAdminPort.MainActor
                         return RestartConnecting(data);
                     }
                 }
+                else if (state.FsmEvent is FatalTcpClientException)
+                {
+                    return RestartConnecting(data);
+                }
 
                 return null;
             });
