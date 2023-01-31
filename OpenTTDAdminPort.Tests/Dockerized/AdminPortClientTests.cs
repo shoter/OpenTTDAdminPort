@@ -28,6 +28,7 @@ namespace OpenTTDAdminPort.Tests.Dockerized
         public AdminPortClientTests(ITestOutputHelper output)
             : base(output)
         {
+            output.WriteLine("DASDSADSADSADSADASD");
             this.application.AdditionalBuilder = builder =>
             {
                 builder.AddProvider(new XUnitLoggerProvider(output, "OTTD_SERVER"));
