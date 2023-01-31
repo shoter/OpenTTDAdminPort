@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Console;
 using Microsoft.Extensions.Logging.Debug;
 
 using OpenTTDAdminPort.Common;
@@ -32,12 +31,6 @@ namespace OpenTTDAdminPort.Tests.Dockerized
             this.application.AdditionalBuilder = builder =>
             {
                 builder.AddProvider(new XUnitLoggerProvider(output, "OTTD_SERVER"));
-                builder.AddSimpleConsole(options =>
-                {
-                    options.SingleLine = true;
-                    options.IncludeScopes = true;
-                    options.TimestampFormat = "HH:mm:ss ";
-                });
                 builder.SetMinimumLevel(LogLevel.Trace);
             };
         }
@@ -55,12 +48,6 @@ namespace OpenTTDAdminPort.Tests.Dockerized
             AdminPortClient client = new AdminPortClient(AdminPortClientSettings.Default, application.ServerInfo, builder =>
             {
                 builder.AddProvider(new XUnitLoggerProvider(output));
-                builder.AddSimpleConsole(options =>
-                {
-                    options.SingleLine = true;
-                    options.IncludeScopes = true;
-                    options.TimestampFormat = "HH:mm:ss ";
-                });
                 builder.SetMinimumLevel(LogLevel.Trace);
             });
 
