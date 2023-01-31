@@ -6,6 +6,7 @@ using Divergic.Logging.Xunit;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
 using Microsoft.Extensions.Logging.Debug;
 
 using OpenTTDAdminPort.Common;
@@ -29,9 +30,13 @@ namespace OpenTTDAdminPort.Tests.Dockerized
         public AdminPortClientTests(ITestOutputHelper output)
             : base(output)
         {
+            Console.WriteLine("DUPAAAA");
             this.application.AdditionalBuilder = builder =>
             {
                 builder.AddProvider(new XUnitLoggerProvider(output, "OTTD_SERVER"));
+                builder.AddConsole(options =>
+                {
+                });
                 builder.SetMinimumLevel(LogLevel.Trace);
             };
         }
@@ -49,6 +54,7 @@ namespace OpenTTDAdminPort.Tests.Dockerized
             AdminPortClient client = new AdminPortClient(AdminPortClientSettings.Default, application.ServerInfo, builder =>
             {
                 builder.AddProvider(new XUnitLoggerProvider(output));
+                builder.AddConsole();
                 builder.SetMinimumLevel(LogLevel.Trace);
             });
 
@@ -87,6 +93,7 @@ namespace OpenTTDAdminPort.Tests.Dockerized
                 WatchdogInterval = 1.Seconds()
             };
             logger.LogInformation("Starting Openttd server");
+            Console.WriteLine("Dupa");
            // await application.Start(nameof(AfterServerRestart_AdminPortClientShouldAutomaticallyReconnect));
             return; 
             logger.LogInformation($"Openttd Server started on port {application.Port}");
