@@ -28,7 +28,6 @@ namespace OpenTTDAdminPort.Tests.Dockerized
         public AdminPortClientTests(ITestOutputHelper output)
             : base(output)
         {
-            Console.WriteLine("DUPAAAA");
             this.application.AdditionalBuilder = builder =>
             {
                 builder.AddProvider(new XUnitLoggerProvider(output, "OTTD_SERVER"));
@@ -91,8 +90,9 @@ namespace OpenTTDAdminPort.Tests.Dockerized
                 WatchdogInterval = 1.Seconds()
             };
             logger.LogInformation("Starting Openttd server");
-            Console.WriteLine("Dupa");
-           // await application.Start(nameof(AfterServerRestart_AdminPortClientShouldAutomaticallyReconnect));
+            logger.LogInformation("Starting Openttd server 2");
+
+            // await application.Start(nameof(AfterServerRestart_AdminPortClientShouldAutomaticallyReconnect));
             return; 
             logger.LogInformation($"Openttd Server started on port {application.Port}");
             AdminPortClient client = new AdminPortClient(settings, application.ServerInfo, builder =>
