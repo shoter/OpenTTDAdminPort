@@ -2,8 +2,6 @@
 using System;
 using System.Threading.Tasks;
 
-using Divergic.Logging.Xunit;
-
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
