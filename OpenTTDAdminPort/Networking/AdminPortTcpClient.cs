@@ -101,6 +101,7 @@ namespace OpenTTDAdminPort.Networking
                     {
                         case ReceiveLoopException e:
                             // Will cause restart of tcp client through supervisor of main actor.
+                            logger.LogError("Fatal exception of TcpClient detected. Scheduling restart of it in 3 seconds");
                             Context.Parent.Tell(new AdminPortTcpClientConnectionLostException(e.Message, e));
                             return Directive.Stop;
                         default:
