@@ -32,8 +32,11 @@ namespace OpenTTDAdminPort.Tests.Dockerized
             this.application.AdditionalBuilder = builder =>
             {
                 builder.AddProvider(new XUnitLoggerProvider(output, "OTTD_SERVER"));
-                builder.AddConsole(options =>
+                builder.AddSimpleConsole(options =>
                 {
+                    options.SingleLine = true;
+                    options.IncludeScopes = true;
+                    options.TimestampFormat = "HH:mm:ss ";
                 });
                 builder.SetMinimumLevel(LogLevel.Trace);
             };
@@ -52,7 +55,12 @@ namespace OpenTTDAdminPort.Tests.Dockerized
             AdminPortClient client = new AdminPortClient(AdminPortClientSettings.Default, application.ServerInfo, builder =>
             {
                 builder.AddProvider(new XUnitLoggerProvider(output));
-                builder.AddConsole();
+                builder.AddSimpleConsole(options =>
+                {
+                    options.SingleLine = true;
+                    options.IncludeScopes = true;
+                    options.TimestampFormat = "HH:mm:ss ";
+                });
                 builder.SetMinimumLevel(LogLevel.Trace);
             });
 

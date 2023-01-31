@@ -47,6 +47,12 @@ namespace OpenTTDAdminPort.Tests.Dockerized
             services.AddLogging(builder =>
             {
                 builder.AddProvider(new XUnitLoggerProvider(testOutput));
+                builder.AddSimpleConsole(options =>
+                {
+                    options.SingleLine = true;
+                    options.IncludeScopes = true;
+                    options.TimestampFormat = "HH:mm:ss ";
+                });
                 builder.SetMinimumLevel(LogLevel.Trace);
             });
 
