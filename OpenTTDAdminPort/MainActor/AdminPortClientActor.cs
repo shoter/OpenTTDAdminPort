@@ -4,7 +4,7 @@ using Akka.Actor;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-
+using Newtonsoft.Json;
 using OpenTTDAdminPort.Akkas;
 using OpenTTDAdminPort.Events;
 using OpenTTDAdminPort.MainActor.Messages;
@@ -91,8 +91,11 @@ namespace OpenTTDAdminPort.MainActor
         protected override SupervisorStrategy SupervisorStrategy()
             => new OneForOneStrategy(ex =>
             {
+                logger.LogTrace($"SupervisorStrategy fired for {ex.GetType().Name}");
                 if (ex is ActorInitializationException aex)
                 {
+                    logger.LogTrace(JsonConvert.SerializeObject(aex, Formatting.Indented));
+
                     switch (aex.InnerException)
                     {
                         case InitialConnectionException _:
