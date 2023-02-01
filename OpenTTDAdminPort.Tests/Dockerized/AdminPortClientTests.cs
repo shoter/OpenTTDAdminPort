@@ -163,7 +163,7 @@ namespace OpenTTDAdminPort.Tests.Dockerized
             while (pongEvent?.PongValue != 22u)
             {
                 await Task.Delay(1);
-                logger.LogTrace($"{pongEvent?.PongValue}");
+                logger.LogTrace($"{pongEvent?.PongValue} - {pongEvent?.PongValue != 22u}");
 
                 if (timeout.IsCompleted)
                 {
