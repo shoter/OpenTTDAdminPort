@@ -171,7 +171,9 @@ namespace OpenTTDAdminPort.Tests.Dockerized
                 }
             }
 
+            logger.LogTrace("Nearly to the end");
             Assert.Equal(22u, pongEvent.PongValue);
+            logger.LogTrace("That's the end :)");
         }
     }
 }
