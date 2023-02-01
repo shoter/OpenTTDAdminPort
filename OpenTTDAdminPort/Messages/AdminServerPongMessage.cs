@@ -9,6 +9,5 @@
         public AdminServerPongMessage(uint arg) => Argument = arg;
 
         public override string ToString() => $"AdminServerPongMessage({Argument})";
-
     }
 }
