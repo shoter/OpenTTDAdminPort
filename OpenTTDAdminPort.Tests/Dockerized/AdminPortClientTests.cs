@@ -106,6 +106,7 @@ namespace OpenTTDAdminPort.Tests.Dockerized
                 {
                     if (pe.PongValue == 22u)
                     {
+                        logger.LogTrace("Received pong message I was waiting for <3");
                         pongEvent = pe;
                     }
                 }
