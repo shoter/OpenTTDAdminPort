@@ -76,7 +76,7 @@ namespace OpenTTDAdminPort.MainActor
             {
                 if (state.FsmEvent is Action<object> action)
                 {
-                    logger.LogTrace($"Setting messager on receive action");
+                    logger.LogTrace($"Setting messager on receive event action");
                     this.Messager.Tell(action);
                 }
 

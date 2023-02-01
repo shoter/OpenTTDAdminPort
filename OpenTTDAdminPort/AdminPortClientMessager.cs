@@ -29,12 +29,14 @@ namespace OpenTTDAdminPort
             Receive<Action<object>>(SetNewAction);
             Receive<object>(e =>
             {
+                logger.LogTrace($"passing {e} to {adminMessageOnReceive?.Target}");
                 adminMessageOnReceive?.Invoke(e);
             });
         }
 
         public void SetNewAction(Action<object> action)
         {
+            logger.LogTrace("New action set!");
             adminMessageOnReceive = action;
             Sender.Tell(SuccessResponse.Instance);
         }
