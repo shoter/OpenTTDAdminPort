@@ -67,9 +67,14 @@ namespace OpenTTDAdminPort
             this.logger.LogTrace("Created actor factory");
             mainActor = actorFactory.CreateMainActor(actorSystem);
             this.logger.LogTrace("Created main actor");
-            mainActor.Ask((Action<object>)OnMainActorMessage);
+            SetMainActorMessagerAction();
 
             f = serviceProvider.GetService<ILoggerFactory>() as LoggerFactory;
+        }
+
+        private void SetMainActorMessagerAction()
+        {
+            mainActor.Ask((Action<object>)OnMainActorMessage);
         }
 
         public async Task Connect(ILogger? test = null)
@@ -112,6 +117,7 @@ namespace OpenTTDAdminPort
             {
                 case IAdminEvent ev:
                     {
+                        logger.LogTrace($"Received event {ev}");
                         onAdminEventReceive.Invoke(ev);
                         break;
                     }
