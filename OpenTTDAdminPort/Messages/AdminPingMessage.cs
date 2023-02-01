@@ -10,5 +10,7 @@
         {
             Argument = argument;
         }
+
+        public override string ToString() => $"AdminPingMessage({Argument})";
     }
 }
