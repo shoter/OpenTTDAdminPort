@@ -58,6 +58,7 @@ namespace OpenTTDAdminPort.Tests.Dockerized
                 }
             });
 
+
             await client.Connect();
             client.SendMessage(new AdminPingMessage(55u));
 
@@ -152,6 +153,7 @@ namespace OpenTTDAdminPort.Tests.Dockerized
             logger.LogInformation("Restart ocurred");
 
             logger.LogInformation("Sending ping");
+            pongEvent = null;
             client.SendMessage(new AdminPingMessage(22u));
 
             timeout = Task.Delay(3.Seconds());

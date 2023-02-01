@@ -2,5 +2,5 @@
 
 namespace OpenTTDAdminPort.Networking
 {
-    public record ReceiveMessage(IAdminMessage Message);
+    internal record ReceiveMessage(IAdminMessage Message);
 }

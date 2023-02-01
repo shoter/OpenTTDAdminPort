@@ -79,6 +79,7 @@ namespace OpenTTDAdminPort.Networking
 
             Receive<ReceiveMessage>(receiveMessage =>
             {
+                logger.LogTrace($"Received {receiveMessage}");
                 Context.Parent.Tell(receiveMessage);
                 foreach (var s in subscribers)
                 {
