@@ -94,7 +94,7 @@ namespace OpenTTDAdminPort.MainActor
                 logger.LogTrace($"SupervisorStrategy fired for {ex.GetType().Name}");
                 if (ex is ActorInitializationException aex)
                 {
-                    logger.LogTrace($"{aex.InnerException}");
+                    logger.LogTrace($"{aex.InnerException!.InnerException}");
 
                     switch (aex.InnerException)
                     {
