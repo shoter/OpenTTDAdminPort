@@ -10,5 +10,7 @@
         {
             this.PongValue = pongValue;
         }
+
+        public override string ToString() => $"AdminPongEvent({PongValue})";
     }
 }
