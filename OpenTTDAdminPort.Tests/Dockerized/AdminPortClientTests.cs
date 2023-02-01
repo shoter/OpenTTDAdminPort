@@ -101,6 +101,7 @@ namespace OpenTTDAdminPort.Tests.Dockerized
 
             client.SetAdminEventHandler(ev =>
             {
+                logger.LogTrace($"Received {ev}");
                 if (ev is AdminPongEvent pe)
                 {
                     if (pe.PongValue == 22)
