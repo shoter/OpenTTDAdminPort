@@ -46,7 +46,7 @@ namespace OpenTTDAdminPort.Tests.Dockerized
             AdminPongEvent pongEvent = null;
             AdminPortClient client = new AdminPortClient(AdminPortClientSettings.Default, application.ServerInfo, builder =>
             {
-                builder.AddProvider(new XUnitLoggerProvider(output));
+                builder.AddProvider(new XUnitLoggerProvider(output, "SUT"));
                 builder.SetMinimumLevel(LogLevel.Trace);
             });
 
