@@ -95,6 +95,7 @@ namespace OpenTTDAdminPort.MainActor
                 {
                     case InitialConnectionException _:
                         {
+                            logger.LogTrace("Detected fatal tcp client exception. Sending message about this to myself in 3 seconds");
                             Timers.StartSingleTimer("fataltcp", new FatalTcpClientException(), 3.Seconds());
                             return Directive.Stop;
                         }
