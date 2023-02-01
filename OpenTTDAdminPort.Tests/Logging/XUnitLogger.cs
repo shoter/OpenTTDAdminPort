@@ -36,35 +36,48 @@ namespace OpenTTDAdminPort.Tests.Logging
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
-            var sb = new StringBuilder();
-            sb
-              .Append("[").Append(DateTime.Now.ToTime()).Append("]")
-              .Append("[").Append(GetLogLevelString(logLevel).ToUpperInvariant()).Append("]")
-              .Append(" <").Append(className).Append("> ");
-            if (loggerName != string.Empty)
+            try
             {
-                sb.Append(" {");
-                sb.Append(loggerName);
-                sb.Append("} ");
+                var sb = new StringBuilder();
+                sb
+                  .Append("[").Append(DateTime.Now.ToTime()).Append("]")
+                  .Append("[").Append(GetLogLevelString(logLevel).ToUpperInvariant()).Append("]")
+                  .Append(" <").Append(className).Append("> ");
+                if (loggerName != string.Empty)
+                {
+                    sb.Append(" {");
+                    sb.Append(loggerName);
+                    sb.Append("} ");
+                }
+
+                sb.Append(formatter(state, exception));
+
+                if (exception != null)
+                {
+                    sb.Append('\n').Append(exception);
+                }
+
+                // Append scopes
+                scopeProvider.ForEachScope((scope, state) =>
+                {
+                    state.Append("\n => ");
+                    state.Append(scope);
+                }, sb);
+
+                string log = sb.ToString();
+                testOutputHelper.WriteLine(log);
+                Console.WriteLine(log);
             }
-
-            sb.Append(formatter(state, exception));
-
-            if (exception != null)
+            catch (Exception ex)
             {
-                sb.Append('\n').Append(exception);
+                try
+                {
+                    Console.WriteLine(ex);
+                }
+                catch
+                {
+                }
             }
-
-            // Append scopes
-            scopeProvider.ForEachScope((scope, state) =>
-            {
-                state.Append("\n => ");
-                state.Append(scope);
-            }, sb);
-
-            string log = sb.ToString();
-            testOutputHelper.WriteLine(log);
-            Console.WriteLine(log);
         }
 
         private static string GetLogLevelString(LogLevel logLevel)
