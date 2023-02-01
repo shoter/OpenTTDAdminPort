@@ -104,7 +104,7 @@ namespace OpenTTDAdminPort.Tests.Dockerized
                 logger.LogTrace($"Received {ev}");
                 if (ev is AdminPongEvent pe)
                 {
-                    if (pe.PongValue == 22)
+                    if (pe.PongValue == 22u)
                     {
                         pongEvent = pe;
                     }
