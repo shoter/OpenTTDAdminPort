@@ -91,21 +91,20 @@ namespace OpenTTDAdminPort.MainActor
         protected override SupervisorStrategy SupervisorStrategy()
             => new OneForOneStrategy(ex =>
             {
-                logger.LogTrace($"SupervisorStrategy fired for {ex.GetType().Name}");
-                switch (ex)
+                if (ex is ActorInitializationException aex)
                 {
-                    case InitialConnectionException _:
-                        {
-                            logger.LogTrace("Detected fatal tcp client exception. Sending message about this to myself in 3 seconds");
-                            Timers.StartSingleTimer("fataltcp", new FatalTcpClientException(), 3.Seconds());
-                            return Directive.Stop;
-                        }
-
-                    default:
-                        {
-                            return Directive.Restart;
-                        }
+                    switch (aex.InnerException)
+                    {
+                        case InitialConnectionException _:
+                            {
+                                logger.LogTrace("Detected fatal tcp client exception. Sending message about this to myself in 3 seconds");
+                                Timers.StartSingleTimer("fataltcp", new FatalTcpClientException(), 3.Seconds());
+                                return Directive.Stop;
+                            }
+                    }
                 }
+
+                return Directive.Restart;
             }
 
             );
