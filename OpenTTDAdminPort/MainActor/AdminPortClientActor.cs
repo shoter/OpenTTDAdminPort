@@ -91,6 +91,7 @@ namespace OpenTTDAdminPort.MainActor
         protected override SupervisorStrategy SupervisorStrategy()
             => new OneForOneStrategy(ex =>
             {
+                logger.LogTrace($"SupervisorStrategy fired for {ex.GetType().Name}");
                 switch (ex)
                 {
                     case InitialConnectionException _:
