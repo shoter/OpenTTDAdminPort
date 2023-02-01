@@ -90,7 +90,7 @@ namespace OpenTTDAdminPort.Tests.Dockerized
             logger.LogInformation($"Openttd Server started on port {application.Port}");
             AdminPortClient client = new AdminPortClient(settings, application.ServerInfo, builder =>
             {
-                builder.AddProvider(new XUnitLoggerProvider(output));
+                builder.AddProvider(new XUnitLoggerProvider(output, "SUT"));
                 builder.SetMinimumLevel(LogLevel.Trace);
             });
 
