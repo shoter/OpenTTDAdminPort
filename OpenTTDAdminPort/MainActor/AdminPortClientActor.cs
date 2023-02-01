@@ -93,7 +93,7 @@ namespace OpenTTDAdminPort.MainActor
             => new OneForOneStrategy(ex =>
             {
                 logger.LogTrace($"SupervisorStrategy fired for {ex.GetType().Name}");
-                if (ex.TryGetInnerException(typeof(InitialConnectionException), out var _)
+                if (ex.TryGetInnerException(typeof(InitialConnectionException), out var _))
                 {
                     logger.LogTrace("Detected fatal tcp client exception. Sending message about this to myself in 3 seconds");
                     Timers.StartSingleTimer("fataltcp", new FatalTcpClientException(), 3.Seconds());
