@@ -69,7 +69,8 @@ jobs:
 
     # Execute all unit tests in the solution
     - name: Execute unit tests
-      run: dotnet test --filter "FullyQualifiedName=OpenTTDAdminPort.Tests.Dockerized.AdminPortClientTests.AfterServerRestart_AdminPortClientShouldAutomaticallyReconnect"  --collect "XPlat Code Coverage" -c ${{matrix.configuration}}
+      #run: dotnet test --filter "FullyQualifiedName=OpenTTDAdminPort.Tests.Dockerized.AdminPortClientTests.AfterServerRestart_AdminPortClientShouldAutomaticallyReconnect"  --collect "XPlat Code Coverage" -c ${{matrix.configuration}}
+      run: dotnet test --collect "XPlat Code Coverage" -c ${{matrix.configuration}}
       env:
           CI: true
 

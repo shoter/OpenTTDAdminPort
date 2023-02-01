@@ -101,12 +101,10 @@ namespace OpenTTDAdminPort.Tests.Dockerized
 
             client.SetAdminEventHandler(ev =>
             {
-                logger.LogTrace($"Received {ev}");
                 if (ev is AdminPongEvent pe)
                 {
                     if (pe.PongValue == 22u)
                     {
-                        logger.LogTrace("Received pong message I was waiting for <3");
                         pongEvent = pe;
                     }
                 }
@@ -163,7 +161,6 @@ namespace OpenTTDAdminPort.Tests.Dockerized
             while (pongEvent?.PongValue != 22u)
             {
                 await Task.Delay(1);
-                logger.LogTrace($"{pongEvent?.PongValue} - {pongEvent?.PongValue != 22u}");
 
                 if (timeout.IsCompleted)
                 {
@@ -171,9 +168,7 @@ namespace OpenTTDAdminPort.Tests.Dockerized
                 }
             }
 
-            logger.LogTrace("Nearly to the end");
             Assert.Equal(22u, pongEvent.PongValue);
-            logger.LogTrace("That's the end :)");
         }
     }
 }
