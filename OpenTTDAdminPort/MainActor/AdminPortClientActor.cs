@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using OpenTTDAdminPort.Akkas;
+using OpenTTDAdminPort.Common;
 using OpenTTDAdminPort.Events;
 using OpenTTDAdminPort.MainActor.Messages;
 using OpenTTDAdminPort.MainActor.StateData;
@@ -92,19 +93,11 @@ namespace OpenTTDAdminPort.MainActor
             => new OneForOneStrategy(ex =>
             {
                 logger.LogTrace($"SupervisorStrategy fired for {ex.GetType().Name}");
-                if (ex is ActorInitializationException aex)
+                if (ex.TryGetInnerException(typeof(InitialConnectionException), out var _)
                 {
-                    logger.LogTrace($"{aex.InnerException!.InnerException!.InnerException}");
-
-                    switch (aex.InnerException)
-                    {
-                        case InitialConnectionException _:
-                            {
-                                logger.LogTrace("Detected fatal tcp client exception. Sending message about this to myself in 3 seconds");
-                                Timers.StartSingleTimer("fataltcp", new FatalTcpClientException(), 3.Seconds());
-                                return Directive.Stop;
-                            }
-                    }
+                    logger.LogTrace("Detected fatal tcp client exception. Sending message about this to myself in 3 seconds");
+                    Timers.StartSingleTimer("fataltcp", new FatalTcpClientException(), 3.Seconds());
+                    return Directive.Stop;
                 }
 
                 return Directive.Restart;
