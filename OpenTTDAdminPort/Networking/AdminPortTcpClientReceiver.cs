@@ -69,9 +69,7 @@ namespace OpenTTDAdminPort.Networking
                     try
                     {
                         Packet packet = await WaitForPacket(stream, token);
-                        logger.LogTrace($"Receiver receiving new message!");
                         IAdminMessage message = adminPacketService.ReadPacket(packet);
-                        logger.LogTrace($"Receiver received message {message}!");
 
                         if (!token.IsCancellationRequested)
                         {
@@ -88,8 +86,6 @@ namespace OpenTTDAdminPort.Networking
                         logger.LogInformation("Receiver loop receives TaskCancelled Exception");
                     }
                 }
-
-                logger?.LogTrace("Receiver Main Loop Stopped!");
             }
             catch (Exception e)
             {

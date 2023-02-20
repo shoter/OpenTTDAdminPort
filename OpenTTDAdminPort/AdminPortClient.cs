@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Concurrent;
+using System.Drawing.Text;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Akka.Actor;
@@ -131,6 +133,48 @@ namespace OpenTTDAdminPort
                         break;
                     }
             }
+        }
+
+        public async Task<TEvent> WaitForEvent<TEvent>(IAdminMessage messageToSend, CancellationToken token = default)
+            where TEvent : IAdminEvent
+        {
+            return (TEvent)await WaitForEvent(messageToSend, ev => ev is TEvent, TimeSpan.FromSeconds(30), token);
+        }
+
+        public async Task<TEvent> WaitForEvent<TEvent>(IAdminMessage messageToSend, Func<TEvent, bool> func, CancellationToken token = default)
+            where TEvent : IAdminEvent
+        {
+            bool RealFunc(IAdminEvent ev)
+            {
+                if (ev is not TEvent)
+                {
+                    return false;
+                }
+
+                return func((TEvent)ev);
+            }
+
+            return (TEvent)await WaitForEvent(messageToSend, RealFunc, TimeSpan.FromSeconds(30), token);
+        }
+
+        public async Task<TEvent> WaitForEvent<TEvent>(IAdminMessage messageToSend, TimeSpan timeout, CancellationToken token = default)
+            where TEvent : IAdminEvent
+        {
+            return (TEvent)await WaitForEvent(messageToSend, ev => ev is TEvent, timeout, token);
+        }
+
+        public async Task<IAdminEvent> WaitForEvent(IAdminMessage messageToSend, Func<IAdminEvent, bool> func, TimeSpan timeout, CancellationToken token = default)
+        {
+            Task<object> task = mainActor.Ask(new WaitForEvent(func));
+            this.mainActor.Tell(new SendMessage(messageToSend));
+            await Task.WhenAny(task, Task.Delay(timeout, token));
+
+            if(!task.IsCompleted)
+            {
+                throw new TimeoutException();
+            }
+
+            return (IAdminEvent)task.Result;
         }
     }
 }

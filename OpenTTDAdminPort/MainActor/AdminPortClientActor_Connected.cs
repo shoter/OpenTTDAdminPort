@@ -51,6 +51,11 @@ namespace OpenTTDAdminPort.MainActor
                         this.Messager.Tell(ev);
                     }
 
+                    foreach(var waiter in waiterActors)
+                    {
+                        waiter.Tell(ev);
+                    }
+
                     return Stay();
                 }
                 else if (state.FsmEvent is AdminPortDisconnect)

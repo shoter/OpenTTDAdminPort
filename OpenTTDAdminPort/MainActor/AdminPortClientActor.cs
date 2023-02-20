@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Collections.Generic;
 using Akka.Actor;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +17,8 @@ namespace OpenTTDAdminPort.MainActor
     public partial class AdminPortClientActor : FSM<MainState, IMainData>, IWithUnboundedStash, IWithTimers
     {
         private readonly IActorFactory actorFactory;
+
+        private readonly HashSet<IActorRef> waiterActors = new();
 
         private readonly string version;
 
@@ -80,6 +82,24 @@ namespace OpenTTDAdminPort.MainActor
                     this.Messager.Tell(action);
                 }
 
+                if (state.FsmEvent is WaitForEvent wfe)
+                {
+                    var actor = Context.ActorOf(AdminEventWaiterActor.Create(wfe.WaiterFunc, Sender));
+                    Timers.StartSingleTimer(actor, new KillDanglingWaiter(actor), TimeSpan.FromSeconds(30));
+                    waiterActors.Add(actor);
+                }
+
+                if (state.FsmEvent is KillDanglingWaiter kdw)
+                {
+                    if (!waiterActors.Contains(kdw.Waiter))
+                    {
+                        return Stay();
+                    }
+
+                    this.logger.LogWarning($"Killing some dangling waiter. That should not happen buddy");
+                    kdw.Waiter.GracefulStop(TimeSpan.FromSeconds(3));
+                }
+
                 return Stay();
             });
         }
@@ -102,8 +122,6 @@ namespace OpenTTDAdminPort.MainActor
                 }
 
                 return Directive.Restart;
-            }
-
-            );
+            });
     }
 }
