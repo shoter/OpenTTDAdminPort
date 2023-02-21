@@ -91,11 +91,6 @@ namespace OpenTTDAdminPort.MainActor
                 {
                     return RestartConnecting(data);
                 }
-                else if (state.FsmEvent is SendMessage m)
-                {
-                    // Let's handle it later when we connect to the server.
-                    Stash.Stash();
-                }
                 else if(state.FsmEvent is AdminPortCheckIfConnected checkIfConnected)
                 {
                     if (checkIfConnected.ConnectingId == data.UniqueConnectingIdentifier)

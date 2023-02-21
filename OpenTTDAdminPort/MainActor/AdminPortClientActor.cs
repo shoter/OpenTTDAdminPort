@@ -10,6 +10,7 @@ using OpenTTDAdminPort.Common;
 using OpenTTDAdminPort.Events;
 using OpenTTDAdminPort.MainActor.Messages;
 using OpenTTDAdminPort.MainActor.StateData;
+using OpenTTDAdminPort.Networking;
 using OpenTTDAdminPort.Networking.Exceptions;
 
 namespace OpenTTDAdminPort.MainActor
@@ -98,6 +99,16 @@ namespace OpenTTDAdminPort.MainActor
 
                     this.logger.LogWarning($"Killing some dangling waiter. That should not happen buddy");
                     kdw.Waiter.GracefulStop(TimeSpan.FromSeconds(3));
+                }
+
+                switch(state.FsmEvent)
+                {
+                    case SendMessage:
+                    case QueryAdminServerInfo:
+                        {
+                            Stash.Stash();
+                            break;
+                        }
                 }
 
                 return Stay();
