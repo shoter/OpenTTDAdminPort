@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OpenTTDAdminPort.Events;
+using OpenTTDAdminPort.Game;
 using OpenTTDAdminPort.Messages;
 
 namespace OpenTTDAdminPort
