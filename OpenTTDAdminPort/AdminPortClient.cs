@@ -177,9 +177,9 @@ namespace OpenTTDAdminPort
             return (IAdminEvent)task.Result;
         }
 
-        public async Task<AdminServerInfo> QueryServerStatus(CancellationToken token = default)
+        public async Task<ServerStatus> QueryServerStatus(CancellationToken token = default)
         {
-            return await mainActor.Ask<AdminServerInfo>(new QueryServerStatus());
+            return await mainActor.Ask<ServerStatus>(new QueryServerStatus());
         }
     }
 }
