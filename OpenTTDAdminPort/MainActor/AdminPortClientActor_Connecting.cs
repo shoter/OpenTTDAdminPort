@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 
 using OpenTTDAdminPort.Akkas;
 using OpenTTDAdminPort.Events;
+using OpenTTDAdminPort.Game;
 using OpenTTDAdminPort.MainActor.Messages;
 using OpenTTDAdminPort.MainActor.StateData;
 using OpenTTDAdminPort.Messages;
@@ -66,19 +67,22 @@ namespace OpenTTDAdminPort.MainActor
                             {
                                 var msg = (AdminServerWelcomeMessage)message;
 
-                                data.AdminServerInfo = new AdminServerInfo()
-                                {
-                                    IsDedicated = msg.IsDedicated,
-                                    MapName = msg.MapName,
-                                    RevisionName = msg.NetworkRevision,
-                                    ServerName = msg.ServerName,
-                                };
+                                data.AdminServerInfo = new AdminServerInfo(
+                                    msg.ServerName,
+                                    msg.NetworkRevision,
+                                    msg.IsDedicated,
+                                    msg.MapName,
+                                    msg.CurrentDate,
+                                    msg.Landscape,
+                                    msg.MapWidth,
+                                    msg.MapHeight);
 
                                 IActorRef watchdog = actorFactory.CreateWatchdog(Context, data.TcpClient, 5.Seconds());
 
                                 logger.LogTrace($"Moving {data.Initiator} to Connected state");
                                 data.Initiator.Tell(SuccessResponse.Instance);
                                 this.Messager.Tell(new AdminServerConnected());
+                                SendUpdateFreqs(data.TcpClient);
                                 return GoTo(MainState.Connected).Using(new ConnectedData(data, watchdog));
                             }
                     }
@@ -115,6 +119,12 @@ namespace OpenTTDAdminPort.MainActor
             IActorRef tcpClient = actorFactory.CreateTcpClient(Context, data.ServerInfo.ServerIp, data.ServerInfo.ServerPort);
             this.Messager.Tell(new AdminServerConnectionLost());
             return GoTo(MainState.Connecting).Using(new ConnectingData(tcpClient, data.Initiator, data.ServerInfo, data.ClientName));
+        }
+
+        private void SendUpdateFreqs(IActorRef tcpClient)
+        {
+            var dateFreq = new AdminUpdateFrequencyMessage(AdminUpdateType.ADMIN_UPDATE_DATE, UpdateFrequency.ADMIN_FREQUENCY_MONTHLY);
+            tcpClient.Tell(new SendMessage(dateFreq));
         }
     }
 }

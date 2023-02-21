@@ -1,14 +1,14 @@
-﻿namespace OpenTTDAdminPort
-{
-    public class AdminServerInfo
-    {
-        // TODO: add `required` when new C# version arrives. This will get rid of `default!`
-        public string ServerName { get; internal init; } = default!;
+﻿using OpenTTDAdminPort.Game;
 
-        public string RevisionName { get; internal init; } = default!;
+namespace OpenTTDAdminPort;
 
-        public bool IsDedicated { get; internal set; }
-
-        public string MapName { get; internal init; } = default!;
-    }
-}
+public record AdminServerInfo(
+    string ServerName,
+    string RevisionName,
+    bool IsDedicated,
+    string MapName,
+    OttdDate Date,
+    Landscape Landscape,
+    ushort MapWidth,
+    ushort MapHeight
+    );

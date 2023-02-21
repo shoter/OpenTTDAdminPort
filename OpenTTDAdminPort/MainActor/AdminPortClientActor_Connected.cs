@@ -46,12 +46,14 @@ namespace OpenTTDAdminPort.MainActor
 
                     IAdminEvent? ev = this.adminEventFactory.Create(receive.Message, data);
 
+                    ProcessAdminMessage(data, receive.Message);
+
                     if (ev != null)
                     {
                         this.Messager.Tell(ev);
                     }
 
-                    foreach(var waiter in waiterActors)
+                    foreach (var waiter in waiterActors)
                     {
                         waiter.Tell(ev);
                     }
@@ -76,7 +78,7 @@ namespace OpenTTDAdminPort.MainActor
                 {
                     return Stay().Replying(new AdminPortReponseState(queryState, new MainActorState(data)));
                 }
-                else if(state.FsmEvent is FatalTcpClientException)
+                else if (state.FsmEvent is FatalTcpClientException)
                 {
                     KillChildren(data);
 
@@ -129,6 +131,17 @@ namespace OpenTTDAdminPort.MainActor
                 data.Watchdog.GracefulStop(3.Seconds()),
             };
             Task.WaitAll(killTasks);
+        }
+
+        private void ProcessMessage(ConnectedData initial, IAdminMessage message)
+        {
+            if(message is AdminServerDateMessage dateMsg)
+            {
+                initial.AdminServerInfo = initial.AdminServerInfo with
+                {
+                    Date = dateMsg.Date,
+                };
+            }
         }
     }
 }
