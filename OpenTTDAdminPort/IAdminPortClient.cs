@@ -21,7 +21,7 @@ namespace OpenTTDAdminPort
 
         Task Disconnect();
 
-        Task<AdminServerInfo> QueryAdminServerInfo(CancellationToken token = default);
+        Task<AdminServerInfo> QueryServerStatus(CancellationToken token = default);
 
         Task<TEvent> WaitForEvent<TEvent>(IAdminMessage messageToSend, CancellationToken token = default)
             where TEvent : IAdminEvent;

@@ -1,3 +1,3 @@
 ﻿namespace OpenTTDAdminPort.MainActor.Messages;
 
-public record QueryAdminServerInfo;
+public record QueryServerStatus;

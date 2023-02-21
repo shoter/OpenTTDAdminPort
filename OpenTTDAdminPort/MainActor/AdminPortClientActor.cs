@@ -104,7 +104,7 @@ namespace OpenTTDAdminPort.MainActor
                 switch(state.FsmEvent)
                 {
                     case SendMessage:
-                    case QueryAdminServerInfo:
+                    case QueryServerStatus:
                         {
                             Stash.Stash();
                             break;

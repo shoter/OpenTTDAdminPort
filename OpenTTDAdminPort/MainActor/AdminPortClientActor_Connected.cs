@@ -86,9 +86,9 @@ namespace OpenTTDAdminPort.MainActor
                     this.Messager.Tell(new AdminServerConnectionLost());
                     return GoTo(MainState.Connecting).Using(new ConnectingData(tcpClient, Self, data.ServerInfo, data.ClientName)).Replying(EmptyResponse.Instance);
                 }
-                else if(state.FsmEvent is QueryAdminServerInfo)
+                else if(state.FsmEvent is QueryServerStatus)
                 {
-                    Sender.Tell(data.AdminServerInfo);
+                    Sender.Tell(new ServerStatus(data.AdminServerInfo, data.Players));
                 }
 
                 return null;
