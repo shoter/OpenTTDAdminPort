@@ -120,16 +120,18 @@ namespace OpenTTDAdminPort.MainActor
         {
             void SendUpdateFreqMsg(AdminUpdateType type, UpdateFrequency freq)
             {
-                var freqMsg = new AdminUpdateFrequencyMessage(type, freq);
+                AdminUpdateFrequencyMessage freqMsg = new(type, freq);
                 tcpClient.Tell(new SendMessage(freqMsg));
             }
 
             SendUpdateFreqMsg(AdminUpdateType.ADMIN_UPDATE_DATE, UpdateFrequency.ADMIN_FREQUENCY_MONTHLY);
             SendUpdateFreqMsg(AdminUpdateType.ADMIN_UPDATE_CLIENT_INFO, UpdateFrequency.ADMIN_FREQUENCY_AUTOMATIC);
+            SendUpdateFreqMsg(AdminUpdateType.ADMIN_UPDATE_CHAT, UpdateFrequency.ADMIN_FREQUENCY_AUTOMATIC);
+            SendUpdateFreqMsg(AdminUpdateType.ADMIN_UPDATE_CONSOLE, UpdateFrequency.ADMIN_FREQUENCY_AUTOMATIC);
 
             // uint.MaxValue sends data about all clients
-            var msg = new AdminPollMessage(AdminUpdateType.ADMIN_UPDATE_CLIENT_INFO, uint.MaxValue);
-            tcpClient.Tell(msg);
+            AdminPollMessage msg = new(AdminUpdateType.ADMIN_UPDATE_CLIENT_INFO, uint.MaxValue);
+            tcpClient.Tell(new SendMessage(msg));
         }
     }
 }
