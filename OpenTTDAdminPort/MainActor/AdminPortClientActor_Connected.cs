@@ -51,11 +51,11 @@ namespace OpenTTDAdminPort.MainActor
                     if (ev != null)
                     {
                         this.Messager.Tell(ev);
-                    }
 
-                    foreach (var waiter in waiterActors)
-                    {
-                        waiter.Tell(ev);
+                        foreach (var waiter in waiterActors)
+                        {
+                            waiter.Tell(ev);
+                        }
                     }
 
                     return Stay();

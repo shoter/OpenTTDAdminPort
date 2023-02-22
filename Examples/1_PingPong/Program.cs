@@ -49,8 +49,9 @@ namespace _1_PingPong
             var pong = await client.WaitForEvent<AdminPongEvent>(new AdminPingMessage(2137));
             Console.WriteLine($"I've sent ping 2137 and received {pong.PongValue}");
             Console.WriteLine("Ending connection with server");
-            await client.Disconnect();
-            Console.WriteLine("Press any button to quit");
+
+            // await client.Disconnect();
+            // Console.WriteLine("Press any button to quit");
             Console.ReadLine();
         }
     }
