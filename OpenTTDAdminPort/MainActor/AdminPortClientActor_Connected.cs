@@ -119,6 +119,16 @@ namespace OpenTTDAdminPort.MainActor
                         break;
                     }
 
+                case AdminServerDateMessage dateMsg:
+                    {
+                        data.AdminServerInfo = data.AdminServerInfo with
+                        {
+                            Date = dateMsg.Date,
+                        };
+
+                        break;
+                    }
+
                 default:
                     {
                         // Other messages are not relevant to update server state
@@ -135,17 +145,6 @@ namespace OpenTTDAdminPort.MainActor
                 data.Watchdog.GracefulStop(3.Seconds()),
             };
             Task.WaitAll(killTasks);
-        }
-
-        private void ProcessMessage(ConnectedData initial, IAdminMessage message)
-        {
-            if(message is AdminServerDateMessage dateMsg)
-            {
-                initial.AdminServerInfo = initial.AdminServerInfo with
-                {
-                    Date = dateMsg.Date,
-                };
-            }
         }
     }
 }
