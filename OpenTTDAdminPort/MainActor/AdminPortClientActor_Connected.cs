@@ -46,8 +46,6 @@ namespace OpenTTDAdminPort.MainActor
 
                     IAdminEvent? ev = this.adminEventFactory.Create(receive.Message, data);
 
-                    ProcessAdminMessage(data, receive.Message);
-
                     if (ev != null)
                     {
                         this.Messager.Tell(ev);
