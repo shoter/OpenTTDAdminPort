@@ -12,7 +12,7 @@ namespace OpenTTDAdminPort.Game
 
     public static class LandscapeExtensions
     {
-        public static string ToHumanReadable(Landscape l)
+        public static string ToHumanReadable(this Landscape l)
         {
             return l switch
             {
