@@ -1,16 +1,27 @@
-﻿using System.ComponentModel;
+﻿using static OpenTTDAdminPort.Game.Landscape;
 
 namespace OpenTTDAdminPort.Game
 {
     public enum Landscape
     {
-        [Description("Temperate")]
         LT_TEMPERATE = 0,
-        [Description("Arctic")]
         LT_ARCTIC = 1,
-        [Description("Tropic")]
         LT_TROPIC = 2,
-        [Description("Toyland")]
         LT_TOYLAND = 3,
+    }
+
+    public static class LandscapeExtensions
+    {
+        public static string ToHumanReadable(Landscape l)
+        {
+            return l switch
+            {
+                LT_TEMPERATE => "Temperate",
+                LT_ARCTIC => "Arctic",
+                LT_TROPIC => "Tropic",
+                LT_TOYLAND => "Toyland",
+                _ => "Unknown",
+            };
+        }
     }
 }
