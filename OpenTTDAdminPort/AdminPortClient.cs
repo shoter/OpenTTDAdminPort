@@ -113,7 +113,7 @@ namespace OpenTTDAdminPort
             onConnectionStateChange = action;
         }
 
-        public void OnMainActorMessage(object msg)
+        private void OnMainActorMessage(object msg)
         {
             switch (msg)
             {

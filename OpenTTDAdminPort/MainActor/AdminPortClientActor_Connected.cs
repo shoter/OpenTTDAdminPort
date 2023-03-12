@@ -55,6 +55,10 @@ namespace OpenTTDAdminPort.MainActor
                             waiter.Tell(ev);
                         }
                     }
+                    else
+                    {
+                        logger.LogWarning($"Could create admin event message for {receive.Message.MessageType}");
+                    }
 
                     return Stay();
                 }
