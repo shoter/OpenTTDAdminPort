@@ -103,6 +103,9 @@ namespace OpenTTDAdminPort
             mainActor.Ask(new SendMessage(message));
         }
 
+        public void SendGlobalChatMessage(string message)
+            => SendMessage(new AdminChatMessage(NetworkAction.NETWORK_ACTION_CHAT, ChatDestination.DESTTYPE_BROADCAST, default, message));
+
         public void SetAdminEventHandler(Action<IAdminEvent> action)
         {
             onAdminEventReceive = action;

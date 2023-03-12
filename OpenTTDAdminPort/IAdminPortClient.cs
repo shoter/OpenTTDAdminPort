@@ -16,6 +16,8 @@ namespace OpenTTDAdminPort
 
         void SendMessage(IAdminMessage message);
 
+        void SendGlobalChatMessage(string message);
+
         void SetAdminEventHandler(Action<IAdminEvent> action);
 
         Task Connect(ILogger? test = null);
