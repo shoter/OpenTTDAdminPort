@@ -121,6 +121,12 @@ namespace OpenTTDAdminPort.MainActor
                         break;
                     }
 
+                case AdminServerClientErrorMessage em:
+                    {
+                        data.Players.Remove(em.ClientId);
+                        break;
+                    }
+
                 case AdminServerDateMessage dateMsg:
                     {
                         data.AdminServerInfo = data.AdminServerInfo with
