@@ -42,7 +42,7 @@ namespace OpenTTDAdminPort.MainActor
                 else if (state.FsmEvent is ReceiveMessage receive)
                 {
                     logger.LogTrace($"Received {receive.Message} - sending to Parent");
-                    ProcessAdminMessage(data, receive.Message);
+                    ConnectedData newData = ProcessAdminMessage(data, receive.Message);
 
                     IAdminEvent? ev = this.adminEventFactory.Create(receive.Message, data);
 
@@ -60,7 +60,7 @@ namespace OpenTTDAdminPort.MainActor
                         logger.LogWarning($"Could create admin event message for {receive.Message.MessageType}");
                     }
 
-                    return Stay();
+                    return Stay().Using(newData);
                 }
                 else if (state.FsmEvent is AdminPortDisconnect)
                 {
@@ -97,50 +97,51 @@ namespace OpenTTDAdminPort.MainActor
             });
         }
 
-        private void ProcessAdminMessage(ConnectedData data, IAdminMessage message)
+        private ConnectedData ProcessAdminMessage(ConnectedData data, IAdminMessage message)
         {
             switch (message)
             {
                 case AdminServerClientInfoMessage ci:
                     {
-                        data.Players.Add(ci.ClientId, new Player(ci.ClientId, ci.ClientName, DateTimeOffset.Now, ci.Hostname, ci.PlayingAs));
-                        break;
+                        var player = new Player(ci.ClientId, ci.ClientName, DateTimeOffset.Now, ci.Hostname, ci.PlayingAs);
+                        return data.UpsertPlayer(player);
                     }
 
                 case AdminServerClientUpdateMessage cu:
                     {
                         var player = data.Players[cu.ClientId];
-                        player.Name = cu.ClientName;
-                        player.PlayingAs = cu.PlayingAs;
-                        break;
+                        return data.UpsertPlayer(player with
+                        {
+                            Name = cu.ClientName,
+                            PlayingAs = cu.PlayingAs,
+                        });
                     }
 
                 case AdminServerClientQuitMessage cq:
                     {
-                        data.Players.Remove(cq.ClientId);
-                        break;
+                        return data.DeletePlayer(cq.ClientId);
                     }
 
                 case AdminServerClientErrorMessage em:
                     {
-                        data.Players.Remove(em.ClientId);
-                        break;
+                        return data.DeletePlayer(em.ClientId);
                     }
 
                 case AdminServerDateMessage dateMsg:
                     {
-                        data.AdminServerInfo = data.AdminServerInfo with
+                        return data with
                         {
-                            Date = dateMsg.Date,
+                            AdminServerInfo = data.AdminServerInfo with
+                            {
+                                Date = dateMsg.Date,
+                            },
                         };
-
-                        break;
                     }
 
                 default:
                     {
                         // Other messages are not relevant to update server state
-                        break;
+                        return data;
                     }
             }
         }

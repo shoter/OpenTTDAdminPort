@@ -2,25 +2,16 @@
 
 namespace OpenTTDAdminPort.Game
 {
-    public class Player
+    public record Player(
+    uint ClientId,
+    string Name,
+    string Hostname,
+    byte PlayingAs,
+    DateTimeOffset ConnectedTime)
     {
-        public uint ClientId { get; }
-
-        public string Name { get; set; }
-
-        public string Hostname { get; }
-
-        public byte PlayingAs { get; set; }
-
-        public DateTimeOffset ConnectedTime { get; } = default(DateTimeOffset);
-
         public Player(uint clientId, string name, DateTimeOffset connectedTime, string hostName, byte playingAs)
+            : this(clientId, name, hostName, playingAs, connectedTime)
         {
-            this.ClientId = clientId;
-            this.Name = name;
-            this.ConnectedTime = connectedTime;
-            this.Hostname = hostName;
-            this.PlayingAs = playingAs;
         }
 
         public Player Copy()

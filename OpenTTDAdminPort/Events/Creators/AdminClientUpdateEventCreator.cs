@@ -13,10 +13,10 @@ namespace OpenTTDAdminPort.Events.Creators
     {
         public AdminMessageType SupportedMessageType => AdminMessageType.ADMIN_PACKET_SERVER_CLIENT_UPDATE;
 
-        public IAdminEvent? Create(in IAdminMessage message, in ConnectedData context)
+        public IAdminEvent? Create(in IAdminMessage message, in ConnectedData prev, in ConnectedData data)
         {
             var msg = (AdminServerClientUpdateMessage)message;
-            var player = context.Players[msg.ClientId];
+            var player = data.Players[msg.ClientId];
 
             return new AdminClientUpdateEvent(player);
         }

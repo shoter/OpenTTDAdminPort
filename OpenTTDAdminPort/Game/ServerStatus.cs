@@ -2,4 +2,4 @@
 
 namespace OpenTTDAdminPort.Game;
 
-public record ServerStatus(AdminServerInfo AdminServerInfo, Dictionary<uint, Player> Players);
+public record ServerStatus(AdminServerInfo AdminServerInfo, IReadOnlyDictionary<uint, Player> Players);

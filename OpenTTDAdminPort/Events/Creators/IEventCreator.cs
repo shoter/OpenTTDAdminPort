@@ -7,6 +7,6 @@ namespace OpenTTDAdminPort.Events.Creators
     {
         AdminMessageType SupportedMessageType { get; }
 
-        IAdminEvent? Create(in IAdminMessage message, in ConnectedData data);
+        IAdminEvent? Create(in IAdminMessage message, in ConnectedData prev, in ConnectedData after);
     }
 }

@@ -8,32 +8,40 @@ using OpenTTDAdminPort.MainActor.Messages;
 
 namespace OpenTTDAdminPort.MainActor.StateData
 {
-    public class ConnectedData : IMainData
+    public record ConnectedData(
+        IActorRef TcpClient,
+        ServerInfo ServerInfo,
+        string ClientName,
+        IActorRef Watchdog,
+        IReadOnlyDictionary<AdminUpdateType, AdminUpdateSetting> AdminUpdateSettings,
+        AdminServerInfo AdminServerInfo,
+        IReadOnlyDictionary<uint, Player> Players) : IMainData
     {
-        public IActorRef TcpClient { get; }
-
-        public ServerInfo ServerInfo { get; }
-
-        public string ClientName { get; }
-
-        public IActorRef Watchdog { get; }
-
-        public Dictionary<AdminUpdateType, AdminUpdateSetting> AdminUpdateSettings { get; }
-
-        public AdminServerInfo AdminServerInfo { get; set; }
-
-        public Dictionary<uint, Player> Players { get; } = new();
-
         public ConnectedData(ConnectingData data, IActorRef watchdog)
+                : this(
+                      data.TcpClient,
+                      data.ServerInfo,
+                      data.ClientName,
+                      watchdog,
+                      data.AdminUpdateSettings,
+                      data.AdminServerInfo!,
+                      new Dictionary<uint, Player>())
         {
             Debug.Assert(data.AdminServerInfo != null);
+        }
 
-            this.TcpClient = data.TcpClient;
-            this.ServerInfo = data.ServerInfo;
-            this.ClientName = data.ClientName;
-            this.AdminUpdateSettings = data.AdminUpdateSettings;
-            this.Watchdog = watchdog;
-            this.AdminServerInfo = data.AdminServerInfo!;
+        public ConnectedData UpsertPlayer(Player player)
+        {
+            var players = new Dictionary<uint, Player>(Players);
+            players[player.ClientId] = player;
+            return this with { Players = players };
+        }
+
+        public ConnectedData DeletePlayer(uint clientId)
+        {
+            var players = new Dictionary<uint, Player>(Players);
+            players.Remove(clientId);
+            return this with { Players = players };
         }
     }
 }
