@@ -10,7 +10,7 @@ namespace OpenTTDAdminPort.Events.Creators
         public IAdminEvent? Create(in IAdminMessage message, in ConnectedData prev, in ConnectedData data)
         {
             var msg = (AdminServerClientInfoMessage)message;
-            var player = prev.Players[msg.ClientId];
+            var player = data.Players[msg.ClientId];
 
             return new AdminClientInfoEvent(player, msg.JoinDate);
         }

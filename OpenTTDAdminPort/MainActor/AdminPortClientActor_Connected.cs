@@ -73,6 +73,7 @@ namespace OpenTTDAdminPort.MainActor
                     KillChildren(data);
                     IActorRef tcpClient = actorFactory.CreateTcpClient(Context, data.ServerInfo.ServerIp, data.ServerInfo.ServerPort);
                     this.Messager.Tell(new AdminServerConnectionLost());
+                    logger.LogError($"Connection to ${data.ServerInfo.ServerIp}:{data.ServerInfo.ServerPort}");
                     return GoTo(MainState.Connecting)
                            .Using(new ConnectingData(tcpClient, Self, data.ServerInfo, data.ClientName));
                 }
