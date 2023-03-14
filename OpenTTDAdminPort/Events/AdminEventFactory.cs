@@ -40,14 +40,14 @@ namespace OpenTTDAdminPort.Events
             this.creators = creators.ToDictionary(x => x.SupportedMessageType);
         }
 
-        public IAdminEvent? Create(in IAdminMessage adminMessage, in ConnectedData context)
+        public IAdminEvent? Create(in IAdminMessage adminMessage, in ConnectedData prev, in ConnectedData context)
         {
             if (!creators.ContainsKey(adminMessage.MessageType))
             {
                 return null;
             }
 
-            return creators[adminMessage.MessageType].Create(adminMessage, context);
+            return creators[adminMessage.MessageType].Create(adminMessage, prev, context);
         }
     }
 }

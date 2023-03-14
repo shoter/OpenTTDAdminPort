@@ -3,16 +3,16 @@ using OpenTTDAdminPort.Messages;
 
 namespace OpenTTDAdminPort.Events.Creators
 {
-    internal class AdminClientDisconnectsNormalEventCreator : IEventCreator
+    internal class AdminClientDisconnectsNormalExceptionCreator : IEventCreator
     {
-        public AdminMessageType SupportedMessageType => AdminMessageType.ADMIN_PACKET_SERVER_CLIENT_QUIT;
+        public AdminMessageType SupportedMessageType => AdminMessageType.ADMIN_PACKET_SERVER_CLIENT_ERROR;
 
         public IAdminEvent? Create(in IAdminMessage message, in ConnectedData prev, in ConnectedData data)
         {
             var msg = (AdminServerClientJoinMessage)message;
             var player = prev.Players[msg.ClientId];
 
-            return new AdminClientDisconnectEvent(player, "normal");
+            return new AdminClientDisconnectEvent(player, "error");
         }
     }
 }

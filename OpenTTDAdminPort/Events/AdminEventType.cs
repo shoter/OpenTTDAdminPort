@@ -9,6 +9,7 @@
         ClientInfo = 5,
         ClientUpdate = 6,
         ClientJoin = 7,
+        ClientDisconnect = 8,
 
         // Not connected with in-game packets
         ServerConnectionLost = 1000,

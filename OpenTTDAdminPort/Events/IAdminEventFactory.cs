@@ -5,6 +5,6 @@ namespace OpenTTDAdminPort.Events
 {
     internal interface IAdminEventFactory
     {
-        IAdminEvent? Create(in IAdminMessage adminMessage, in ConnectedData context);
+        IAdminEvent? Create(in IAdminMessage adminMessage, in ConnectedData prev, in ConnectedData context);
     }
 }

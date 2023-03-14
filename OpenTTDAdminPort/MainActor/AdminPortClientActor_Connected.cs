@@ -44,7 +44,7 @@ namespace OpenTTDAdminPort.MainActor
                     logger.LogTrace($"Received {receive.Message} - sending to Parent");
                     ConnectedData newData = ProcessAdminMessage(data, receive.Message);
 
-                    IAdminEvent? ev = this.adminEventFactory.Create(receive.Message, data);
+                    IAdminEvent? ev = this.adminEventFactory.Create(receive.Message, data, newData);
 
                     if (ev != null)
                     {
