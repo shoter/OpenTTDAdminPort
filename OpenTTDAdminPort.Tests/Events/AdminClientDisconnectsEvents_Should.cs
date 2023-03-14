@@ -5,19 +5,24 @@ using OpenTTDAdminPort.Game;
 using OpenTTDAdminPort.MainActor.StateData;
 using OpenTTDAdminPort.Messages;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace OpenTTDAdminPort.Tests.Events
 {
-    public class AdminClientDisconnectsEvents_Should
+    public class AdminClientDisconnectsEvents_Should : BaseTestKit
     {
-        private readonly Fixture fix = new();
+        public AdminClientDisconnectsEvents_Should(ITestOutputHelper testOutputHelper)
+            : base(testOutputHelper)
+        {
+        }
 
         [Fact]
         public void BeCreated_WhenClient_NormallyQuits()
         {
             var msg = new AdminServerClientQuitMessage(1);
             var player = fix.Create<Player>() with { ClientId = 1 };
-            var data = fix.Create<ConnectedData>() with { Players = new Dictionary<uint, Player>() { { 1, player } } };
+            var data = CreateConnectedData() with
+            { Players = new Dictionary<uint, Player>() { { 1, player } } };
 
             AdminEventFactory factory = new();
             var ev = factory.Create(msg, data, data);
@@ -25,6 +30,17 @@ namespace OpenTTDAdminPort.Tests.Events
             Assert.True(ev is AdminClientDisconnectEvent);
             var de = ev as AdminClientDisconnectEvent;
             Assert.Equal(player, de.Player);
+        }
+
+        private ConnectedData CreateConnectedData()
+        {
+            var connectingData = new ConnectingData(
+                                probe,
+                                probe,
+                                fix.Create<ServerInfo>(),
+                                "clientName");
+            connectingData.AdminServerInfo = fix.Create<AdminServerInfo>();
+            return new ConnectedData(connectingData, probe);
         }
     }
 }
