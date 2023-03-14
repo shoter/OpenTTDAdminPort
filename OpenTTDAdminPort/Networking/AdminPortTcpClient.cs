@@ -9,7 +9,6 @@ using Microsoft.Extensions.Logging;
 
 using OpenTTDAdminPort.Akkas;
 using OpenTTDAdminPort.Common;
-using OpenTTDAdminPort.Events;
 using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Networking.Exceptions;
 using OpenTTDAdminPort.Packets;
