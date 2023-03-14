@@ -182,7 +182,7 @@ namespace OpenTTDAdminPort
 
         public async Task<ServerStatus> QueryServerStatus(CancellationToken token = default)
         {
-            return await mainActor.Ask<ServerStatus>(new QueryServerStatus());
+            return await mainActor.Ask<ServerStatus>(new QueryServerStatus(), TimeSpan.FromSeconds(2), token);
         }
     }
 }
