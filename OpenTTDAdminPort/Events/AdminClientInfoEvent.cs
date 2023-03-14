@@ -8,7 +8,7 @@ namespace OpenTTDAdminPort.Events
 
         public Player Player { get; }
 
-        public AdminEventType EventType => AdminEventType.ClientUpdate;
+        public AdminEventType EventType => AdminEventType.ClientInfo;
 
         public AdminClientInfoEvent(Player player, OttdDate joinDate)
         {

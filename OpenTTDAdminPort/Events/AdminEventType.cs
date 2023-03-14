@@ -8,6 +8,7 @@
         Pong = 4,
         ClientInfo = 5,
         ClientUpdate = 6,
+        ClientJoin = 7,
 
         // Not connected with in-game packets
         ServerConnectionLost = 1000,
