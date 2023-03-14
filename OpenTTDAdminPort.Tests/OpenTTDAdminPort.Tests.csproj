@@ -44,10 +44,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Events\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="Dockerized\openttd.cfg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
