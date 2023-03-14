@@ -32,6 +32,22 @@ namespace OpenTTDAdminPort.Tests.Events
             Assert.Equal(player, de.Player);
         }
 
+        [Fact]
+        public void BeCreated_WhenClient_ExceptionallyQuits()
+        {
+            var msg = new AdminServerClientErrorMessage(1, 0);
+            var player = fix.Create<Player>() with { ClientId = 1 };
+            var data = CreateConnectedData() with
+            { Players = new Dictionary<uint, Player>() { { 1, player } } };
+
+            AdminEventFactory factory = new();
+            var ev = factory.Create(msg, data, data);
+
+            Assert.True(ev is AdminClientDisconnectEvent);
+            var de = ev as AdminClientDisconnectEvent;
+            Assert.Equal(player, de.Player);
+        }
+
         private ConnectedData CreateConnectedData()
         {
             var connectingData = new ConnectingData(
