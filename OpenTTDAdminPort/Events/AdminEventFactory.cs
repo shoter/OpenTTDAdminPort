@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using OpenTTDAdminPort.Assemblies;
 using OpenTTDAdminPort.Common.Assemblies;
 using OpenTTDAdminPort.Events.Creators;
+using OpenTTDAdminPort.Extensions;
 using OpenTTDAdminPort.Game;
 using OpenTTDAdminPort.MainActor.StateData;
 using OpenTTDAdminPort.Messages;
@@ -63,6 +64,7 @@ namespace OpenTTDAdminPort.Events
             catch
             {
                 logger.LogError($"Error encountered while transforming {adminMessage}. Creator used - {creator}");
+                logger.LogErrorJson(adminMessage, prev, context);
                 throw;
             }
         }
