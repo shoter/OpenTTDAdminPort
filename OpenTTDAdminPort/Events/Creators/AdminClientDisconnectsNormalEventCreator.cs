@@ -1,4 +1,5 @@
-﻿using OpenTTDAdminPort.MainActor.StateData;
+﻿using OpenTTDAdminPort.Game;
+using OpenTTDAdminPort.MainActor.StateData;
 using OpenTTDAdminPort.Messages;
 
 namespace OpenTTDAdminPort.Events.Creators
@@ -10,7 +11,11 @@ namespace OpenTTDAdminPort.Events.Creators
         public IAdminEvent? Create(in IAdminMessage message, in ConnectedData prev, in ConnectedData data)
         {
             var msg = (AdminServerClientQuitMessage)message;
-            var player = prev.Players[msg.ClientId];
+            Player player = new(msg.ClientId, "unknown", "unknown", 255, default);
+            if (prev.Players.ContainsKey(msg.ClientId))
+            {
+                player = prev.Players[msg.ClientId];
+            }
 
             return new AdminClientDisconnectEvent(player, "normal");
         }
