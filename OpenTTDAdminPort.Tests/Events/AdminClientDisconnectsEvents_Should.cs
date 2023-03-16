@@ -1,5 +1,8 @@
 ﻿using System.Collections.Generic;
 using AutoFixture;
+using Castle.Core.Logging;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using OpenTTDAdminPort.Events;
 using OpenTTDAdminPort.Game;
 using OpenTTDAdminPort.MainActor.StateData;
@@ -24,7 +27,7 @@ namespace OpenTTDAdminPort.Tests.Events
             var data = CreateConnectedData() with
             { Players = new Dictionary<uint, Player>() { { 1, player } } };
 
-            AdminEventFactory factory = new();
+            AdminEventFactory factory = new(defaultServiceProvider.GetRequiredService<ILogger<AdminEventFactory>>());
             var ev = factory.Create(msg, data, data);
 
             Assert.True(ev is AdminClientDisconnectEvent);
@@ -40,7 +43,7 @@ namespace OpenTTDAdminPort.Tests.Events
             var data = CreateConnectedData() with
             { Players = new Dictionary<uint, Player>() { { 1, player } } };
 
-            AdminEventFactory factory = new();
+            AdminEventFactory factory = new(defaultServiceProvider.GetRequiredService<ILogger<AdminEventFactory>>());
             var ev = factory.Create(msg, data, data);
 
             Assert.True(ev is AdminClientDisconnectEvent);

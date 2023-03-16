@@ -30,7 +30,9 @@ namespace OpenTTDAdminPort.Events
         {
             this.logger = logger;
 
-            var creatorTypes = new AssemblyTypeFinder(Assembly.GetExecutingAssembly(), GetType().Namespace + ".Creators")
+            Assembly assembly = typeof(AdminEventFactory).Assembly;
+
+            var creatorTypes = new AssemblyTypeFinder(assembly, GetType().Namespace + ".Creators")
                 .WithTypeMatcher(new ClassTypeMatcher())
                 .WithTypeMatcher(new ImplementsTypeMatcher(typeof(IEventCreator)))
                 .Find();
