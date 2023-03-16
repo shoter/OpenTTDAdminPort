@@ -11,7 +11,10 @@ namespace OpenTTDAdminPort.Extensions
             StringBuilder sb = new();
             foreach(var obj in objs)
             {
-                sb.AppendLine(JsonConvert.SerializeObject(obj));
+                sb.AppendLine(JsonConvert.SerializeObject(obj, new JsonSerializerSettings()
+                {
+                    MaxDepth = 2,
+                }));
                 sb.AppendLine();
                 sb.AppendLine("---");
                 sb.AppendLine();
