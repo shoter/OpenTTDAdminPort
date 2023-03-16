@@ -4,7 +4,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using OpenTTDAdminPort.Assemblies;
 using OpenTTDAdminPort.Common.Assemblies;
 using OpenTTDAdminPort.Events.Creators;
@@ -17,14 +18,18 @@ namespace OpenTTDAdminPort.Events
     internal class AdminEventFactory : IAdminEventFactory
     {
         private readonly Dictionary<AdminMessageType, IEventCreator> creators = new Dictionary<AdminMessageType, IEventCreator>();
+        private readonly ILogger logger;
 
         public AdminEventFactory(params IEventCreator[] eventCreators)
         {
             creators = eventCreators.ToDictionary(x => x.SupportedMessageType);
+            logger = NullLogger<AdminEventFactory>.Instance;
         }
 
-        public AdminEventFactory()
+        public AdminEventFactory(ILogger<AdminEventFactory> logger)
         {
+            this.logger = logger;
+
             var creatorTypes = new AssemblyTypeFinder(Assembly.GetExecutingAssembly(), GetType().Namespace + ".Creators")
                 .WithTypeMatcher(new ClassTypeMatcher())
                 .WithTypeMatcher(new ImplementsTypeMatcher(typeof(IEventCreator)))
@@ -42,12 +47,22 @@ namespace OpenTTDAdminPort.Events
 
         public IAdminEvent? Create(in IAdminMessage adminMessage, in ConnectedData prev, in ConnectedData context)
         {
-            if (!creators.ContainsKey(adminMessage.MessageType))
+            IEventCreator? creator = null;
+            try
             {
-                return null;
-            }
+                if (!creators.ContainsKey(adminMessage.MessageType))
+                {
+                    return null;
+                }
 
-            return creators[adminMessage.MessageType].Create(adminMessage, prev, context);
+                creator = creators[adminMessage.MessageType];
+                return creator.Create(adminMessage, prev, context);
+            }
+            catch
+            {
+                logger.LogError($"Error encountered while transforming {adminMessage}. Creator used - {creator}");
+                throw;
+            }
         }
     }
 }
