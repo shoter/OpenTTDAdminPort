@@ -13,7 +13,7 @@ namespace OpenTTDAdminPort.Extensions
             {
                 sb.AppendLine(JsonConvert.SerializeObject(obj, new JsonSerializerSettings()
                 {
-                    MaxDepth = 2,
+                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
                 }));
                 sb.AppendLine();
                 sb.AppendLine("---");
