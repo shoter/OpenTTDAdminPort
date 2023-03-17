@@ -2,17 +2,17 @@
 using System.Diagnostics;
 
 using Akka.Actor;
-
+using Newtonsoft.Json;
 using OpenTTDAdminPort.Game;
 using OpenTTDAdminPort.MainActor.Messages;
 
 namespace OpenTTDAdminPort.MainActor.StateData
 {
     public record ConnectedData(
-        IActorRef TcpClient,
+        [property: JsonIgnore] IActorRef TcpClient,
         ServerInfo ServerInfo,
         string ClientName,
-        IActorRef Watchdog,
+        [property: JsonIgnore] IActorRef Watchdog,
         IReadOnlyDictionary<AdminUpdateType, AdminUpdateSetting> AdminUpdateSettings,
         AdminServerInfo AdminServerInfo,
         IReadOnlyDictionary<uint, Player> Players) : IMainData
