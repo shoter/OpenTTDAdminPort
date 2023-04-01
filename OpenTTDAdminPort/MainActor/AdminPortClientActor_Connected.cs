@@ -119,7 +119,14 @@ namespace OpenTTDAdminPort.MainActor
 
                 case AdminServerClientQuitMessage cq:
                     {
-                        return data.DeletePlayer(cq.ClientId);
+                        // This if here is just in case if there is a chance that we try to remove player that was somehow not registered by the server.
+                        // You can call it defensive programming or smth.
+                        if (data.Players.ContainsKey(cq.ClientId))
+                        {
+                            return data.DeletePlayer(cq.ClientId);
+                        }
+
+                        return data;
                     }
 
                 case AdminServerClientErrorMessage em:
