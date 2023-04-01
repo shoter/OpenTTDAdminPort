@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OpenTTDAdminPort.Events;
 using OpenTTDAdminPort.Game;
+using OpenTTDAdminPort.MainActor.Messages;
 using OpenTTDAdminPort.Messages;
 
 namespace OpenTTDAdminPort
@@ -36,5 +37,10 @@ namespace OpenTTDAdminPort
             where TEvent : IAdminEvent;
 
         Task<IAdminEvent> WaitForEvent(IAdminMessage messageToSend, Func<IAdminEvent, bool> func, TimeSpan timeout, CancellationToken token = default);
+
+        /// <remarks>
+        /// This method queries internal data about admin port client. Do not use unless you want to know about internals of admin port client.
+        /// </remarks>
+        Task<IMainData> GetMainData(CancellationToken token = default);
     }
 }

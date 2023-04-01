@@ -109,6 +109,13 @@ namespace OpenTTDAdminPort.MainActor
                             Stash.Stash();
                             break;
                         }
+
+                    case QueryServerState:
+                        {
+                            var data = state.StateData;
+                            Sender.Tell(data);
+                            break;
+                        }
                 }
 
                 return Stay();

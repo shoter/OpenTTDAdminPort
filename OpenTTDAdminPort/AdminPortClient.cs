@@ -184,5 +184,10 @@ namespace OpenTTDAdminPort
         {
             return await mainActor.Ask<ServerStatus>(new QueryServerStatus(), TimeSpan.FromSeconds(2), token);
         }
+
+        public async Task<IMainData> GetMainData(CancellationToken token = default)
+        {
+            return await mainActor.Ask<IMainData>(new QueryServerState(), TimeSpan.FromSeconds(2), token);
+        }
     }
 }
