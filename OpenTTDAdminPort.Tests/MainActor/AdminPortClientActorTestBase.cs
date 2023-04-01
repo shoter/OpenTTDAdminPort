@@ -10,10 +10,6 @@ namespace OpenTTDAdminPort.Tests.MainActor
 {
     internal class AdminPortClientActorTestBase : BaseTestKit
     {
-        private readonly IActorRef mainActor;
-
-        private readonly IActorRef tcpFake;
-
         public AdminPortClientActorTestBase(ITestOutputHelper testOutputHelper)
             : base(testOutputHelper)
         {

@@ -19,7 +19,7 @@ namespace OpenTTDAdminPort.Tests.Networking
     internal class AdminPortTcpClientFake : ScopedReceiveActor
     {
         private readonly ILogger logger;
-        private readonly FakeTcpData data;
+        private readonly FakeTcpData data = default!;
 
         public AdminPortTcpClientFake(IServiceProvider serviceProvider, string ip, int port)
             : base(serviceProvider)
