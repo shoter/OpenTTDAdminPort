@@ -10,7 +10,7 @@ namespace OpenTTDAdminPort.Events.Creators
         public IAdminEvent? Create(in IAdminMessage message, in ConnectedData prev, in ConnectedData data)
         {
             var msg = (AdminServerClientErrorMessage)message;
-            var player = prev.Players[msg.ClientId];
+            var player = data.GetPlayerFromAll(msg.ClientId);
 
             return new AdminClientDisconnectEvent(player, "error");
         }

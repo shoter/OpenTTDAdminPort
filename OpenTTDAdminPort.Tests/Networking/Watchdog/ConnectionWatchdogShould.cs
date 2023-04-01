@@ -37,7 +37,7 @@ namespace OpenTTDAdminPort.Tests.Networking.Watchdog
         [Fact]
         public void AutomaticallySendPingMessage_AfterSpecifiedTimeSpan()
         {
-            IActorRef dog = ActorOf(ConnectionWatchdog.Create(defaultServiceProvider, tcpClient: probe.Ref, pingTime));
+            IActorRef dog = ActorOf(ConnectionWatchdog.Create(SP, tcpClient: probe.Ref, pingTime));
             probe.ExpectMsg<TcpClientSubscribe>();
 
             probe.Within(pingTime * 2, () =>
@@ -50,7 +50,7 @@ namespace OpenTTDAdminPort.Tests.Networking.Watchdog
         public void DoNothing_WhenReceivesResponseInTime()
         {
             TestProbe parent = CreateTestProbe();
-            IActorRef dog = parent.ChildActorOf(ConnectionWatchdog.Create(defaultServiceProvider, tcpClient: probe.Ref, pingTime));
+            IActorRef dog = parent.ChildActorOf(ConnectionWatchdog.Create(SP, tcpClient: probe.Ref, pingTime));
             probe.ExpectMsg<TcpClientSubscribe>();
 
             for (int i = 0; i < 5; ++i)
@@ -81,7 +81,7 @@ namespace OpenTTDAdminPort.Tests.Networking.Watchdog
         public void DoNothing_WhenReceivesWrongPongs_AndFinallyReceivesCorrectOne()
         {
             TestProbe parent = CreateTestProbe();
-            IActorRef dog = parent.ChildActorOf(ConnectionWatchdog.Create(defaultServiceProvider, tcpClient: probe.Ref, pingTime));
+            IActorRef dog = parent.ChildActorOf(ConnectionWatchdog.Create(SP, tcpClient: probe.Ref, pingTime));
             probe.ExpectMsg<TcpClientSubscribe>();
 
             for (int i = 0; i < 5; ++i)
@@ -119,7 +119,7 @@ namespace OpenTTDAdminPort.Tests.Networking.Watchdog
         public void ErrorOut_WHenDOesNotReceiveReply_EvenAfterSuccessfullReplies()
         {
             TestProbe parent = CreateTestProbe();
-            IActorRef dog = parent.ChildActorOf(ConnectionWatchdog.Create(defaultServiceProvider, tcpClient: probe.Ref, pingTime));
+            IActorRef dog = parent.ChildActorOf(ConnectionWatchdog.Create(SP, tcpClient: probe.Ref, pingTime));
             probe.ExpectMsg<TcpClientSubscribe>();
 
             for (int i = 0; i < 5; ++i)
@@ -150,7 +150,7 @@ namespace OpenTTDAdminPort.Tests.Networking.Watchdog
         public void ErrorOut_WhenDoesNotReceiveReply_InLongEnoughTime()
         {
             TestProbe parent = CreateTestProbe();
-            IActorRef dog = parent.ChildActorOf(ConnectionWatchdog.Create(defaultServiceProvider, tcpClient: probe.Ref, pingTime));
+            IActorRef dog = parent.ChildActorOf(ConnectionWatchdog.Create(SP, tcpClient: probe.Ref, pingTime));
             probe.ExpectMsg<TcpClientSubscribe>();
 
             Within(pingTime * 3, () =>

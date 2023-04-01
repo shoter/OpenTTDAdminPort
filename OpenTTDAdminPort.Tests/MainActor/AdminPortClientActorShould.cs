@@ -27,8 +27,8 @@ namespace OpenTTDAdminPort.Tests.MainActor
             tcpClient = CreateTestProbe();
             watchdog = CreateTestProbe();
 
-            networkingActorFactory.Setup(x => x.CreateTcpClient(It.IsAny<IActorContext>(), It.IsAny<string>(), It.IsAny<int>())).Returns(tcpClient.Ref);
-            networkingActorFactory.Setup(x => x.CreateWatchdog(It.IsAny<IActorContext>(), tcpClient.Ref, It.IsAny<TimeSpan>())).Returns(watchdog.Ref);
+            actorFactoryMock.Setup(x => x.CreateTcpClient(It.IsAny<IActorContext>(), It.IsAny<string>(), It.IsAny<int>())).Returns(tcpClient.Ref);
+            actorFactoryMock.Setup(x => x.CreateWatchdog(It.IsAny<IActorContext>(), tcpClient.Ref, It.IsAny<TimeSpan>())).Returns(watchdog.Ref);
         }
 
         [Fact]
@@ -37,14 +37,14 @@ namespace OpenTTDAdminPort.Tests.MainActor
             string ip = "127.0.0.1";
             int port = 12345;
 
-            var actor = Sys.ActorOf(AdminPortClientActor.Create(defaultServiceProvider));
+            var actor = Sys.ActorOf(AdminPortClientActor.Create(SP));
 
             Within(3.Seconds(), () =>
             {
                 actor.Tell(new AdminPortConnect(new ServerInfo(ip, port), "Zenek"));
                 AwaitAssert(() =>
                 {
-                    networkingActorFactory.Verify(x => x.CreateTcpClient(It.IsAny<IActorContext>(), ip, port), Times.Once());
+                    actorFactoryMock.Verify(x => x.CreateTcpClient(It.IsAny<IActorContext>(), ip, port), Times.Once());
                 });
             });
         }
@@ -56,7 +56,7 @@ namespace OpenTTDAdminPort.Tests.MainActor
             string password = "StarWarsIsNiceMovie";
             int port = 12345;
 
-            var actor = Sys.ActorOf(AdminPortClientActor.Create(defaultServiceProvider));
+            var actor = Sys.ActorOf(AdminPortClientActor.Create(SP));
 
             Within(3.Seconds(), () =>
             {
@@ -76,7 +76,7 @@ namespace OpenTTDAdminPort.Tests.MainActor
             string ip = "127.0.0.1";
             int port = 12345;
 
-            var actor = Sys.ActorOf(AdminPortClientActor.Create(defaultServiceProvider));
+            var actor = Sys.ActorOf(AdminPortClientActor.Create(SP));
 
             Within(10.Seconds(), () =>
             {

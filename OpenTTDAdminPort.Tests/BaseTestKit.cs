@@ -29,13 +29,13 @@ namespace OpenTTDAdminPort.Tests
 {
     public class BaseTestKit : TestKit
     {
-        protected readonly IServiceProvider defaultServiceProvider;
+        protected readonly IServiceProvider SP;
 
         protected readonly Fixture fix = new();
 
         private readonly DummyTcpClient tcpClient = new DummyTcpClient();
 
-        protected readonly Mock<ActorFactory> networkingActorFactory;
+        protected readonly Mock<ActorFactory> actorFactoryMock;
 
         protected readonly ILogger logger;
 
@@ -51,7 +51,7 @@ namespace OpenTTDAdminPort.Tests
             var serviceCollection = new ServiceCollection()
                 .AddSingleton<ITcpClient>(tcpClient)
                 .AddSingleton<IAdminPacketService>(new AdminPacketServiceFactory().Create())
-                .AddSingleton<IActorFactory>(sp => networkingActorFactory.Object)
+                .AddSingleton<IActorFactory>(sp => actorFactoryMock.Object)
                 .AddSingleton<IAdminEventFactory>(new AdminEventFactory())
                 .AddLogging(logging =>
                 {
@@ -61,11 +61,11 @@ namespace OpenTTDAdminPort.Tests
 
             ConfigureServiceCollection(serviceCollection);
 
-            defaultServiceProvider = serviceCollection.BuildServiceProvider();
+            SP = serviceCollection.BuildServiceProvider();
 
-            networkingActorFactory = new(defaultServiceProvider);
+            actorFactoryMock = new(SP);
 
-            this.logger = defaultServiceProvider.GetRequiredService<ILogger<BaseTestKit>>();
+            this.logger = SP.GetRequiredService<ILogger<BaseTestKit>>();
 
             probe = CreateTestProbe();
         }

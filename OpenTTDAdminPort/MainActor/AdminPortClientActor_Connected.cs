@@ -12,7 +12,6 @@ using OpenTTDAdminPort.MainActor.Messages;
 using OpenTTDAdminPort.MainActor.StateData;
 using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Networking;
-using OpenTTDAdminPort.Networking.Exceptions;
 using OpenTTDAdminPort.Networking.Watchdog;
 
 namespace OpenTTDAdminPort.MainActor

@@ -6,6 +6,8 @@ namespace OpenTTDAdminPort.Akkas
 {
     internal class ScopedReceiveActor : ReceiveActor
     {
+        protected IActorRef Parent { get; }
+
         protected IServiceScope Scope { get; }
 
         protected IServiceProvider SP => Scope.ServiceProvider;
@@ -13,6 +15,7 @@ namespace OpenTTDAdminPort.Akkas
         public ScopedReceiveActor(IServiceProvider sp)
         {
             Scope = sp.CreateScope();
+            Parent = Context.Parent;
         }
 
         public override void AroundPreRestart(Exception cause, object message)

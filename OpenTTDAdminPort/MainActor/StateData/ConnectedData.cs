@@ -15,7 +15,8 @@ namespace OpenTTDAdminPort.MainActor.StateData
         [property: JsonIgnore] IActorRef Watchdog,
         IReadOnlyDictionary<AdminUpdateType, AdminUpdateSetting> AdminUpdateSettings,
         AdminServerInfo AdminServerInfo,
-        IReadOnlyDictionary<uint, Player> Players) : IMainData
+        IReadOnlyDictionary<uint, Player> Players,
+        IReadOnlyDictionary<uint, Player> PastPlayers) : IMainData
     {
         public ConnectedData(ConnectingData data, IActorRef watchdog)
                 : this(
@@ -25,6 +26,7 @@ namespace OpenTTDAdminPort.MainActor.StateData
                       watchdog,
                       data.AdminUpdateSettings,
                       data.AdminServerInfo!,
+                      new Dictionary<uint, Player>(),
                       new Dictionary<uint, Player>())
         {
             Debug.Assert(data.AdminServerInfo != null);
@@ -40,8 +42,28 @@ namespace OpenTTDAdminPort.MainActor.StateData
         public ConnectedData DeletePlayer(uint clientId)
         {
             var players = new Dictionary<uint, Player>(Players);
+            var pastPlayers = PastPlayers;
+
+            if(players.TryGetValue(clientId, out Player? player))
+            {
+                pastPlayers = new Dictionary<uint, Player>(PastPlayers)
+                {
+                    { clientId, player },
+                };
+            }
+
             players.Remove(clientId);
-            return this with { Players = players };
+            return this with { Players = players, PastPlayers = pastPlayers };
+        }
+
+        public Player GetPlayerFromAll(uint clientId)
+        {
+            if(Players.TryGetValue(clientId, out Player? player))
+            {
+                return player;
+            }
+
+            return PastPlayers[clientId];
         }
     }
 }
