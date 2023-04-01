@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Newtonsoft.Json;
 
 namespace OpenTTDAdminPort
 {
@@ -12,6 +8,7 @@ namespace OpenTTDAdminPort
 
         public int ServerPort { get; }
 
+        [JsonIgnore]
         public string Password { get; }
 
         public ServerInfo(string serverIp, int serverPort, string password = "")
