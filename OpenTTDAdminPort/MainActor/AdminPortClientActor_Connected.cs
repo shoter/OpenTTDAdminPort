@@ -124,7 +124,15 @@ namespace OpenTTDAdminPort.MainActor
 
                 case AdminServerClientErrorMessage em:
                     {
-                        return data.DeletePlayer(em.ClientId);
+                        // There is an error in some version of openttd (mayeb in all?) where after client disconnects and server successfully
+                        // sends quitMessage server is going to send error message.
+                        // This is errorneous behaviour and if client is already disconnected we are going to ignor `error` messages connected with him.
+                        if (data.Players.ContainsKey(em.ClientId))
+                        {
+                            return data.DeletePlayer(em.ClientId);
+                        }
+
+                        return data;
                     }
 
                 case AdminServerDateMessage dateMsg:
