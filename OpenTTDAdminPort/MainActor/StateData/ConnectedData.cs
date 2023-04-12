@@ -16,6 +16,7 @@ namespace OpenTTDAdminPort.MainActor.StateData
         IReadOnlyDictionary<AdminUpdateType, AdminUpdateSetting> AdminUpdateSettings,
         AdminServerInfo AdminServerInfo,
         IReadOnlyDictionary<uint, Player> Players,
+        IReadOnlyDictionary<byte, Company> Companies,
         IReadOnlyDictionary<uint, Player> PastPlayers) : IMainData
     {
         public ConnectedData(ConnectingData data, IActorRef watchdog)
@@ -27,6 +28,7 @@ namespace OpenTTDAdminPort.MainActor.StateData
                       data.AdminUpdateSettings,
                       data.AdminServerInfo!,
                       new Dictionary<uint, Player>(),
+                      new Dictionary<byte, Company>(),
                       new Dictionary<uint, Player>())
         {
             Debug.Assert(data.AdminServerInfo != null);
@@ -37,6 +39,20 @@ namespace OpenTTDAdminPort.MainActor.StateData
             var players = new Dictionary<uint, Player>(Players);
             players[player.ClientId] = player;
             return this with { Players = players };
+        }
+
+        public ConnectedData UpsertCompany(Company company)
+        {
+            var companies = new Dictionary<byte, Company>(Companies);
+            companies[company.Id] = company;
+            return this with { Companies = companies };
+        }
+
+        public ConnectedData RemoveCompany(byte companyId)
+        {
+            var companies = new Dictionary<byte, Company>(Companies);
+            companies.Remove(companyId);
+            return this with { Companies = companies };
         }
 
         public ConnectedData DeletePlayer(uint clientId)

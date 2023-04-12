@@ -142,6 +142,41 @@ namespace OpenTTDAdminPort.MainActor
                         return data;
                     }
 
+                case AdminServerCompanyInfoMessage cim:
+                    {
+                        Company company = new Company(
+                                cim.CompanyId,
+                                cim.CompanyName,
+                                cim.ManagerName,
+                                cim.Color,
+                                cim.HasPassword,
+                                cim.CreationDate,
+                                cim.IsAi,
+                                cim.MonthsOfBankruptcy
+                                );
+
+                        return data.UpsertCompany(company);
+                    }
+
+                case AdminServerCompanyUpdateMessage cum:
+                    {
+                        Company company = data.Companies[cum.CompanyId] with 
+                        {
+                            Name = cum.CompanyName,
+                            ManagerName = cum.ManagerName,
+                            Color = cum.Color,
+                            HasPassword = cum.HasPassword,
+                            MonthsOfBankruptcy = cum.MonthsOfBankruptcy
+                        };
+
+                        return data.UpsertCompany(company);
+                    }
+
+                case AdminServerCompanyRemoveMessage crm:
+                    {
+                        return data.RemoveCompany(crm.CompanyId);
+                    }
+
                 case AdminServerDateMessage dateMsg:
                     {
                         return data with
