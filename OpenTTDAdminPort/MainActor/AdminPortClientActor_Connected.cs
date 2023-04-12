@@ -88,7 +88,7 @@ namespace OpenTTDAdminPort.MainActor
                     this.Messager.Tell(new AdminServerConnectionLost());
                     return GoTo(MainState.Connecting).Using(new ConnectingData(tcpClient, Self, data.ServerInfo, data.ClientName)).Replying(EmptyResponse.Instance);
                 }
-                else if(state.FsmEvent is QueryServerStatus)
+                else if (state.FsmEvent is QueryServerStatus)
                 {
                     Sender.Tell(new ServerStatus(data.AdminServerInfo, data.Players));
                 }
@@ -152,21 +152,20 @@ namespace OpenTTDAdminPort.MainActor
                                 cim.HasPassword,
                                 cim.CreationDate,
                                 cim.IsAi,
-                                cim.MonthsOfBankruptcy
-                                );
+                                cim.MonthsOfBankruptcy);
 
                         return data.UpsertCompany(company);
                     }
 
                 case AdminServerCompanyUpdateMessage cum:
                     {
-                        Company company = data.Companies[cum.CompanyId] with 
+                        Company company = data.Companies[cum.CompanyId] with
                         {
                             Name = cum.CompanyName,
                             ManagerName = cum.ManagerName,
                             Color = cum.Color,
                             HasPassword = cum.HasPassword,
-                            MonthsOfBankruptcy = cum.MonthsOfBankruptcy
+                            MonthsOfBankruptcy = cum.MonthsOfBankruptcy,
                         };
 
                         return data.UpsertCompany(company);
