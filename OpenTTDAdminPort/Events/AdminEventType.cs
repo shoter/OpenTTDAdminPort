@@ -11,6 +11,9 @@
         ClientJoin = 7,
         ClientDisconnect = 8,
 
+        CompanyInfo = 11,
+        CompanyRemoval = 12,
+
         // Not connected with in-game packets
         ServerConnectionLost = 1000,
         ServerConnected = 1001,

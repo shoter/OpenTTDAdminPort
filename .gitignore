@@ -351,3 +351,5 @@ MigrationBackup/
 
 # Idea (Rider)
 .idea/
+
+.vim/
