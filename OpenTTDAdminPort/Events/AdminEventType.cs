@@ -11,7 +11,8 @@
         ClientJoin = 7,
         ClientDisconnect = 8,
 
-        CompanyInfo = 11,
+        CompanyNew = 10,
+        CompanyUpdate = 11,
         CompanyRemoval = 12,
 
         // Not connected with in-game packets

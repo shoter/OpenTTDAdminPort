@@ -1,16 +1,9 @@
-using OpenTTDAdminPort.Game;
+﻿using OpenTTDAdminPort.Game;
 
 namespace OpenTTDAdminPort.Events
 {
-    public class AdminCompanyInfoEvent : IAdminEvent
+    public record AdminCompanyInfoEvent(Company Company) : IAdminEvent
     {
-        public AdminEventType EventType => AdminEventType.CompanyInfo;
-
-        public Company Company { get; }
-
-        public AdminCompanyInfoEvent(Company company)
-        {
-            Company = company;
-        }
+        public AdminEventType EventType => AdminEventType.CompanyNew;
     }
 }
