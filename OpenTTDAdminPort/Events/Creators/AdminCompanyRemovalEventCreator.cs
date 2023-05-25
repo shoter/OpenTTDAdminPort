@@ -10,7 +10,7 @@ namespace OpenTTDAdminPort.Events.Creators
         public IAdminEvent? Create(in IAdminMessage message, in ConnectedData prev, in ConnectedData data)
         {
             var msg = (AdminServerCompanyInfoMessage)message;
-            var company = data.Companies[msg.CompanyId];
+            var company = prev.Companies[msg.CompanyId];
 
             return new AdminCompanyRemovalEvent(company);
         }
