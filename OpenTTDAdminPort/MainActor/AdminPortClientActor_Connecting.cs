@@ -132,6 +132,7 @@ namespace OpenTTDAdminPort.MainActor
 
             SendUpdateFreqMsg(AdminUpdateType.ADMIN_UPDATE_DATE, UpdateFrequency.ADMIN_FREQUENCY_MONTHLY);
             SendUpdateFreqMsg(AdminUpdateType.ADMIN_UPDATE_CLIENT_INFO, UpdateFrequency.ADMIN_FREQUENCY_AUTOMATIC);
+            SendUpdateFreqMsg(AdminUpdateType.ADMIN_UPDATE_COMPANY_INFO, UpdateFrequency.ADMIN_FREQUENCY_AUTOMATIC);
             SendUpdateFreqMsg(AdminUpdateType.ADMIN_UPDATE_CHAT, UpdateFrequency.ADMIN_FREQUENCY_AUTOMATIC);
             SendUpdateFreqMsg(AdminUpdateType.ADMIN_UPDATE_CONSOLE, UpdateFrequency.ADMIN_FREQUENCY_AUTOMATIC);
 
