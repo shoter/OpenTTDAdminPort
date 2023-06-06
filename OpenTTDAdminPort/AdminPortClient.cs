@@ -16,6 +16,7 @@ using OpenTTDAdminPort.Akkas;
 using OpenTTDAdminPort.Events;
 using OpenTTDAdminPort.Game;
 using OpenTTDAdminPort.MainActor.Messages;
+using OpenTTDAdminPort.MainActor.SingleMessageProcessor;
 using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Networking;
 using OpenTTDAdminPort.Packets;
@@ -25,11 +26,6 @@ namespace OpenTTDAdminPort
     public class AdminPortClient : IAdminPortClient
     {
         public AdminConnectionState ConnectionState { get; private set; } = AdminConnectionState.Idle;
-
-        /// <remarks>
-        /// Null value until client connects to the server
-        /// </remarks>
-        public ConcurrentDictionary<AdminUpdateType, AdminUpdateSetting>? AdminUpdateSettings { get; set; }
 
         public ServerInfo ServerInfo { get; }
 
