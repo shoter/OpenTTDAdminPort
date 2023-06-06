@@ -9,6 +9,11 @@ namespace OpenTTDAdminPort.MainActor.SingleMessageProcessor
             ConnectedData data,
             AdminServerClientUpdateMessage message)
         {
+            if (!data.Players.ContainsKey(message.ClientId))
+            {
+                return data;
+            }
+
             var player = data.Players[message.ClientId];
             return data.UpsertPlayer(
                 player with

@@ -10,6 +10,11 @@ namespace OpenTTDAdminPort.MainActor.SingleMessageProcessor
             ConnectedData data,
             AdminServerCompanyUpdateMessage message)
         {
+            if (!data.Companies.ContainsKey(message.CompanyId))
+            {
+                return data;
+            }
+
             Company company = data.Companies[message.CompanyId] with
             {
                 Name = message.CompanyName,

@@ -26,5 +26,16 @@ namespace OpenTTDAdminPort.Tests.MainActor
             Assert.Equal(adminServerDateMessage.Date,
                 newData.AdminServerInfo.Date);
         }
+
+        [Fact]
+        public void Should_NotCrash_WhileDeleting_NonExistentCompany()
+        {
+            var initialData = fix.Create<ConnectedData>();
+            var adminServerCompanyRemoveMessage = fix.Create<AdminServerCompanyRemoveMessage>();
+
+            var newData = messageProcessor.ProcessAdminMessage(
+                initialData,
+                adminServerCompanyRemoveMessage);
+        }
     }
 }
