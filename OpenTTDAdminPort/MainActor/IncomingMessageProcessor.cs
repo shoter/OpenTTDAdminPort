@@ -20,23 +20,37 @@ namespace OpenTTDAdminPort.MainActor
         {
             Assembly assembly = typeof(ISingleMessageProcessor).Assembly;
 
-            var processorTypes = new AssemblyTypeFinder(assembly, GetType().Namespace!)
+            var processorTypes = new AssemblyTypeFinder(
+                    assembly,
+                    typeof(ISingleMessageProcessor).Namespace!)
                 .WithTypeMatcher(new ClassTypeMatcher())
                 .WithTypeMatcher(new ImplementsTypeMatcher(typeof(ISingleMessageProcessor)))
-                .Find();
+                .WithTypeMatcher(new NotAbstractTypeMatcher())
+                .Find()
+                .ToList(); // it is easier to debug with ToList :D
 
-            foreach(var processorType in processorTypes)
+            foreach (var processorType in processorTypes)
             {
+                var messageType = processorType.BaseType!.GenericTypeArguments.First();
                 var instance = Activator.CreateInstance(processorType) as ISingleMessageProcessor;
-                processors[processorType] = instance!;
+                processors[messageType] = instance!;
             }
         }
 
         public ConnectedData ProcessAdminMessage(
             ConnectedData initial,
-            IAdminMessage message) => processors[message.GetType()]
-            .ProcessAdminMessage(
-                initial,
-                message);
+            IAdminMessage message)
+        {
+            var messageType = message.GetType();
+            if (!processors.ContainsKey(messageType))
+            {
+                return initial;
+            }
+
+            return processors[messageType]
+                .ProcessAdminMessage(
+                    initial,
+                    message);
+        }
     }
 }

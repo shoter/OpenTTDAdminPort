@@ -97,10 +97,12 @@ namespace OpenTTDAdminPort.MainActor
             });
         }
 
-        private ConnectedData ProcessAdminMessage(ConnectedData data, IAdminMessage message)
-        {
-            
-        }
+        private ConnectedData ProcessAdminMessage(
+            ConnectedData data,
+            IAdminMessage message) =>
+            incomingMessageProcessor.ProcessAdminMessage(
+                data,
+                message);
 
         private static void KillChildren(ConnectedData data)
         {

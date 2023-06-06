@@ -34,6 +34,8 @@ namespace OpenTTDAdminPort.MainActor
 
         private readonly IAdminEventFactory adminEventFactory;
 
+        private IIncomingMessageProcessor incomingMessageProcessor = new IncomingMessageProcessor();
+
         // initialized by Akka.Net
         public ITimerScheduler Timers { get; set; } = default!;
 
