@@ -164,7 +164,9 @@ namespace OpenTTDAdminPort
 
         public async Task<IAdminEvent> WaitForEvent(IAdminMessage messageToSend, Func<IAdminEvent, bool> func, TimeSpan timeout, CancellationToken token = default)
         {
-            Task<object> task = mainActor.Ask(new WaitForEvent(func, token));
+            WaitForEvent waitForEvent = new(func, token);
+
+            Task<object> task = mainActor.Ask(waitForEvent);
             this.mainActor.Tell(new SendMessage(messageToSend));
             await Task.WhenAny(task, Task.Delay(timeout, token));
 
@@ -173,6 +175,7 @@ namespace OpenTTDAdminPort
                 throw new TimeoutException();
             }
 
+            this.mainActor.Tell(new KillWaiter(waitForEvent.RequestId));
             return (IAdminEvent)task.Result;
         }
 

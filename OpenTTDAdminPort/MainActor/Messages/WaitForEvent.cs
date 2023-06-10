@@ -4,5 +4,10 @@ using OpenTTDAdminPort.Events;
 
 namespace OpenTTDAdminPort.MainActor.Messages
 {
-    public record WaitForEvent(Func<IAdminEvent, bool> WaiterFunc, CancellationToken Token);
+    public record WaitForEvent(
+        Func<IAdminEvent, bool> WaiterFunc,
+        CancellationToken Token)
+    {
+        public Guid RequestId { get; } = Guid.NewGuid();
+    }
 }

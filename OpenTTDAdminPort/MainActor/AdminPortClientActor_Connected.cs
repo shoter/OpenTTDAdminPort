@@ -51,7 +51,7 @@ namespace OpenTTDAdminPort.MainActor
 
                         foreach (var waiter in waiterActors)
                         {
-                            waiter.Tell(ev);
+                            waiter.Value.Tell(ev);
                         }
                     }
                     else

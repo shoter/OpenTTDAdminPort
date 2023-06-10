@@ -1,7 +1,8 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using Akka.Actor;
 
 namespace OpenTTDAdminPort.MainActor.Messages
 {
-    public record KillDanglingWaiter(IActorRef Waiter, CancellationToken Token);
+    public record KillDanglingWaiter(Guid WaiterId, CancellationToken Token);
 }

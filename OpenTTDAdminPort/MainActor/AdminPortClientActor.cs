@@ -19,7 +19,7 @@ namespace OpenTTDAdminPort.MainActor
     {
         private readonly IActorFactory actorFactory;
 
-        private readonly HashSet<IActorRef> waiterActors = new();
+        private readonly Dictionary<Guid, IActorRef> waiterActors = new();
 
         private readonly string version;
 
@@ -88,13 +88,13 @@ namespace OpenTTDAdminPort.MainActor
                 if (state.FsmEvent is WaitForEvent wfe)
                 {
                     var actor = Context.ActorOf(AdminEventWaiterActor.Create(wfe.WaiterFunc, Sender));
-                    Timers.StartSingleTimer(actor, new KillDanglingWaiter(actor, wfe.Token), TimeSpan.FromSeconds(30));
-                    waiterActors.Add(actor);
+                    Timers.StartSingleTimer(actor, new KillDanglingWaiter(wfe.RequestId, wfe.Token), TimeSpan.FromSeconds(30));
+                    waiterActors.Add(wfe.RequestId, actor);
                 }
 
                 if (state.FsmEvent is KillDanglingWaiter kdw)
                 {
-                    if (!waiterActors.Contains(kdw.Waiter))
+                    if (!waiterActors.ContainsKey(kdw.WaiterId))
                     {
                         return Stay();
                     }
@@ -105,7 +105,17 @@ namespace OpenTTDAdminPort.MainActor
                         this.logger.LogWarning($"Killing some dangling waiter. That should not happen buddy");
                     }
 
-                    kdw.Waiter.GracefulStop(TimeSpan.FromSeconds(3));
+                    KillWaiter(kdw.WaiterId);
+                }
+
+                if (state.FsmEvent is KillWaiter kw)
+                {
+                    if (!waiterActors.ContainsKey(kw.RequestId))
+                    {
+                        return Stay();
+                    }
+
+                    KillWaiter(kw.RequestId);
                 }
 
                 switch(state.FsmEvent)
@@ -127,6 +137,13 @@ namespace OpenTTDAdminPort.MainActor
 
                 return Stay();
             });
+        }
+
+        private void KillWaiter(Guid waiterId)
+        {
+            waiterActors[waiterId]
+                .GracefulStop(3.Seconds());
+            waiterActors.Remove(waiterId);
         }
 
         protected override void PostStop()
