@@ -10,6 +10,17 @@ namespace OpenTTDAdminPort.Events.Creators
         public IAdminEvent? Create(in IAdminMessage message, in ConnectedData prev, in ConnectedData data)
         {
             var msg = (AdminServerCompanyUpdateMessage)message;
+
+            if (!prev.Companies.ContainsKey(msg.CompanyId))
+            {
+                return null;
+            }
+
+            if (!data.Companies.ContainsKey(msg.CompanyId))
+            {
+                return null;
+            }
+
             var prevCompany = prev.Companies[msg.CompanyId];
             var company = data.Companies[msg.CompanyId];
 
