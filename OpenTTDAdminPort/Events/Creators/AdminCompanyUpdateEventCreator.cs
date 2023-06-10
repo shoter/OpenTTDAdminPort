@@ -16,7 +16,7 @@ namespace OpenTTDAdminPort.Events.Creators
                 return null;
             }
 
-            if (data.Companies.ContainsKey(msg.CompanyId))
+            if (!data.Companies.ContainsKey(msg.CompanyId))
             {
                 return null;
             }
