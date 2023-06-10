@@ -88,7 +88,7 @@ namespace OpenTTDAdminPort.MainActor
                 if (state.FsmEvent is WaitForEvent wfe)
                 {
                     var actor = Context.ActorOf(AdminEventWaiterActor.Create(wfe.WaiterFunc, Sender));
-                    Timers.StartSingleTimer(actor, new KillDanglingWaiter(actor), TimeSpan.FromSeconds(30));
+                    Timers.StartSingleTimer(actor, new KillDanglingWaiter(actor, wfe.Token), TimeSpan.FromSeconds(30));
                     waiterActors.Add(actor);
                 }
 
@@ -99,7 +99,12 @@ namespace OpenTTDAdminPort.MainActor
                         return Stay();
                     }
 
-                    this.logger.LogWarning($"Killing some dangling waiter. That should not happen buddy");
+                    // Do not display this message when cancellation was requested
+                    if (!kdw.Token.IsCancellationRequested)
+                    {
+                        this.logger.LogWarning($"Killing some dangling waiter. That should not happen buddy");
+                    }
+
                     kdw.Waiter.GracefulStop(TimeSpan.FromSeconds(3));
                 }
 
