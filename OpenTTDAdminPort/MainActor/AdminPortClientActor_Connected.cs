@@ -41,7 +41,9 @@ namespace OpenTTDAdminPort.MainActor
                 else if (state.FsmEvent is ReceiveMessage receive)
                 {
                     logger.LogTrace($"Received {receive.Message} - sending to Parent");
-                    ConnectedData newData = ProcessAdminMessage(data, receive.Message);
+                    ConnectedData newData = incomingMessageProcessor.ProcessAdminMessage(
+                        data,
+                        receive.Message);
 
                     IAdminEvent? ev = this.adminEventFactory.Create(receive.Message, data, newData);
 
@@ -96,13 +98,6 @@ namespace OpenTTDAdminPort.MainActor
                 return null;
             });
         }
-
-        private ConnectedData ProcessAdminMessage(
-            ConnectedData data,
-            IAdminMessage message) =>
-            incomingMessageProcessor.ProcessAdminMessage(
-                data,
-                message);
 
         private static void KillChildren(ConnectedData data)
         {

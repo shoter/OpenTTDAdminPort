@@ -10,6 +10,14 @@ namespace OpenTTDAdminPort.Events.Creators
         public IAdminEvent? Create(in IAdminMessage message, in ConnectedData prev, in ConnectedData data)
         {
             var msg = (AdminServerCompanyRemoveMessage)message;
+
+            // Some defensive programming
+            // There is always chance that we might lose message about company creation etc.
+            if (!prev.Companies.ContainsKey(msg.CompanyId))
+            {
+                return null;
+            }
+
             var company = prev.Companies[msg.CompanyId];
 
             return new AdminCompanyRemovalEvent(company);

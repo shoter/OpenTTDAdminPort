@@ -139,6 +139,9 @@ namespace OpenTTDAdminPort.MainActor
             // uint.MaxValue sends data about all clients
             AdminPollMessage msg = new(AdminUpdateType.ADMIN_UPDATE_CLIENT_INFO, uint.MaxValue);
             tcpClient.Tell(new SendMessage(msg));
+
+            msg = new(AdminUpdateType.ADMIN_UPDATE_COMPANY_INFO, uint.MaxValue);
+            tcpClient.Tell(new SendMessage(msg));
         }
     }
 }
