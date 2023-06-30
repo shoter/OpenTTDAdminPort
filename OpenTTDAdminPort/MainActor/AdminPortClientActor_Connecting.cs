@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Akka.Actor;
 
 using Microsoft.Extensions.Logging;
@@ -54,27 +55,38 @@ namespace OpenTTDAdminPort.MainActor
                             {
                                 var msg = (AdminServerProtocolMessage)message;
 
+                                Dictionary<AdminUpdateType, AdminUpdateSetting> adminUpdateSettings = new();
+
                                 foreach (var s in msg.AdminUpdateSettings)
                                 {
-                                    data.AdminUpdateSettings.Add(s.Key, new AdminUpdateSetting(true, s.Key, s.Value));
+                                    adminUpdateSettings.Add(s.Key, new AdminUpdateSetting(true, s.Key, s.Value));
                                 }
 
-                                return Stay();
+                                return Stay()
+                                    .Using(
+                                        data with
+                                        {
+                                            AdminUpdateSettings = adminUpdateSettings,
+                                            AdminPortNetworkVersion = msg.NetworkVersion,
+                                        });
                             }
 
                         case AdminMessageType.ADMIN_PACKET_SERVER_WELCOME:
                             {
                                 var msg = (AdminServerWelcomeMessage)message;
 
-                                data.AdminServerInfo = new AdminServerInfo(
-                                    msg.ServerName,
-                                    msg.NetworkRevision,
-                                    msg.IsDedicated,
-                                    msg.MapName,
-                                    msg.CurrentDate,
-                                    msg.Landscape,
-                                    msg.MapWidth,
-                                    msg.MapHeight);
+                                var newData = data with
+                                {
+                                    AdminServerInfo = new AdminServerInfo(
+                                        msg.ServerName,
+                                        msg.NetworkRevision,
+                                        msg.IsDedicated,
+                                        msg.MapName,
+                                        msg.CurrentDate,
+                                        msg.Landscape,
+                                        msg.MapWidth,
+                                        msg.MapHeight),
+                                };
 
                                 IActorRef watchdog = actorFactory.CreateWatchdog(Context, data.TcpClient, 5.Seconds());
 
@@ -82,7 +94,7 @@ namespace OpenTTDAdminPort.MainActor
                                 data.Initiator.Tell(SuccessResponse.Instance);
                                 this.Messager.Tell(new AdminServerConnected());
                                 SendUpdateFreqs(data.TcpClient);
-                                return GoTo(MainState.Connected).Using(new ConnectedData(data, watchdog));
+                                return GoTo(MainState.Connected).Using(new ConnectedData(newData, watchdog));
                             }
                     }
                 }
