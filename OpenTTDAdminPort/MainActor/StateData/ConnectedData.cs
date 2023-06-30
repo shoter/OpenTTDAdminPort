@@ -26,7 +26,7 @@ namespace OpenTTDAdminPort.MainActor.StateData
                       data.ServerInfo,
                       data.ClientName,
                       watchdog,
-                      data.AdminUpdateSettings,
+                      data.AdminUpdateSettings!,
                       data.AdminServerInfo!,
                       data.AdminPortNetworkVersion!.Value,
                       new Dictionary<uint, Player>(),

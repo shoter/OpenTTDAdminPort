@@ -39,7 +39,8 @@ namespace OpenTTDAdminPort.Tests.MainActor.StateData
                 fix.Create<ServerInfo>(),
                 "client");
 
-            connectingData.AdminServerInfo = fix.Create<AdminServerInfo>();
+            connectingData = connectingData with { AdminServerInfo = fix.Create<AdminServerInfo>() };
+
             return new ConnectedData(connectingData, probe);
         }
     }

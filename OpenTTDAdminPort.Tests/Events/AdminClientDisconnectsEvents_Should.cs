@@ -58,7 +58,8 @@ namespace OpenTTDAdminPort.Tests.Events
                                 probe,
                                 fix.Create<ServerInfo>(),
                                 "clientName");
-            connectingData.AdminServerInfo = fix.Create<AdminServerInfo>();
+
+            connectingData = connectingData with { AdminServerInfo = fix.Create<AdminServerInfo>() };
             return new ConnectedData(connectingData, probe);
         }
     }

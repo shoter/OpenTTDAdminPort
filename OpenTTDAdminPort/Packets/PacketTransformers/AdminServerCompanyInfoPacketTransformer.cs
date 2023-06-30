@@ -19,7 +19,7 @@ namespace OpenTTDAdminPort.Packets.PacketTransformers
             m.CreationDate = new OttdDate(packet.ReadU32());
             m.IsAi = packet.ReadBool();
             m.MonthsOfBankruptcy = packet.ReadByte();
-            
+
             return m;
         }
     }
