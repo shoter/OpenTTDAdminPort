@@ -16,10 +16,6 @@ namespace OpenTTDAdminPort.Packets.PacketTransformers
             m.Color = packet.ReadByte();
             m.HasPassword = packet.ReadBool();
             m.MonthsOfBankruptcy = packet.ReadByte();
-            for (int i = 0; i < m.ShareOwnersIds.Length; ++i)
-            {
-                m.ShareOwnersIds[i] = packet.ReadByte();
-            }
 
             return m;
         }
