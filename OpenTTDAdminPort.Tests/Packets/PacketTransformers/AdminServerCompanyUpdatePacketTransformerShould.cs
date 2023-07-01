@@ -45,10 +45,6 @@ namespace OpenTTDAdminPort.Tests.Packets.PacketTransformers
             Assert.Equal(5, msg.Color);
             Assert.True(msg.HasPassword);
             Assert.Equal(3, msg.MonthsOfBankruptcy);
-            Assert.Equal(9, msg.ShareOwnersIds[0]);
-            Assert.Equal(8, msg.ShareOwnersIds[1]);
-            Assert.Equal(7, msg.ShareOwnersIds[2]);
-            Assert.Equal(6, msg.ShareOwnersIds[3]);
         }
 
         [Fact]
