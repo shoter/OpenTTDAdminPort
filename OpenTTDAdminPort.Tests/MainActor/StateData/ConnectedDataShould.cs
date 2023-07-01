@@ -34,12 +34,14 @@ namespace OpenTTDAdminPort.Tests.MainActor.StateData
         private ConnectedData CreateData()
         {
             var connectingData = new ConnectingData(
-                probe,
-                probe,
-                fix.Create<ServerInfo>(),
-                "client");
-
-            connectingData = connectingData with { AdminServerInfo = fix.Create<AdminServerInfo>() };
+                    probe,
+                    probe,
+                    fix.Create<ServerInfo>(),
+                    "client") with
+                {
+                    AdminServerInfo = fix.Create<AdminServerInfo>(),
+                    AdminPortNetworkVersion = 4,
+                };
 
             return new ConnectedData(connectingData, probe);
         }
