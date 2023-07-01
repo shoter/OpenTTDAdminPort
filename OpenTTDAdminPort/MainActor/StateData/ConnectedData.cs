@@ -15,6 +15,7 @@ namespace OpenTTDAdminPort.MainActor.StateData
         [property: JsonIgnore] IActorRef Watchdog,
         IReadOnlyDictionary<AdminUpdateType, AdminUpdateSetting> AdminUpdateSettings,
         AdminServerInfo AdminServerInfo,
+        byte AdminPortNetworkVersion,
         IReadOnlyDictionary<uint, Player> Players,
         IReadOnlyDictionary<byte, Company> Companies,
         IReadOnlyDictionary<uint, Player> PastPlayers) : IMainData
@@ -25,8 +26,9 @@ namespace OpenTTDAdminPort.MainActor.StateData
                       data.ServerInfo,
                       data.ClientName,
                       watchdog,
-                      data.AdminUpdateSettings,
+                      data.AdminUpdateSettings!,
                       data.AdminServerInfo!,
+                      data.AdminPortNetworkVersion!.Value,
                       new Dictionary<uint, Player>(),
                       new Dictionary<byte, Company>(),
                       new Dictionary<uint, Player>())

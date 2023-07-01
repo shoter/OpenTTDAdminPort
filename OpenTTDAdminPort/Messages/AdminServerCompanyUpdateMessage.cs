@@ -15,7 +15,5 @@
         public bool HasPassword { get; internal set; }
 
         public byte MonthsOfBankruptcy { get; internal set; }
-
-        public byte[] ShareOwnersIds { get; } = new byte[4];
     }
 }

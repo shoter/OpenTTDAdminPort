@@ -28,11 +28,6 @@ namespace OpenTTDAdminPort.Tests.Packets.PacketTransformers
             packet.SendByte(1); // is AI
             packet.SendByte(55); // months of bankruptcy
 
-            packet.SendByte(9);
-            packet.SendByte(8);
-            packet.SendByte(7);
-            packet.SendByte(6);
-
             packet.PrepareToSend();
             packet.ReadByte();
 
@@ -47,10 +42,6 @@ namespace OpenTTDAdminPort.Tests.Packets.PacketTransformers
             Assert.False(msg.HasPassword);
             Assert.True(msg.IsAi);
             Assert.Equal(55, msg.MonthsOfBankruptcy);
-            Assert.Equal(9, msg.ShareOwnersIds[0]);
-            Assert.Equal(8, msg.ShareOwnersIds[1]);
-            Assert.Equal(7, msg.ShareOwnersIds[2]);
-            Assert.Equal(6, msg.ShareOwnersIds[3]);
         }
 
         [Fact]

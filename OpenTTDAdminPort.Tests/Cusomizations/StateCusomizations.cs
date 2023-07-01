@@ -12,19 +12,17 @@ namespace OpenTTDAdminPort.Tests.Cusomizations
             fixture.Customize<ConnectedData>(
                 c => c
                     .FromFactory(
-                        () =>
-                        {
-                            return new ConnectedData(
-                                null!,
-                                fixture.Create<ServerInfo>(),
-                                fixture.Create<string>(),
-                                null,
-                                new Dictionary<AdminUpdateType, AdminUpdateSetting>(),
-                                fixture.Create<AdminServerInfo>(),
-                                new Dictionary<uint, Player>(),
-                                new Dictionary<byte, Company>(),
-                                new Dictionary<uint, Player>());
-                        })
+                        () => new ConnectedData(
+                            null!,
+                            fixture.Create<ServerInfo>(),
+                            fixture.Create<string>(),
+                            null,
+                            new Dictionary<AdminUpdateType, AdminUpdateSetting>(),
+                            fixture.Create<AdminServerInfo>(),
+                            4,
+                            new Dictionary<uint, Player>(),
+                            new Dictionary<byte, Company>(),
+                            new Dictionary<uint, Player>()))
                     .OmitAutoProperties());
         }
     }

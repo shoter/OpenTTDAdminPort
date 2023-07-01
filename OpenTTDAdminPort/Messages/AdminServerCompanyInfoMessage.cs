@@ -33,7 +33,5 @@ namespace OpenTTDAdminPort.Messages
         /// I do not know what this value represents. I will not need it right now but if there is a nice soul that would like to leave better comment - please do! :)
         /// </summary>
         public byte MonthsOfBankruptcy { get; internal set; }
-
-        public byte[] ShareOwnersIds { get; } = new byte[4];
     }
 }

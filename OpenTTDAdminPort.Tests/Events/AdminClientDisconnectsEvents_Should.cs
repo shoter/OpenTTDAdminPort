@@ -54,11 +54,15 @@ namespace OpenTTDAdminPort.Tests.Events
         private ConnectedData CreateConnectedData()
         {
             var connectingData = new ConnectingData(
-                                probe,
-                                probe,
-                                fix.Create<ServerInfo>(),
-                                "clientName");
-            connectingData.AdminServerInfo = fix.Create<AdminServerInfo>();
+                    probe,
+                    probe,
+                    fix.Create<ServerInfo>(),
+                    "clientName") with
+                {
+                    AdminServerInfo = fix.Create<AdminServerInfo>(),
+                    AdminPortNetworkVersion = 4,
+                };
+
             return new ConnectedData(connectingData, probe);
         }
     }
