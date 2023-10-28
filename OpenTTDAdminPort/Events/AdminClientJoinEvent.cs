@@ -2,15 +2,8 @@
 
 namespace OpenTTDAdminPort.Events
 {
-    public class AdminClientJoinEvent : IAdminEvent
+    public record AdminClientJoinEvent(Player Player) : IAdminEvent
     {
-        public Player Player { get; }
-
         public AdminEventType EventType => AdminEventType.ClientJoin;
-
-        public AdminClientJoinEvent(Player player)
-        {
-            this.Player = player;
-        }
     }
 }

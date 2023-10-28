@@ -18,10 +18,10 @@ namespace OpenTTDAdminPort.Tests.Packets.MessageTransformers
         [Fact]
         public void TransformMessageIntoPacket_WhenReceivedProperPacket()
         {
-            AdminChatMessage msg = new AdminChatMessage(Game.NetworkAction.NETWORK_ACTION_CHAT,
-                Game.ChatDestination.DESTTYPE_BROADCAST,
-                destination: 5,
-                message: "Hello there");
+            AdminChatMessage msg = new (NetworkAction.NETWORK_ACTION_CHAT,
+                ChatDestination.DESTTYPE_BROADCAST,
+                Destination: 5,
+                Message: "Hello there");
 
             Packet packet = new AdminChatMessageTransformer().Transform(msg);
 
