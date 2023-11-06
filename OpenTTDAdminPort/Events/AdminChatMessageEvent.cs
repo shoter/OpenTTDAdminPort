@@ -8,24 +8,12 @@ using OpenTTDAdminPort.Game;
 
 namespace OpenTTDAdminPort.Events
 {
-    public class AdminChatMessageEvent : IAdminEvent
+    public record AdminChatMessageEvent(
+        Player Player,
+        ChatDestination ChatDestination,
+        NetworkAction NetworkAction,
+        string Message) : IAdminEvent
     {
         public AdminEventType EventType => AdminEventType.ChatMessageReceived;
-
-        public Player Player { get; }
-
-        public string Message { get; }
-
-        public ChatDestination ChatDestination { get; }
-
-        public NetworkAction NetworkAction { get; }
-
-        public AdminChatMessageEvent(Player player, ChatDestination chatDestination, NetworkAction action, string msg)
-        {
-            this.Player = player;
-            this.Message = msg;
-            this.ChatDestination = chatDestination;
-            this.NetworkAction = action;
-        }
     }
 }
