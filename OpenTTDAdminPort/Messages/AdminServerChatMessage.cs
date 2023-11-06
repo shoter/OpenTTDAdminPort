@@ -8,18 +8,13 @@ using OpenTTDAdminPort.Game;
 
 namespace OpenTTDAdminPort.Messages
 {
-    public class AdminServerChatMessage : IAdminMessage
+    public record AdminServerChatMessage(
+        NetworkAction NetworkAction,
+        ChatDestination ChatDestination,
+        uint ClientId,
+        string Message,
+        long Data) : IAdminMessage
     {
         public AdminMessageType MessageType => AdminMessageType.ADMIN_PACKET_SERVER_CHAT;
-
-        public NetworkAction NetworkAction { get; internal set; }
-
-        public ChatDestination ChatDestination { get; internal set; }
-
-        public uint ClientId { get; internal set; }
-
-        public string Message { get; internal set; } = default!;
-
-        public long Data { get; internal set; }
     }
 }

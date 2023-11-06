@@ -10,14 +10,18 @@ namespace OpenTTDAdminPort.Packets.PacketTransformers
 
         public IAdminMessage Transform(Packet packet)
         {
-            var m = new AdminServerChatMessage();
-            m.NetworkAction = (NetworkAction)packet.ReadByte();
-            m.ChatDestination = (ChatDestination)packet.ReadByte();
-            m.ClientId = packet.ReadU32();
-            m.Message = packet.ReadString();
-            m.Data = packet.ReadI64();
+            var networkAction = (NetworkAction)packet.ReadByte();
+            var chatDestination = (ChatDestination)packet.ReadByte();
+            var clientId = packet.ReadU32();
+            var message = packet.ReadString();
+            var data = packet.ReadI64();
 
-            return m;
+            return new AdminServerChatMessage(
+                networkAction,
+                chatDestination,
+                clientId,
+                message,
+                data);
         }
     }
 }
