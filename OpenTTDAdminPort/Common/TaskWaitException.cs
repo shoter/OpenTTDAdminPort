@@ -18,10 +18,5 @@ namespace OpenTTDAdminPort.Common
             : base(message, innerException)
         {
         }
-
-        protected TaskWaitException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-        }
     }
 }
