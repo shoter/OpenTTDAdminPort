@@ -36,6 +36,16 @@ namespace OpenTTDAdminPort.Networking
             this.Size += 1;
         }
 
+        public void SendBytes(byte[] array)
+        {
+            foreach(var b in array)
+            {
+                this.Buffer[this.Size] = b;
+                this.Size += 1;
+            }
+        }
+
+
         public void SendU16(ushort value)
         {
             byte[] bytes = BitConverter.GetBytes(value);
@@ -116,6 +126,19 @@ namespace OpenTTDAdminPort.Networking
         }
 
         public byte ReadByte() => this.Buffer[this.Position++];
+
+        public byte[] ReadBytes(int length)
+        {
+            byte[] arr = new byte[length];
+
+            for (int i = 0; i < length; ++i)
+            {
+                arr[i] = this.Buffer[this.Position++];
+            }
+
+            return arr;
+        }
+
 
         public bool ReadBool() => ReadByte() != 0;
 

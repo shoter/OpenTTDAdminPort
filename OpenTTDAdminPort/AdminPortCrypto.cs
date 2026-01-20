@@ -14,12 +14,12 @@ namespace OpenTTDAdminPort
         /// <summary>
         /// The number of bytes the public and secret keys are in X25519.
         /// </summary>
-        private const int X25519_KEY_SIZE = 32;
+        public const int X25519_KEY_SIZE = 32;
 
         /// <summary>
         /// The number of bytes the nonces are in X25519.
         /// </summary>
-        private const int X25519_NONCE_SIZE = 24;
+        public const int X25519_NONCE_SIZE = 24;
 
         /// <summary>
         /// The number of bytes the message authentication codes are in X25519.

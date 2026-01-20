@@ -148,6 +148,7 @@ dotnet_diagnostic.SA1310.severity = none
 dotnet_diagnostic.SA1003.severity = none
 dotnet_diagnostic.SA1010.severity = none
 dotnet_diagnostic.SA1008.severity = none
+dotnet_diagnostic.RCS1037.severity = none;
 
 
 
