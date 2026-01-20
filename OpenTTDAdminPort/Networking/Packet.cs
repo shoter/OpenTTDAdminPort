@@ -45,7 +45,6 @@ namespace OpenTTDAdminPort.Networking
             }
         }
 
-
         public void SendU16(ushort value)
         {
             byte[] bytes = BitConverter.GetBytes(value);
@@ -138,7 +137,6 @@ namespace OpenTTDAdminPort.Networking
 
             return arr;
         }
-
 
         public bool ReadBool() => ReadByte() != 0;
 
