@@ -12,6 +12,7 @@ namespace OpenTTDAdminPort.MainActor
         Connecting,
         Connected,
         Disconnected,
+        ConnectingSecure,
         Errored,
     }
 }

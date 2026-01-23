@@ -76,6 +76,7 @@ namespace OpenTTDAdminPort.MainActor
             IdleState();
             ConnectingState();
             ConnectedState();
+            ConnectingSecureState();
 
             WhenUnhandled(state =>
             {

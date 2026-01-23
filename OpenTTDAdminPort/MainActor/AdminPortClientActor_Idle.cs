@@ -33,6 +33,24 @@ namespace OpenTTDAdminPort.MainActor
                     }
                 }
 
+                if (state.FsmEvent is AdminPortConnectSecure connectSecure)
+                {
+                    try
+                    {
+                        logger.LogTrace($"I {Self} Received connect secure message from {Sender} to {connectSecure.ServerInfo}");
+
+                        IActorRef tcpClient = actorFactory.CreateTcpClient(Context, connectSecure.ServerInfo.ServerIp, connectSecure.ServerInfo.ServerPort);
+                        var stateData = new SecureConnectingData(tcpClient, Sender, connectSecure.ServerInfo, connectSecure.ClientName);
+
+                        logger.LogTrace("Moving to Connecting state");
+                        return GoTo(MainState.ConnectingSecure).Using(stateData);
+                    }
+                    catch
+                    {
+                        Self.Tell(connectSecure);
+                    }
+                }
+
                 return null;
             });
         }
