@@ -29,6 +29,7 @@
   <ItemGroup>
     <PackageReference Include="Akka" Version="1.4.49" />
     <PackageReference Include="BouncyCastle.Cryptography" Version="2.6.2" />
+    <PackageReference Include="Sodium.Core" Version="1.4.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />
   </ItemGroup>
 
