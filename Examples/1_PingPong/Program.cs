@@ -33,7 +33,7 @@ namespace _1_PingPong
             });
 
             Console.WriteLine("Connecting ...");
-            await client.Connect();
+            await client.ConnectSecure();
             Console.WriteLine("Sending Ping Message with argument=55 ...");
             client.SendMessage(new AdminPingMessage(55));
             Console.WriteLine("Waiting for Pong Message ...");

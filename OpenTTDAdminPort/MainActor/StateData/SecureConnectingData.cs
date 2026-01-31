@@ -15,10 +15,14 @@ namespace OpenTTDAdminPort.MainActor.StateData
         IActorRef Initiator,
         ServerInfo ServerInfo,
         string ClientName,
-        IReadOnlyDictionary<AdminUpdateType, AdminUpdateSetting>? AdminUpdateSettings,
-        AdminServerInfo? AdminServerInfo,
         Guid UniqueConnectingIdentifier,
-        byte? AdminPortNetworkVersion) : IMainData
+        byte[]? ServerPublicKey,
+        byte[]? Nonce,
+        byte[]? ClientSecretKey,
+        byte[]? ClientPublicKey,
+        byte[]? ServerToClientKey,
+        byte[]? ClientToServerKey,
+        byte[]? ChallengeMessage) : IMainData
     {
         public SecureConnectingData(
             IActorRef tcpClient,
@@ -30,9 +34,13 @@ namespace OpenTTDAdminPort.MainActor.StateData
             initiator,
             serverInfo,
             clientName,
-            null,
-            null,
             Guid.NewGuid(),
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
             null
             )
         {

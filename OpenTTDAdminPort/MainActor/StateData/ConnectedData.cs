@@ -21,17 +21,17 @@ namespace OpenTTDAdminPort.MainActor.StateData
         IReadOnlyDictionary<uint, Player> PastPlayers) : IMainData
     {
         public ConnectedData(ConnectingData data, IActorRef watchdog)
-                : this(
-                      data.TcpClient,
-                      data.ServerInfo,
-                      data.ClientName,
-                      watchdog,
-                      data.AdminUpdateSettings!,
-                      data.AdminServerInfo!,
-                      data.AdminPortNetworkVersion!.Value,
-                      new Dictionary<uint, Player>(),
-                      new Dictionary<byte, Company>(),
-                      new Dictionary<uint, Player>())
+            : this(
+                data.TcpClient,
+                data.ServerInfo,
+                data.ClientName,
+                watchdog,
+                data.AdminUpdateSettings!,
+                data.AdminServerInfo!,
+                data.AdminPortNetworkVersion!.Value,
+                new Dictionary<uint, Player>(),
+                new Dictionary<byte, Company>(),
+                new Dictionary<uint, Player>())
         {
             Debug.Assert(data.AdminServerInfo != null);
         }

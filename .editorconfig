@@ -1,7 +1,5 @@
 [*.cs]
 
-# RCS1036: Remove unnecessary blank line.
-dotnet_diagnostic.RCS1036.severity = error
 csharp_indent_labels = no_change
 csharp_using_directive_placement = outside_namespace:silent
 csharp_prefer_simple_using_statement = true:suggestion
@@ -146,6 +144,7 @@ dotnet_diagnostic.SA1310.severity = none
 
 # Some stupid whitespace rules
 dotnet_diagnostic.SA1003.severity = none
+dotnet_diagnostic.SA1507.severity = none;
 dotnet_diagnostic.SA1010.severity = none
 dotnet_diagnostic.SA1008.severity = none
 dotnet_diagnostic.RCS1037.severity = none;

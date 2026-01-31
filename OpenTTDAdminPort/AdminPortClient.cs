@@ -89,6 +89,20 @@ namespace OpenTTDAdminPort
             }
         }
 
+        public async Task ConnectSecure(ILogger? test = null)
+        {
+            try
+            {
+                logger.LogTrace($"Asking MainActor {mainActor} to connect to server");
+                await mainActor.TryAsk(new AdminPortConnectSecure(ServerInfo, "AdminPortClient"));
+                logger.LogTrace("Main actor connected!");
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e, "Error during connect");
+            }
+        }
+
         public async Task Disconnect()
         {
             await mainActor.TryAsk(new AdminPortDisconnect());

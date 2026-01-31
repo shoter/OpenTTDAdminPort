@@ -49,14 +49,12 @@ namespace OpenTTDAdminPort
             }
         }
 
-        public static void GenerateKeyPair(
-            out byte[] privateKey,
-            out byte[] publicKey)
+        public static (byte[] SecretKey, byte[] PublicKey) GenerateKeyPair()
         {
             var random = new SecureRandom();
 
             // Generate private key (32 bytes)
-            privateKey = new byte[X25519_KEY_SIZE];
+            byte[] privateKey = new byte[X25519_KEY_SIZE];
             random.NextBytes(privateKey);
 
             // Create X25519 private key params
@@ -65,7 +63,9 @@ namespace OpenTTDAdminPort
             // Derive public key
             var pubParams = privParams.GeneratePublicKey();
 
-            publicKey = pubParams.GetEncoded();
+            byte[] publicKey = pubParams.GetEncoded();
+
+            return (privateKey, publicKey);
         }
 
         public static byte[] GenerateNonce()
@@ -166,13 +166,11 @@ namespace OpenTTDAdminPort
         /// <param name="additionalData">Our public key as additional authenticated data (32 bytes)</param>
         /// <param name="mac">Output: 16-byte MAC</param>
         /// <param name="ciphertext">Output: encrypted message</param>
-        public static void EncryptAuthChallenge(
+        public static (byte[] Mac, byte[] Ciphertext) EncryptAuthChallenge(
             byte[] message,
             byte[] key,
             byte[] nonce,
-            byte[] additionalData,
-            out byte[] mac,
-            out byte[] ciphertext)
+            byte[] additionalData)
         {
             var cipher = new ChaCha20Poly1305();
             var parameters = new AeadParameters(
@@ -183,7 +181,7 @@ namespace OpenTTDAdminPort
 
             cipher.Init(true, parameters);
 
-            ciphertext = new byte[cipher.GetOutputSize(message.Length)];
+            var ciphertext = new byte[cipher.GetOutputSize(message.Length)];
             int len = cipher.ProcessBytes(
                 message,
                 0,
@@ -193,7 +191,7 @@ namespace OpenTTDAdminPort
             cipher.DoFinal(ciphertext, len);
 
             // Extract MAC (last 16 bytes)
-            mac = new byte[16];
+            var mac = new byte[16];
             Array.Copy(
                 ciphertext,
                 ciphertext.Length - 16,
@@ -203,6 +201,7 @@ namespace OpenTTDAdminPort
 
             // Remove MAC from ciphertext
             Array.Resize(ref ciphertext, ciphertext.Length - 16);
+            return (mac, ciphertext);
         }
 
         /// <summary>
