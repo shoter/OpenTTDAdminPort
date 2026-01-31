@@ -7,7 +7,7 @@ using Akka.Actor;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-
+using OpenTTDAdminPort.Akkas;
 using OpenTTDAdminPort.Common;
 using OpenTTDAdminPort.Messages;
 using OpenTTDAdminPort.Packets;
@@ -19,6 +19,7 @@ namespace OpenTTDAdminPort.Networking
         private readonly IAdminPacketService adminPacketService;
         private readonly ILogger logger;
         private readonly IServiceScope scope;
+        private AdminPortCrypto.PacketEncryptionHandler? encryptionHandler = null;
 
         private CancellationTokenSource receiveLoopCTS = new();
         private Stream stream;
@@ -32,13 +33,19 @@ namespace OpenTTDAdminPort.Networking
             this.stream = stream;
 
             var myself = Self;
-            ThreadPool.QueueUserWorkItem(new WaitCallback((_) => ReceiveLoop(receiveLoopCTS.Token, myself)), null);
+            ThreadPool.QueueUserWorkItem((_) => ReceiveLoop(receiveLoopCTS.Token, myself), null);
             Receive<ReceiveLoopException>(e =>
             {
                 logger.LogError("I received receive loop exception. I am killing myself");
                 throw e;
             });
             Receive<IAdminMessage>(m => Context.Parent.Tell(new ReceiveMessage(m)));
+            Receive<StartEncryptedConnectionMessage>(msg =>
+            {
+                logger.LogTrace("Received encryption handler");
+                this.encryptionHandler = msg.EncryptionHandler;
+                Sender.Tell(SuccessResponse.Instance);
+            });
         }
 
         protected override void PreRestart(Exception reason, object message)
@@ -69,6 +76,26 @@ namespace OpenTTDAdminPort.Networking
                     try
                     {
                         Packet packet = await WaitForPacket(stream, token);
+
+                        if (encryptionHandler != null)
+                        {
+                            byte[] bytes = new byte[packet.Buffer.Length - 2];
+                            Array.Copy(packet.Buffer, 2, bytes, 0, bytes.Length);
+
+                            // Extract MAC (first 16 bytes)
+                            byte[] mac = new byte[16];
+                            Array.Copy(bytes, 0, mac, 0, 16);
+
+                            // Extract encrypted data (rest after MAC)
+                            byte[] encrypted = new byte[bytes.Length - 16];
+                            Array.Copy(bytes, 16, encrypted, 0, bytes.Length - 16);
+
+                            var decrypted = encryptionHandler.DecryptPacket(mac, encrypted);
+
+                            packet = new();
+                            packet.SendBytes(decrypted);
+                        }
+
                         IAdminMessage message = adminPacketService.ReadPacket(packet);
 
                         if (!token.IsCancellationRequested)

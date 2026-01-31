@@ -243,141 +243,276 @@ public static class AdminPortCrypto
         }
         catch
         {
-            plaintext = [];
+            plaintext = new byte[0];
             return false;
         }
     }
 
     /// <summary>
     /// Handles ongoing encryption/decryption of packets after authentication.
-    /// Maintains state for XChaCha20-Poly1305 AEAD encryption.
+    /// Implements Monocypher's incremental AEAD with key ratcheting.
     /// </summary>
     public class PacketEncryptionHandler
     {
-        private readonly byte[] key;
-        private readonly byte[] baseNonce;
-        private ulong messageCounter;
+        private readonly byte[] sendNonce;
+        private readonly byte[] receiveNonce;
+        private byte[] sendKey;
+        private byte[] receiveKey;
 
-        /// <summary>
-        /// Creates an encryption handler for a specific direction.
-        /// </summary>
-        /// <param name="key">32-byte encryption key</param>
-        /// <param name="nonce">24-byte base nonce</param>
-        public PacketEncryptionHandler(byte[] key, byte[] nonce)
+        public PacketEncryptionHandler(
+            byte[] encryptionNonce,
+            byte[] clientToServerKey,
+            byte[] serverToClientKey)
         {
-            if (key.Length != 32)
-            {
-                throw new ArgumentException("Key must be 32 bytes", nameof(key));
-            }
-
-            if (nonce.Length != 24)
-            {
-                throw new ArgumentException("Nonce must be 24 bytes", nameof(nonce));
-            }
-
-            this.key = (byte[]) key.Clone();
-            this.baseNonce = (byte[]) nonce.Clone();
-            this.messageCounter = 0;
+            sendKey = HChaCha20(clientToServerKey, encryptionNonce[0..16]);
+            receiveKey = HChaCha20(serverToClientKey, encryptionNonce[0..16]);
+            sendNonce = encryptionNonce[16..24];
+            receiveNonce = encryptionNonce[16..24];
         }
 
-        /// <summary>
-        /// Encrypts a packet payload and generates MAC.
-        /// </summary>
-        /// <param name="plaintext">Packet data to encrypt</param>
-        /// <param name="mac">Output: 16-byte MAC</param>
-        /// <param name="ciphertext">Output: encrypted data</param>
-        public void Encrypt(
-            byte[] plaintext, out byte[] mac,
-            out byte[] ciphertext)
+        public byte[] EncryptPacket(byte[] plaintext)
         {
-            var nonce = GetNextNonce();
+            byte[] authKey = new byte[64];
+            ChaCha20Keystream(authKey, sendKey, sendNonce, counter: 0);
 
-            var output = SecretAeadXChaCha20Poly1305.Encrypt(plaintext, nonce, key);
+            byte[] ciphertext = new byte[plaintext.Length];
+            ChaCha20Xor(ciphertext, plaintext, sendKey, sendNonce, counter: 1);
 
-            // Extract MAC (last 16 bytes)
-            mac = new byte[X25519_MAC_SIZE];
-            Array.Copy(
-                output,
-                output.Length - X25519_MAC_SIZE,
-                mac,
-                0,
-                X25519_MAC_SIZE);
+            byte[] mac = Poly1305ComputeMac(authKey[0..32], ciphertext);
 
-            // Ciphertext is everything except MAC
-            ciphertext = new byte[output.Length - X25519_MAC_SIZE];
-            Array.Copy(
-                output,
-                0,
-                ciphertext,
-                0,
-                ciphertext.Length);
+            sendKey = authKey[32..64];
+
+            return BuildPacket(mac, ciphertext);
         }
 
-        /// <summary>
-        /// Decrypts a packet payload and validates MAC.
-        /// </summary>
-        /// <param name="ciphertext">Encrypted packet data</param>
-        /// <param name="mac">16-byte MAC</param>
-        /// <param name="plaintext">Output: decrypted data</param>
-        /// <returns>True if decryption and MAC validation succeeded</returns>
-        public bool Decrypt(
-            byte[] ciphertext, byte[] mac,
-            out byte[] plaintext)
+        public byte[] DecryptPacket(byte[] mac, byte[] encrypted)
         {
-            try
+            byte[] authKey = new byte[64];
+            ChaCha20Keystream(authKey, receiveKey, receiveNonce, counter: 0);
+
+            byte[] expectedMac = Poly1305ComputeMac(authKey[0..32], encrypted);
+
+            if (!ConstantTimeEquals(mac, expectedMac))
             {
-                var nonce = GetNextNonce();
-
-                // Combine ciphertext and MAC (libsodium expects MAC at the end)
-                var combined = new byte[ciphertext.Length + mac.Length];
-                Array.Copy(
-                    ciphertext,
-                    0,
-                    combined,
-                    0,
-                    ciphertext.Length);
-                Array.Copy(
-                    mac,
-                    0,
-                    combined,
-                    ciphertext.Length,
-                    mac.Length);
-
-                plaintext = SecretAeadXChaCha20Poly1305.Decrypt(combined, nonce, key);
-                return true;
+                throw new System.Security.Cryptography.CryptographicException("MAC verification failed");
             }
-            catch
+
+            byte[] plaintext = new byte[encrypted.Length];
+            ChaCha20Xor(plaintext, encrypted, receiveKey, receiveNonce, counter: 1);
+
+            receiveKey = authKey[32..64];
+
+            return plaintext;
+        }
+
+        private static byte[] HChaCha20(byte[] key, byte[] nonce)
+        {
+            uint[] state = new uint[16];
+
+            state[0] = 0x61707865;
+            state[1] = 0x3320646e;
+            state[2] = 0x79622d32;
+            state[3] = 0x6b206574;
+
+            state[4] = LoadLittleEndian32(key, 0);
+            state[5] = LoadLittleEndian32(key, 4);
+            state[6] = LoadLittleEndian32(key, 8);
+            state[7] = LoadLittleEndian32(key, 12);
+            state[8] = LoadLittleEndian32(key, 16);
+            state[9] = LoadLittleEndian32(key, 20);
+            state[10] = LoadLittleEndian32(key, 24);
+            state[11] = LoadLittleEndian32(key, 28);
+
+            state[12] = LoadLittleEndian32(nonce, 0);
+            state[13] = LoadLittleEndian32(nonce, 4);
+            state[14] = LoadLittleEndian32(nonce, 8);
+            state[15] = LoadLittleEndian32(nonce, 12);
+
+            for (int i = 0; i < 10; i++)
             {
-                plaintext = [];
+                QuarterRound(ref state[0], ref state[4], ref state[8], ref state[12]);
+                QuarterRound(ref state[1], ref state[5], ref state[9], ref state[13]);
+                QuarterRound(ref state[2], ref state[6], ref state[10], ref state[14]);
+                QuarterRound(ref state[3], ref state[7], ref state[11], ref state[15]);
+                QuarterRound(ref state[0], ref state[5], ref state[10], ref state[15]);
+                QuarterRound(ref state[1], ref state[6], ref state[11], ref state[12]);
+                QuarterRound(ref state[2], ref state[7], ref state[8], ref state[13]);
+                QuarterRound(ref state[3], ref state[4], ref state[9], ref state[14]);
+            }
+
+            byte[] result = new byte[32];
+            StoreLittleEndian32(result, 0, state[0]);
+            StoreLittleEndian32(result, 4, state[1]);
+            StoreLittleEndian32(result, 8, state[2]);
+            StoreLittleEndian32(result, 12, state[3]);
+            StoreLittleEndian32(result, 16, state[12]);
+            StoreLittleEndian32(result, 20, state[13]);
+            StoreLittleEndian32(result, 24, state[14]);
+            StoreLittleEndian32(result, 28, state[15]);
+
+            return result;
+        }
+
+        private static void QuarterRound(
+            ref uint a, ref uint b,
+            ref uint c, ref uint d)
+        {
+            a += b;
+            d ^= a;
+            d = RotateLeft(d, 16);
+            c += d;
+            b ^= c;
+            b = RotateLeft(b, 12);
+            a += b;
+            d ^= a;
+            d = RotateLeft(d, 8);
+            c += d;
+            b ^= c;
+            b = RotateLeft(b, 7);
+        }
+
+        private static uint RotateLeft(uint value, int offset)
+        {
+            return (value << offset) | (value >> (32 - offset));
+        }
+
+        private static uint LoadLittleEndian32(byte[] data, int offset)
+        {
+            return (uint)data[offset]
+                | ((uint)data[offset + 1] << 8)
+                | ((uint)data[offset + 2] << 16)
+                | ((uint)data[offset + 3] << 24);
+        }
+
+        private static void StoreLittleEndian32(byte[] data, int offset, uint value)
+        {
+            data[offset] = (byte)value;
+            data[offset + 1] = (byte)(value >> 8);
+            data[offset + 2] = (byte)(value >> 16);
+            data[offset + 3] = (byte)(value >> 24);
+        }
+
+        private static void ChaCha20Keystream(byte[] output, byte[] key, byte[] nonce, ulong counter)
+        {
+            ChaCha20Djb(output, null, output.Length, key, nonce, counter);
+        }
+
+        private static void ChaCha20Xor(byte[] output, byte[] input, byte[] key, byte[] nonce, ulong counter)
+        {
+            ChaCha20Djb(output, input, input.Length, key, nonce, counter);
+        }
+
+        private static void ChaCha20Djb(byte[] output, byte[]? input, int length, byte[] key, byte[] nonce, ulong ctr)
+        {
+            uint[] state = new uint[16];
+            state[0] = 0x61707865;
+            state[1] = 0x3320646e;
+            state[2] = 0x79622d32;
+            state[3] = 0x6b206574;
+            state[4] = LoadLittleEndian32(key, 0);
+            state[5] = LoadLittleEndian32(key, 4);
+            state[6] = LoadLittleEndian32(key, 8);
+            state[7] = LoadLittleEndian32(key, 12);
+            state[8] = LoadLittleEndian32(key, 16);
+            state[9] = LoadLittleEndian32(key, 20);
+            state[10] = LoadLittleEndian32(key, 24);
+            state[11] = LoadLittleEndian32(key, 28);
+            state[12] = (uint)ctr;
+            state[13] = (uint)(ctr >> 32);
+            state[14] = LoadLittleEndian32(nonce, 0);
+            state[15] = LoadLittleEndian32(nonce, 4);
+
+            int offset = 0;
+            while (length > 0)
+            {
+                uint[] working = new uint[16];
+                Array.Copy(state, working, 16);
+
+                for (int i = 0; i < 10; i++)
+                {
+                    QuarterRound(ref working[0], ref working[4], ref working[8], ref working[12]);
+                    QuarterRound(ref working[1], ref working[5], ref working[9], ref working[13]);
+                    QuarterRound(ref working[2], ref working[6], ref working[10], ref working[14]);
+                    QuarterRound(ref working[3], ref working[7], ref working[11], ref working[15]);
+                    QuarterRound(ref working[0], ref working[5], ref working[10], ref working[15]);
+                    QuarterRound(ref working[1], ref working[6], ref working[11], ref working[12]);
+                    QuarterRound(ref working[2], ref working[7], ref working[8], ref working[13]);
+                    QuarterRound(ref working[3], ref working[4], ref working[9], ref working[14]);
+                }
+
+                for (int j = 0; j < 16; j++)
+                {
+                    working[j] += state[j];
+                }
+
+                byte[] keystream = new byte[64];
+                for (int j = 0; j < 16; j++)
+                {
+                    StoreLittleEndian32(keystream, j * 4, working[j]);
+                }
+
+                int blockLen = Math.Min(64, length);
+                for (int j = 0; j < blockLen; j++)
+                {
+                    byte p = (input != null) ? input[offset + j] : (byte)0;
+                    output[offset + j] = (byte)(p ^ keystream[j]);
+                }
+
+                offset += blockLen;
+                length -= blockLen;
+
+                state[12]++;
+                if (state[12] == 0)
+                {
+                    state[13]++;
+                }
+            }
+        }
+
+        private static byte[] Poly1305ComputeMac(byte[] authKey, byte[] ciphertext)
+        {
+            int paddedLen = ciphertext.Length + ((16 - (ciphertext.Length % 16)) % 16);
+            byte[] message = new byte[paddedLen + 16];
+
+            Array.Copy(ciphertext, 0, message, 0, ciphertext.Length);
+
+            int sizeOffset = paddedLen;
+            ulong textSize = (ulong)ciphertext.Length;
+            for (int i = 0; i < 8; i++)
+            {
+                message[sizeOffset + 8 + i] = (byte)((textSize >> (i * 8)) & 0xFF);
+            }
+
+            return Sodium.OneTimeAuth.Sign(message, authKey);
+        }
+
+        private static bool ConstantTimeEquals(byte[] a, byte[] b)
+        {
+            if (a.Length != b.Length)
+            {
                 return false;
             }
-        }
 
-        /// <summary>
-        /// Generates the next nonce by incrementing the message counter.
-        /// XChaCha20-Poly1305 uses a 24-byte nonce with counter.
-        /// </summary>
-        private byte[] GetNextNonce()
-        {
-            var nonce = (byte[]) baseNonce.Clone();
-
-            // Increment counter in the nonce (little-endian)
-            ulong counter = messageCounter++;
-            for (int i = 0; i < 8 && i < nonce.Length; i++)
+            uint diff = 0;
+            for (int i = 0; i < a.Length; i++)
             {
-                nonce[i] = (byte) ((counter >> (i * 8)) & 0xFF);
+                diff |= (uint)(a[i] ^ b[i]);
             }
 
-            return nonce;
+            return diff == 0;
         }
 
-        /// <summary>
-        /// Clears sensitive key material from memory.
-        /// </summary>
-        public void Dispose()
+        private static byte[] BuildPacket(byte[] mac, byte[] encrypted)
         {
-            Array.Clear(key, 0, key.Length);
-            Array.Clear(baseNonce, 0, baseNonce.Length);
+            int totalSize = 2 + mac.Length + encrypted.Length;
+            byte[] packet = new byte[totalSize];
+
+            packet[0] = (byte)(totalSize & 0xFF);
+            packet[1] = (byte)((totalSize >> 8) & 0xFF);
+            Array.Copy(mac, 0, packet, 2, mac.Length);
+            Array.Copy(encrypted, 0, packet, 2 + mac.Length, encrypted.Length);
+
+            return packet;
         }
     }
 }

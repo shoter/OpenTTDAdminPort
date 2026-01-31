@@ -22,6 +22,7 @@ namespace OpenTTDAdminPort.Networking
         private readonly IServiceScope scope;
         private readonly HashSet<IActorRef> subscribers = new();
         private readonly ILogger logger;
+        private AdminPortCrypto.PacketEncryptionHandler? encryptionHandler = null;
 
         // Obtained after connect
         private ITcpClient tcpClient;
@@ -66,6 +67,15 @@ namespace OpenTTDAdminPort.Networking
 
                     logger.LogTrace($"Sender sending {msg}!");
                     Packet packet = this.adminPacketService.CreatePacket(msg);
+
+                    if (encryptionHandler != null)
+                    {
+                        Packet encryptedPacket = new();
+                        var encryptedBytes = encryptionHandler.EncryptPacket(packet.Buffer);
+                        encryptedPacket.SendBytes(encryptedBytes);
+                        packet = encryptedPacket;
+                    }
+
                     await stream!.WriteAsync(packet.Buffer, 0, packet.Size).WaitMax(TimeSpan.FromSeconds(2));
                     logger.LogTrace($"Sender sent {msg}!");
                 }
@@ -84,6 +94,14 @@ namespace OpenTTDAdminPort.Networking
                 {
                     s.Tell(receiveMessage);
                 }
+            });
+
+            ReceiveAsync<StartEncryptedConnectionMessage>(async msg =>
+            {
+                logger.LogTrace("Received encryption handler");
+                await receiver.Ask(msg);
+                this.encryptionHandler = msg.EncryptionHandler;
+                Sender.Tell(SuccessResponse.Instance);
             });
 
             Receive<TcpClientSubscribe>(_ => subscribers.Add(Sender));

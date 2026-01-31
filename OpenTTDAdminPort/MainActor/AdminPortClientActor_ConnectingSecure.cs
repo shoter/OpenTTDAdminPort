@@ -106,7 +106,18 @@ namespace OpenTTDAdminPort.MainActor
                             {
                                 var msg = (AdminServerEnableEncryptionMessage)message;
 
-                                return Stay();
+                                var encryptionHandler = new AdminPortCrypto.PacketEncryptionHandler(
+                                    msg.EncryptionNonce,
+                                    data.ClientToServerKey!,
+                                    data.ServerToClientKey!);
+
+                                data.TcpClient.Tell(new StartEncryptedConnectionMessage(encryptionHandler));
+
+
+                                var connectingData = new ConnectingData(data.TcpClient, Sender, data.ServerInfo, data.ClientName);
+
+                                logger.LogTrace("Moving to Connecting state");
+                                return GoTo(MainState.Connecting).Using(connectingData);
                             }
                         }
                     }
