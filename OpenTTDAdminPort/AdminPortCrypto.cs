@@ -3,7 +3,7 @@ using System.Linq;
 using Org.BouncyCastle.Crypto.Digests;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;
-using Sodium;
+using static Monocypher.Monocypher;
 
 namespace OpenTTDAdminPort;
 
@@ -234,283 +234,84 @@ public static class AdminPortCrypto
                 ciphertext.Length,
                 mac.Length);
 
-            plaintext = SecretAeadXChaCha20Poly1305.Decrypt(
-                combined,
-                nonce,
-                key,
-                additionalData);
+
+
             return true;
         }
         catch
         {
-            plaintext = new byte[0];
+            plaintext = [];
             return false;
         }
     }
 
     /// <summary>
     /// Handles ongoing encryption/decryption of packets after authentication.
-    /// Implements Monocypher's incremental AEAD with key ratcheting.
+    /// Maintains state for XChaCha20-Poly1305 AEAD encryption.
     /// </summary>
     public class PacketEncryptionHandler
     {
-        private readonly byte[] sendNonce;
-        private readonly byte[] receiveNonce;
-        private byte[] sendKey;
-        private byte[] receiveKey;
+        private crypto_aead_ctx context;
 
-        public PacketEncryptionHandler(
-            byte[] encryptionNonce,
-            byte[] clientToServerKey,
-            byte[] serverToClientKey)
+        /// <summary>
+        /// Handles ongoing encryption/decryption of packets after authentication.
+        /// Maintains state for XChaCha20-Poly1305 AEAD encryption.
+        /// </summary>
+        public PacketEncryptionHandler(byte[] encryptionNonce,
+                                       byte[] key)
         {
-            sendKey = HChaCha20(clientToServerKey, encryptionNonce[0..16]);
-            receiveKey = HChaCha20(serverToClientKey, encryptionNonce[0..16]);
-            sendNonce = encryptionNonce[16..24];
-            receiveNonce = encryptionNonce[16..24];
+            crypto_aead_init_x(ref context, key, encryptionNonce);
         }
 
         public byte[] EncryptPacket(byte[] plaintext)
         {
-            byte[] authKey = new byte[64];
-            ChaCha20Keystream(authKey, sendKey, sendNonce, counter: 0);
+            byte[] cipherText = new byte[plaintext.Length];
+            byte[] mac = new byte[16];
 
-            byte[] ciphertext = new byte[plaintext.Length];
-            ChaCha20Xor(ciphertext, plaintext, sendKey, sendNonce, counter: 1);
+            crypto_aead_write(
+                ref context,
+                cipherText,
+                mac,
+                null,
+                plaintext);
 
-            byte[] mac = Poly1305ComputeMac(authKey[0..32], ciphertext);
-
-            sendKey = authKey[32..64];
-
-            return BuildPacket(mac, ciphertext);
+            return BuildPacket(mac, cipherText);
         }
 
         public byte[] DecryptPacket(byte[] mac, byte[] encrypted)
         {
-            byte[] authKey = new byte[64];
-            ChaCha20Keystream(authKey, receiveKey, receiveNonce, counter: 0);
+            byte[] plainText = new byte[encrypted.Length];
 
-            byte[] expectedMac = Poly1305ComputeMac(authKey[0..32], encrypted);
+            crypto_aead_read(
+                ref context,
+                plainText,
+                mac,
+                null,
+                encrypted);
 
-            if (!ConstantTimeEquals(mac, expectedMac))
-            {
-                throw new System.Security.Cryptography.CryptographicException("MAC verification failed");
-            }
-
-            byte[] plaintext = new byte[encrypted.Length];
-            ChaCha20Xor(plaintext, encrypted, receiveKey, receiveNonce, counter: 1);
-
-            receiveKey = authKey[32..64];
-
-            return plaintext;
+            return plainText;
         }
 
-        private static byte[] HChaCha20(byte[] key, byte[] nonce)
+        private byte[] BuildPacket(byte[] mac, byte[] encrypted)
         {
-            uint[] state = new uint[16];
-
-            state[0] = 0x61707865;
-            state[1] = 0x3320646e;
-            state[2] = 0x79622d32;
-            state[3] = 0x6b206574;
-
-            state[4] = LoadLittleEndian32(key, 0);
-            state[5] = LoadLittleEndian32(key, 4);
-            state[6] = LoadLittleEndian32(key, 8);
-            state[7] = LoadLittleEndian32(key, 12);
-            state[8] = LoadLittleEndian32(key, 16);
-            state[9] = LoadLittleEndian32(key, 20);
-            state[10] = LoadLittleEndian32(key, 24);
-            state[11] = LoadLittleEndian32(key, 28);
-
-            state[12] = LoadLittleEndian32(nonce, 0);
-            state[13] = LoadLittleEndian32(nonce, 4);
-            state[14] = LoadLittleEndian32(nonce, 8);
-            state[15] = LoadLittleEndian32(nonce, 12);
-
-            for (int i = 0; i < 10; i++)
-            {
-                QuarterRound(ref state[0], ref state[4], ref state[8], ref state[12]);
-                QuarterRound(ref state[1], ref state[5], ref state[9], ref state[13]);
-                QuarterRound(ref state[2], ref state[6], ref state[10], ref state[14]);
-                QuarterRound(ref state[3], ref state[7], ref state[11], ref state[15]);
-                QuarterRound(ref state[0], ref state[5], ref state[10], ref state[15]);
-                QuarterRound(ref state[1], ref state[6], ref state[11], ref state[12]);
-                QuarterRound(ref state[2], ref state[7], ref state[8], ref state[13]);
-                QuarterRound(ref state[3], ref state[4], ref state[9], ref state[14]);
-            }
-
-            byte[] result = new byte[32];
-            StoreLittleEndian32(result, 0, state[0]);
-            StoreLittleEndian32(result, 4, state[1]);
-            StoreLittleEndian32(result, 8, state[2]);
-            StoreLittleEndian32(result, 12, state[3]);
-            StoreLittleEndian32(result, 16, state[12]);
-            StoreLittleEndian32(result, 20, state[13]);
-            StoreLittleEndian32(result, 24, state[14]);
-            StoreLittleEndian32(result, 28, state[15]);
-
-            return result;
-        }
-
-        private static void QuarterRound(
-            ref uint a, ref uint b,
-            ref uint c, ref uint d)
-        {
-            a += b;
-            d ^= a;
-            d = RotateLeft(d, 16);
-            c += d;
-            b ^= c;
-            b = RotateLeft(b, 12);
-            a += b;
-            d ^= a;
-            d = RotateLeft(d, 8);
-            c += d;
-            b ^= c;
-            b = RotateLeft(b, 7);
-        }
-
-        private static uint RotateLeft(uint value, int offset)
-        {
-            return (value << offset) | (value >> (32 - offset));
-        }
-
-        private static uint LoadLittleEndian32(byte[] data, int offset)
-        {
-            return (uint)data[offset]
-                | ((uint)data[offset + 1] << 8)
-                | ((uint)data[offset + 2] << 16)
-                | ((uint)data[offset + 3] << 24);
-        }
-
-        private static void StoreLittleEndian32(byte[] data, int offset, uint value)
-        {
-            data[offset] = (byte)value;
-            data[offset + 1] = (byte)(value >> 8);
-            data[offset + 2] = (byte)(value >> 16);
-            data[offset + 3] = (byte)(value >> 24);
-        }
-
-        private static void ChaCha20Keystream(byte[] output, byte[] key, byte[] nonce, ulong counter)
-        {
-            ChaCha20Djb(output, null, output.Length, key, nonce, counter);
-        }
-
-        private static void ChaCha20Xor(byte[] output, byte[] input, byte[] key, byte[] nonce, ulong counter)
-        {
-            ChaCha20Djb(output, input, input.Length, key, nonce, counter);
-        }
-
-        private static void ChaCha20Djb(byte[] output, byte[]? input, int length, byte[] key, byte[] nonce, ulong ctr)
-        {
-            uint[] state = new uint[16];
-            state[0] = 0x61707865;
-            state[1] = 0x3320646e;
-            state[2] = 0x79622d32;
-            state[3] = 0x6b206574;
-            state[4] = LoadLittleEndian32(key, 0);
-            state[5] = LoadLittleEndian32(key, 4);
-            state[6] = LoadLittleEndian32(key, 8);
-            state[7] = LoadLittleEndian32(key, 12);
-            state[8] = LoadLittleEndian32(key, 16);
-            state[9] = LoadLittleEndian32(key, 20);
-            state[10] = LoadLittleEndian32(key, 24);
-            state[11] = LoadLittleEndian32(key, 28);
-            state[12] = (uint)ctr;
-            state[13] = (uint)(ctr >> 32);
-            state[14] = LoadLittleEndian32(nonce, 0);
-            state[15] = LoadLittleEndian32(nonce, 4);
-
-            int offset = 0;
-            while (length > 0)
-            {
-                uint[] working = new uint[16];
-                Array.Copy(state, working, 16);
-
-                for (int i = 0; i < 10; i++)
-                {
-                    QuarterRound(ref working[0], ref working[4], ref working[8], ref working[12]);
-                    QuarterRound(ref working[1], ref working[5], ref working[9], ref working[13]);
-                    QuarterRound(ref working[2], ref working[6], ref working[10], ref working[14]);
-                    QuarterRound(ref working[3], ref working[7], ref working[11], ref working[15]);
-                    QuarterRound(ref working[0], ref working[5], ref working[10], ref working[15]);
-                    QuarterRound(ref working[1], ref working[6], ref working[11], ref working[12]);
-                    QuarterRound(ref working[2], ref working[7], ref working[8], ref working[13]);
-                    QuarterRound(ref working[3], ref working[4], ref working[9], ref working[14]);
-                }
-
-                for (int j = 0; j < 16; j++)
-                {
-                    working[j] += state[j];
-                }
-
-                byte[] keystream = new byte[64];
-                for (int j = 0; j < 16; j++)
-                {
-                    StoreLittleEndian32(keystream, j * 4, working[j]);
-                }
-
-                int blockLen = Math.Min(64, length);
-                for (int j = 0; j < blockLen; j++)
-                {
-                    byte p = (input != null) ? input[offset + j] : (byte)0;
-                    output[offset + j] = (byte)(p ^ keystream[j]);
-                }
-
-                offset += blockLen;
-                length -= blockLen;
-
-                state[12]++;
-                if (state[12] == 0)
-                {
-                    state[13]++;
-                }
-            }
-        }
-
-        private static byte[] Poly1305ComputeMac(byte[] authKey, byte[] ciphertext)
-        {
-            int paddedLen = ciphertext.Length + ((16 - (ciphertext.Length % 16)) % 16);
-            byte[] message = new byte[paddedLen + 16];
-
-            Array.Copy(ciphertext, 0, message, 0, ciphertext.Length);
-
-            int sizeOffset = paddedLen;
-            ulong textSize = (ulong)ciphertext.Length;
-            for (int i = 0; i < 8; i++)
-            {
-                message[sizeOffset + 8 + i] = (byte)((textSize >> (i * 8)) & 0xFF);
-            }
-
-            return Sodium.OneTimeAuth.Sign(message, authKey);
-        }
-
-        private static bool ConstantTimeEquals(byte[] a, byte[] b)
-        {
-            if (a.Length != b.Length)
-            {
-                return false;
-            }
-
-            uint diff = 0;
-            for (int i = 0; i < a.Length; i++)
-            {
-                diff |= (uint)(a[i] ^ b[i]);
-            }
-
-            return diff == 0;
-        }
-
-        private static byte[] BuildPacket(byte[] mac, byte[] encrypted)
-        {
+            // Build: [2 bytes size] [16 bytes MAC] [encrypted data]
             int totalSize = 2 + mac.Length + encrypted.Length;
             byte[] packet = new byte[totalSize];
 
-            packet[0] = (byte)(totalSize & 0xFF);
-            packet[1] = (byte)((totalSize >> 8) & 0xFF);
-            Array.Copy(mac, 0, packet, 2, mac.Length);
-            Array.Copy(encrypted, 0, packet, 2 + mac.Length, encrypted.Length);
+            packet[0] = (byte) (totalSize & 0xFF);
+            packet[1] = (byte) ((totalSize >> 8) & 0xFF);
+            Array.Copy(
+                mac,
+                0,
+                packet,
+                2,
+                mac.Length);
+            Array.Copy(
+                encrypted,
+                0,
+                packet,
+                2 + mac.Length,
+                encrypted.Length);
 
             return packet;
         }

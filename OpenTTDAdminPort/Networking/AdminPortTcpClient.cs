@@ -70,13 +70,16 @@ namespace OpenTTDAdminPort.Networking
 
                     if (encryptionHandler != null)
                     {
-                        Packet encryptedPacket = new();
                         var encryptedBytes = encryptionHandler.EncryptPacket(packet.Buffer);
-                        encryptedPacket.SendBytes(encryptedBytes);
-                        packet = encryptedPacket;
+                        await stream!.WriteAsync(encryptedBytes, 0, encryptedBytes.Length)
+                            .WaitMax(TimeSpan.FromSeconds(2));
+                    }
+                    else
+                    {
+                        await stream!.WriteAsync(packet.Buffer, 0, packet.Size)
+                            .WaitMax(TimeSpan.FromSeconds(2));
                     }
 
-                    await stream!.WriteAsync(packet.Buffer, 0, packet.Size).WaitMax(TimeSpan.FromSeconds(2));
                     logger.LogTrace($"Sender sent {msg}!");
                 }
                 catch (Exception e)
