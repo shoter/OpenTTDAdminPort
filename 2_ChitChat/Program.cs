@@ -35,7 +35,7 @@ namespace _2_ChitChat
                 EventQueue.Enqueue(ev);
             });
 
-            await client.Connect();
+            await client.ConnectSecure();
 
             while (true)
             {
