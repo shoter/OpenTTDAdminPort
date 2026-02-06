@@ -45,6 +45,15 @@ namespace OpenTTDAdminPort.Networking
             }
         }
 
+        public void SendBytes(Span<byte> span)
+        {
+            foreach(var b in span)
+            {
+                this.Buffer[this.Size] = b;
+                this.Size += 1;
+            }
+        }
+
         public void SendU16(ushort value)
         {
             byte[] bytes = BitConverter.GetBytes(value);

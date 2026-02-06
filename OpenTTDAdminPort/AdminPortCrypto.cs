@@ -1,8 +1,7 @@
 using System;
 using System.Linq;
-using Org.BouncyCastle.Crypto.Digests;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Security;
+using System.Text;
+using OpenTTDAdminPort.Networking;
 using static Monocypher.Monocypher;
 
 namespace OpenTTDAdminPort;
@@ -34,53 +33,35 @@ public static class AdminPortCrypto
     /// First 32 bytes: Client-to-Server key
     /// Second 32 bytes: Server-to-Client key
     /// </summary>
-    public class DerivedKeys
-    {
-        public byte[] ClientToServerKey { get; }
-
-        public byte[] ServerToClientKey { get; }
-
-        public DerivedKeys(byte[] clientToServer, byte[] serverToClient)
-        {
-            ClientToServerKey = clientToServer;
-            ServerToClientKey = serverToClient;
-        }
-    }
+    public record DerivedKeys(
+        byte[] ClientToServerKey,
+        byte[] ServerToClientKey);
 
     public static (byte[] SecretKey, byte[] PublicKey) GenerateKeyPair()
     {
-        var random = new SecureRandom();
-
         // Generate private key (32 bytes)
         byte[] privateKey = new byte[X25519_KEY_SIZE];
-        random.NextBytes(privateKey);
-
-        // Create X25519 private key params
-        var privParams = new X25519PrivateKeyParameters(privateKey, 0);
-
-        // Derive public key
-        var pubParams = privParams.GeneratePublicKey();
-
-        byte[] publicKey = pubParams.GetEncoded();
-
+        byte[] publicKey = new byte[X25519_KEY_SIZE];
+        Random.Shared.NextBytes(privateKey);
+        crypto_x25519_public_key(publicKey, privateKey);
         return (privateKey, publicKey);
     }
 
-    public static byte[] GenerateNonce()
-    {
-        var random = new SecureRandom();
-        var nonce = new byte[X25519_NONCE_SIZE];
-        random.NextBytes(nonce);
-        return nonce;
-    }
-
-    public static byte[] GenerateAuthPayload()
-    {
-        var random = new SecureRandom();
-        var payload = new byte[X25519_KEY_EXCHANGE_MESSAGE_SIZE];
-        random.NextBytes(payload);
-        return payload;
-    }
+    // public static byte[] GenerateNonce()
+    // {
+    //     var random = new SecureRandom();
+    //     var nonce = new byte[X25519_NONCE_SIZE];
+    //     random.NextBytes(nonce);
+    //     return nonce;
+    // }
+    //
+    // public static byte[] GenerateAuthPayload()
+    // {
+    //     var random = new SecureRandom();
+    //     var payload = new byte[X25519_KEY_EXCHANGE_MESSAGE_SIZE];
+    //     random.NextBytes(payload);
+    //     return payload;
+    // }
 
     /// <summary>
     /// Performs X25519 key exchange and derives encryption keys using BLAKE2b.
@@ -97,59 +78,30 @@ public static class AdminPortCrypto
         byte[] ourPublicKey,
         string extraPayload = "")
     {
-        // Perform X25519 key exchange
-        var ourPrivateParams = new X25519PrivateKeyParameters(ourSecretKey, 0);
-        var peerPublicParams = new X25519PublicKeyParameters(peerPublicKey, 0);
+        byte[] shared_secret = new byte[X25519_KEY_SIZE];
+        crypto_x25519(shared_secret, ourSecretKey, peerPublicKey);
 
-        var agreement = new byte[32];
-        ourPrivateParams.GenerateSecret(peerPublicParams, agreement, 0);
-
-        // Check for all-zero shared secret (security check)
-        if (agreement.All(b => b == 0))
+        if(shared_secret.All(x => x == 0))
         {
-            // Peer tried to force shared secret to known constant
-            return null;
+            throw new Exception(
+                "A shared secret of all zeros means that the peer tried to force the shared secret to a known constant.");
         }
 
-        // Derive keys using BLAKE2b hash
-        // Hash: shared_secret + server_public + client_public + extra_payload
-        var blake2b = new Blake2bDigest(512); // 512 bits = 64 bytes output
+        crypto_blake2b_ctx ctx = default;
+        byte[] keys = new byte[X25519_KEY_SIZE * 2];
+        crypto_blake2b_init(ref ctx, keys.Length);
+        crypto_blake2b_update(ref ctx, shared_secret);
+        crypto_blake2b_update(ref ctx, peerPublicKey);
+        crypto_blake2b_update(ref ctx, ourPublicKey);
 
-        // Update with shared secret
-        blake2b.BlockUpdate(agreement, 0, agreement.Length);
-        blake2b.BlockUpdate(peerPublicKey, 0, peerPublicKey.Length);
-        blake2b.BlockUpdate(ourPublicKey, 0, ourPublicKey.Length);
+        crypto_blake2b_update(ref ctx, Encoding.ASCII.GetBytes(extraPayload));
+        crypto_blake2b_final(ref ctx, keys);
 
-        // Update with extra payload (password for PAKE)
-        if (!string.IsNullOrEmpty(extraPayload))
-        {
-            var payloadBytes = System.Text.Encoding.UTF8.GetBytes(extraPayload);
-            blake2b.BlockUpdate(payloadBytes, 0, payloadBytes.Length);
-        }
+        byte[] clientToServerKey = new byte[X25519_KEY_SIZE];
+        byte[] serverToClientKey = new byte[X25519_KEY_SIZE];
 
-        // Finalize hash to get 64 bytes (two 32-byte keys)
-        var derivedKeys = new byte[64];
-        blake2b.DoFinal(derivedKeys, 0);
-
-        // Split into two keys
-        var clientToServerKey = new byte[32];
-        var serverToClientKey = new byte[32];
-        Array.Copy(
-            derivedKeys,
-            0,
-            clientToServerKey,
-            0,
-            32);
-        Array.Copy(
-            derivedKeys,
-            32,
-            serverToClientKey,
-            0,
-            32);
-
-        // Clear sensitive data
-        Array.Clear(derivedKeys, 0, derivedKeys.Length);
-        Array.Clear(agreement, 0, agreement.Length);
+        Array.Copy(keys, clientToServerKey, X25519_KEY_SIZE);
+        Array.Copy(keys, X25519_KEY_SIZE, serverToClientKey, 0, X25519_KEY_SIZE);
 
         return new DerivedKeys(clientToServerKey, serverToClientKey);
     }
@@ -162,88 +114,68 @@ public static class AdminPortCrypto
     /// <param name="key">Derived encryption key (32 bytes)</param>
     /// <param name="nonce">Nonce from server (24 bytes)</param>
     /// <param name="additionalData">Our public key as additional authenticated data (32 bytes)</param>
-    /// <param name="mac">Output: 16-byte MAC</param>
-    /// <param name="ciphertext">Output: encrypted message</param>
     public static (byte[] Mac, byte[] Ciphertext) EncryptAuthChallenge(
         byte[] message,
         byte[] key,
         byte[] nonce,
         byte[] additionalData)
     {
-        // Use libsodium's XChaCha20-Poly1305 which supports 24-byte nonces
-        var ciphertextWithMac = SecretAeadXChaCha20Poly1305.Encrypt(
-            message,
-            nonce,
-            key,
-            additionalData);
-
-        // Extract MAC (last 16 bytes)
         var mac = new byte[X25519_MAC_SIZE];
-        Array.Copy(
-            ciphertextWithMac,
-            ciphertextWithMac.Length - X25519_MAC_SIZE,
-            mac,
-            0,
-            X25519_MAC_SIZE);
+        var ciphertext = new byte[message.Length];
 
-        // Ciphertext is everything except MAC
-        var ciphertext = new byte[ciphertextWithMac.Length - X25519_MAC_SIZE];
-        Array.Copy(
-            ciphertextWithMac,
-            0,
+        crypto_aead_lock(
             ciphertext,
-            0,
-            ciphertext.Length);
+            mac,
+            key,
+            nonce,
+            additionalData,
+            message);
 
         return (mac, ciphertext);
     }
 
-    /// <summary>
-    /// Decrypts and validates the authentication challenge message.
-    /// Used by server to validate AUTH_RESPONSE.
-    /// </summary>
-    /// <param name="ciphertext">Encrypted message</param>
-    /// <param name="mac">16-byte MAC</param>
-    /// <param name="key">Derived encryption key (32 bytes)</param>
-    /// <param name="nonce">Nonce (24 bytes)</param>
-    /// <param name="additionalData">Peer's public key as additional authenticated data (32 bytes)</param>
-    /// <param name="plaintext">Output: decrypted message</param>
-    /// <returns>True if decryption and MAC validation succeeded</returns>
-    public static bool DecryptAuthChallenge(
-        byte[] ciphertext,
-        byte[] mac,
-        byte[] key,
-        byte[] nonce,
-        byte[] additionalData,
-        out byte[] plaintext)
-    {
-        try
-        {
-            // Combine ciphertext and MAC (libsodium expects MAC at the end)
-            var combined = new byte[ciphertext.Length + mac.Length];
-            Array.Copy(
-                ciphertext,
-                0,
-                combined,
-                0,
-                ciphertext.Length);
-            Array.Copy(
-                mac,
-                0,
-                combined,
-                ciphertext.Length,
-                mac.Length);
-
-
-
-            return true;
-        }
-        catch
-        {
-            plaintext = [];
-            return false;
-        }
-    }
+    // /// <summary>
+    // /// Decrypts and validates the authentication challenge message.
+    // /// Used by server to validate AUTH_RESPONSE.
+    // /// </summary>
+    // /// <param name="ciphertext">Encrypted message</param>
+    // /// <param name="mac">16-byte MAC</param>
+    // /// <param name="key">Derived encryption key (32 bytes)</param>
+    // /// <param name="nonce">Nonce (24 bytes)</param>
+    // /// <param name="additionalData">Peer's public key as additional authenticated data (32 bytes)</param>
+    // /// <param name="plaintext">Output: decrypted message</param>
+    // /// <returns>True if decryption and MAC validation succeeded</returns>
+    // public static bool DecryptAuthChallenge(
+    //     byte[] ciphertext,
+    //     byte[] mac,
+    //     byte[] key,
+    //     byte[] nonce,
+    //     byte[] additionalData,
+    //     out byte[] plaintext)
+    // {
+    //     try
+    //     {
+    //         // Combine ciphertext and MAC (libsodium expects MAC at the end)
+    //         var combined = new byte[ciphertext.Length + mac.Length];
+    //         Array.Copy(
+    //             ciphertext,
+    //             0,
+    //             combined,
+    //             0,
+    //             ciphertext.Length);
+    //         Array.Copy(
+    //             mac,
+    //             0,
+    //             combined,
+    //             ciphertext.Length,
+    //             mac.Length);
+    //     }
+    //     catch
+    //     {
+    //         plaintext = [];
+    //         return false;
+    //     }
+    // }
 
     /// <summary>
     /// Handles ongoing encryption/decryption of packets after authentication.
@@ -263,22 +195,28 @@ public static class AdminPortCrypto
             crypto_aead_init_x(ref context, key, encryptionNonce);
         }
 
-        public byte[] EncryptPacket(byte[] plaintext)
+        internal Packet EncryptPacket(Packet packet)
         {
-            byte[] cipherText = new byte[plaintext.Length];
-            byte[] mac = new byte[16];
+            var buffer = packet.Buffer;
+            byte[] mac = new byte[X25519_MAC_SIZE];
+            Span<byte> cipherText = buffer.AsSpan(2, packet.Size - 2);
 
             crypto_aead_write(
                 ref context,
                 cipherText,
                 mac,
                 null,
-                plaintext);
+                cipherText
+                );
 
-            return BuildPacket(mac, cipherText);
+            Packet encryptedPacket = new();
+            encryptedPacket.SendBytes(mac);
+            encryptedPacket.SendBytes(cipherText);
+            encryptedPacket.PrepareToSend();
+            return encryptedPacket;
         }
 
-        public byte[] DecryptPacket(byte[] mac, byte[] encrypted)
+        public byte[] DecryptPacket(Span<byte> mac, Span<byte> encrypted)
         {
             byte[] plainText = new byte[encrypted.Length];
 
@@ -290,30 +228,6 @@ public static class AdminPortCrypto
                 encrypted);
 
             return plainText;
-        }
-
-        private byte[] BuildPacket(byte[] mac, byte[] encrypted)
-        {
-            // Build: [2 bytes size] [16 bytes MAC] [encrypted data]
-            int totalSize = 2 + mac.Length + encrypted.Length;
-            byte[] packet = new byte[totalSize];
-
-            packet[0] = (byte) (totalSize & 0xFF);
-            packet[1] = (byte) ((totalSize >> 8) & 0xFF);
-            Array.Copy(
-                mac,
-                0,
-                packet,
-                2,
-                mac.Length);
-            Array.Copy(
-                encrypted,
-                0,
-                packet,
-                2 + mac.Length,
-                encrypted.Length);
-
-            return packet;
         }
     }
 }

@@ -1,4 +1,5 @@
 namespace OpenTTDAdminPort.Networking;
 
 public record StartEncryptedConnectionMessage(
-    AdminPortCrypto.PacketEncryptionHandler EncryptionHandler);
+    AdminPortCrypto.PacketEncryptionHandler SenderEncryptionHandler,
+    AdminPortCrypto.PacketEncryptionHandler ReceiverEncryptionHandler);

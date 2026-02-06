@@ -43,7 +43,7 @@ namespace OpenTTDAdminPort.Networking
             Receive<StartEncryptedConnectionMessage>(msg =>
             {
                 logger.LogTrace("Received encryption handler");
-                this.encryptionHandler = msg.EncryptionHandler;
+                this.encryptionHandler = msg.ReceiverEncryptionHandler;
                 Sender.Tell(SuccessResponse.Instance);
             });
         }
@@ -94,6 +94,7 @@ namespace OpenTTDAdminPort.Networking
 
                             packet = new();
                             packet.SendBytes(decrypted);
+                            packet.PrepareToSend();
                         }
 
                         IAdminMessage message = adminPacketService.ReadPacket(packet);

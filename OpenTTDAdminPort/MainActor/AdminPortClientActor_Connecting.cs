@@ -27,8 +27,12 @@ namespace OpenTTDAdminPort.MainActor
                     logger.LogTrace("Initializing connecting state");
 
                     ConnectingData data = (NextStateData as ConnectingData)!;
-                    var msg = new AdminJoinMessage(data.ServerInfo.Password, data.ClientName, this.version);
-                    data.TcpClient.Tell(new SendMessage(msg));
+
+                    if (prevState != MainState.ConnectingSecure)
+                    {
+                        var msg = new AdminJoinMessage(data.ServerInfo.Password, data.ClientName, this.version);
+                        data.TcpClient.Tell(new SendMessage(msg));
+                    }
 
                     var checkIfConnectedMsg = new AdminPortCheckIfConnected(data.UniqueConnectingIdentifier);
                     Timers.StartSingleTimer(data.UniqueConnectingIdentifier, checkIfConnectedMsg, 3.Seconds());

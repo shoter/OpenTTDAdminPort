@@ -67,18 +67,10 @@ namespace OpenTTDAdminPort.Networking
 
                     logger.LogTrace($"Sender sending {msg}!");
                     Packet packet = this.adminPacketService.CreatePacket(msg);
+                    packet = encryptionHandler?.EncryptPacket(packet) ?? packet;
+                    await stream!.WriteAsync(packet.Buffer, 0, packet.Size)
+                        .WaitMax(TimeSpan.FromSeconds(2));
 
-                    if (encryptionHandler != null)
-                    {
-                        var encryptedBytes = encryptionHandler.EncryptPacket(packet.Buffer);
-                        await stream!.WriteAsync(encryptedBytes, 0, encryptedBytes.Length)
-                            .WaitMax(TimeSpan.FromSeconds(2));
-                    }
-                    else
-                    {
-                        await stream!.WriteAsync(packet.Buffer, 0, packet.Size)
-                            .WaitMax(TimeSpan.FromSeconds(2));
-                    }
 
                     logger.LogTrace($"Sender sent {msg}!");
                 }
@@ -103,7 +95,7 @@ namespace OpenTTDAdminPort.Networking
             {
                 logger.LogTrace("Received encryption handler");
                 await receiver.Ask(msg);
-                this.encryptionHandler = msg.EncryptionHandler;
+                this.encryptionHandler = msg.SenderEncryptionHandler;
                 Sender.Tell(SuccessResponse.Instance);
             });
 
