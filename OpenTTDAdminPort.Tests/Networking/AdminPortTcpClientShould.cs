@@ -64,10 +64,7 @@ namespace OpenTTDAdminPort.Tests.Networking
             int port = Math.Abs(fix.Create<int>());
             var actor = Sys.ActorOf(AdminPortTcpClient.Create(defaultServiceProvider, ip, port));
 
-            Within(1.Seconds(), () =>
-            {
-                return tcpClient.IsConnected;
-            });
+            AwaitCondition(() => tcpClient.IsConnected, 1.Seconds());
 
             Assert.Equal(ip, tcpClient.Ip);
             Assert.Equal(port, tcpClient.Port);

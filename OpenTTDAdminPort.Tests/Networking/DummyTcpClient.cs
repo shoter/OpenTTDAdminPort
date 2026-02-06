@@ -22,9 +22,9 @@ namespace OpenTTDAdminPort.Tests.Networking
 
         public Task ConnectAsync(string ip, int port)
         {
-            IsConnected = true;
             this.Ip = ip;
             this.Port = port;
+            IsConnected = true;
             return Task.CompletedTask;
         }
 
