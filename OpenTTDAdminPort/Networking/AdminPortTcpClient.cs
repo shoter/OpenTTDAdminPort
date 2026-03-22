@@ -106,7 +106,7 @@ namespace OpenTTDAdminPort.Networking
         protected override SupervisorStrategy SupervisorStrategy()
         {
             return new OneForOneStrategy(
-                maxNrOfRetries: 10,
+                maxNrOfRetries: -1,
                 withinTimeRange: TimeSpan.FromMinutes(1),
                 localOnlyDecider: ex =>
                 {
